@@ -42,6 +42,7 @@
   <div class="tab" onclick="openTab('chat')">CHAT</div>
   <div class="tab" onclick="openTab('videos')">VIDEOS</div>
   <div class="tab" onclick="openTab('winston')">WINSTON</div>
+  <div class="tab" onclick="openTab('photos')">PHOTOS</div>
 </div>
 
 <!-- MAIN TAB -->
@@ -126,6 +127,17 @@
   </div>
 </div>
 
+  <!-- PHOTOS TAB -->
+<div id="photos" class="tab-content">
+  <font size="-1" color="#ff6666"><b>PHOTO ARCHIVE</b></font>
+  <div id="photoList" class="centered"></div>
+  <div id="photoPagination">
+    <button onclick="prevPhotoPage()">Previous</button>
+    <button onclick="nextPhotoPage()">Next</button>
+  </div>
+</div>
+
+
 <hr width="40%" color="#990000">
 <font size="-2">ANGELS OF SICMR<br>a webpage (not a cult) run by guppy</font>
 
@@ -176,6 +188,54 @@ function sendMessage(){
     input.value='';
   }
 }
+// PHOTOS
+var photos = [
+  'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg/revision/latest?cb=20220524185305',
+  'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg/revision/latest?cb=20240406232229',
+  'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg/revision/latest?cb=20200524140831',
+  'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg/revision/latest?cb=20240406231758',
+  'https://static.wikia.nocookie.net/marsargo/images/b/ba/70ba1c59a8024d8eae890a643c969b48.jpeg/revision/latest?cb=20220511193735',
+  'https://static.wikia.nocookie.net/marsargo/images/8/86/KewlOuttake.jpg/revision/latest?cb=20211227044755',
+  'https://static.wikia.nocookie.net/marsargo/images/8/89/2015-10-11_11.10.39_1093537410520121192_362742494.jpg/revision/latest?cb=20170831231034',
+  'https://static.wikia.nocookie.net/marsargo/images/c/c4/Tumblr_osigop18Bt1uftv1so2_1280.jpg/revision/latest?cb=20170831213314',
+  'https://static.wikia.nocookie.net/marsargo/images/3/34/Tumblr_osigop18Bt1uftv1so1_1280.jpg/revision/latest?cb=20170831213313',
+  'https://static.wikia.nocookie.net/marsargo/images/5/5b/WRIFURHE.jpg/revision/latest?cb=20240903201454',
+  'https://static.wikia.nocookie.net/marsargo/images/5/53/Marsargo2015.jpg/revision/latest?cb=20240903195933'
+];
+
+// PHOTOS PAGINATION
+var currentPhotoPage = 0;
+var photosPerPage = 6;
+
+function loadPhotos() {
+  var list = document.getElementById('photoList');
+  list.innerHTML = '';
+  var start = currentPhotoPage * photosPerPage;
+  var end = Math.min(start + photosPerPage, photos.length);
+  for(var i=start;i<end;i++){
+    list.innerHTML += '<img src="'+photos[i]+'" style="max-width:90%; border:2px solid #990000; border-radius:10px; margin-bottom:15px;">';
+  }
+}
+
+function nextPhotoPage(){
+  if((currentPhotoPage+1)*photosPerPage < photos.length){
+    currentPhotoPage++;
+    loadPhotos();
+  }
+}
+
+function prevPhotoPage(){
+  if(currentPhotoPage > 0){
+    currentPhotoPage--;
+    loadPhotos();
+  }
+}
+
+// INITIAL LOAD
+window.onload = function(){
+  loadVideos();
+  loadPhotos(); // load photos initially
+};
 
 // VIDEOS
   var videos = [
