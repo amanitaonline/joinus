@@ -5,101 +5,64 @@
   <title>ANGELS OF SICMR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { background-color: #000000; color: #ffffff; font-family: 'Courier New', monospace; }
+    body { background-color: #000; color: #fff; font-family: 'Courier New', monospace; }
     a { color: #ff6666; text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .tab { cursor: pointer; padding: 10px 20px; border: 2px solid #990000; display: inline-block; margin-right: 5px; font-family: 'Courier New', monospace; }
+    .tab { cursor: pointer; padding: 10px 20px; border: 2px solid #990000; display: inline-block; margin-right: 5px; }
     .tab.active { background-color: #990000; color: #000; }
-    .tab-content { display: none; margin-top: 20px; font-family: 'Times New Roman', Times, serif; }
+    .tab-content { display: none; margin-top: 20px; }
     .tab-content.active { display: block; }
-    #chatLog { width: 70%; height: 150px; border:2px solid #990000; background:#000; overflow-y:scroll; padding:10px; margin:auto; font-family: 'Courier New', monospace; }
-    #chatInput { width:70%; padding:10px; margin-top:10px; background:#000; color:#fff; border:2px solid #990000; font-family: 'Courier New', monospace; }
-    #chatButton { padding:10px 20px; margin-top:5px; background:#000; color:#fff; border:2px solid #990000; font-family: 'Courier New', monospace; }
-    .video-item { margin-bottom: 15px; }
-    .video-item iframe { max-width: 100%; }
-    #pagination { margin-top: 20px; }
-    #pagination button { padding: 5px 10px; margin: 0 5px; background: #000; color:#fff; border:2px solid #990000; font-family: 'Courier New', monospace; cursor:pointer; }
+    #chatLog, #chatInput { width: 70%; font-family: 'Courier New', monospace; }
+    #chatLog { height: 150px; border:2px solid #990000; background:#000; overflow-y:scroll; padding:10px; margin:auto; }
+    #chatInput { padding:10px; margin-top:10px; background:#000; color:#fff; border:2px solid #990000; }
+    #chatButton { padding:10px 20px; margin-top:5px; background:#000; color:#fff; border:2px solid #990000; cursor:pointer; }
+    .video-item, .photo-item { margin-bottom: 15px; }
+    .video-item iframe, .photo-item img { max-width: 100%; border:2px solid #990000; }
+    #pagination, #photoPagination { margin-top: 20px; }
+    #pagination button, #photoPagination button { padding: 5px 10px; margin: 0 5px; background: #000; color:#fff; border:2px solid #990000; cursor:pointer; }
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+    .centered { display:flex; flex-direction:column; align-items:center; gap:20px; }
+    .discord-link { font-size:1.2rem; background-color:#7289da; color:#fff; padding:10px 20px; border-radius:10px; text-decoration:none; font-weight:bold; border:2px solid #990000; }
+    .mute-button { font-size:1rem; background-color:#000; color:#fff; padding:10px 20px; border-radius:10px; font-weight:bold; border:2px solid #990000; cursor:pointer; }
   </style>
 </head>
 
 <body>
 <center>
-<font size="-1" color="#990000" face="Courier New, monospace">welcome to grocerybag.tv</font>
+<font size="-1" color="#990000">welcome to grocerybag.tv</font>
 <br><br>
 <font size="+4" face="Times New Roman, Times, serif"><b>✶ ANGELS OF SICMR ✶</b></font>
 <br><br>
-<font size="+1" face="Courier New, monospace"><i>"answer to your fucking questions"</i></font>
+<font size="+1"><i>"answer to your fucking questions"</i></font>
 <br><br><br>
-<font size="+2" color="#990000" face="Courier New, monospace"><span id="timer">03:36</span></font>
-<br><br>
+
 <div>
   <div class="tab active" onclick="openTab('main')">MAIN</div>
   <div class="tab" onclick="openTab('chat')">CHAT</div>
   <div class="tab" onclick="openTab('videos')">VIDEOS</div>
+  <div class="tab" onclick="openTab('winston')">WINSTON</div>
+  <div class="tab" onclick="openTab('misc')">MISC</div>
 </div>
 
-<!-- Main tab -->
+<!-- MAIN TAB -->
 <div id="main" class="tab-content active">
-  <table width="70%" border="1" cellpadding="20" cellspacing="0" bordercolor="#990000">
-    <tr><td bgcolor="#000" align="center">
-      <iframe width="560" height="315" src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&controls=0&rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    </td></tr>
-  </table>
+  <font size="+2" color="#990000"><span id="timer">03:36</span></font>
   <br><br>
-
-  <table width="70%" border="1" cellpadding="20" cellspacing="0" bordercolor="#990000">
-    <tr><td bgcolor="#000">
-      <font size="+1" face="Times New Roman, Times, serif">
-        You found this page.<br>
-        Not by chance.<br>
-        Not by accident.<br><br>
-        This is private.<br>
-        You see. You speak. You act.<br><br>
-        The pressure is real.<br>
-        Time isn’t right.<br><br>
-        Leave if it scares you.<br>
-        Stay if you get it.
-      </font>
-    </td></tr>
-  </table>
-
-  <br><br>
-  <font size="+1" face="Courier New, monospace"><b>PRINCIPLES</b></font>
-  <br><br>
-  <table width="60%" border="0" cellpadding="10" cellspacing="0">
-    <tr><td>
-      <font size="-1" face="Courier New, monospace">
-        • LOYALTY GAINS ACCESS<br>
-        • BE EXCLUSIVITY<br>
-        • JOINING MEANS ARCHIVAL MATERIAL IS UNLOCKED<br>
-        • DIRECT DISCUSSION WITH PEOPLE WHO ACTUALLY KNOW HER WORK<br>
-        • EVERYTHING UPCOMING!<br><br>
-        • ENTRY REQUIRES COMMITMENT<br>
-        • LOYALTY IS EXPECTED, NOT REQUESTED<br>
-        • DOUBT IS NOISE<br>
-        • OBSERVATION BECOMES PARTICIPATION
-      </font>
-    </td></tr>
-  </table>
-
-  <br><br>
-  <a href="https://discord.gg/UE8SXH7RTf" style="display:inline-block;padding:15px 35px;margin-top:20px;background-color:#000;color:#fff;font-family:'Courier New', monospace;font-size:16px;text-decoration:none;border:2px solid #990000;" id="joinButton">JOIN NOW</a>
-  <br><br>
-  <font size="-1" id="joinText" face="Courier New, monospace">join before she drowns</font>
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&controls=0&rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 </div>
 
-<!-- Chat tab -->
+<!-- CHAT TAB -->
 <div id="chat" class="tab-content">
-  <font size="-1" color="#ff6666" face="Courier New, monospace"><b>COMMUNITY CHAT</b></font>
+  <font size="-1" color="#ff6666"><b>COMMUNITY CHAT</b></font>
   <br><i>chat to yourself. maybe someone will respond.</i>
   <div id="chatLog"></div>
   <input type="text" id="chatInput" placeholder="choose a username first" readonly>
   <button id="chatButton" onclick="sendMessage()" disabled>SEND</button>
 </div>
 
-<!-- Videos tab -->
+<!-- VIDEOS TAB -->
 <div id="videos" class="tab-content">
-  <font size="-1" color="#ff6666" face="Courier New, monospace"><b>ARCHIVAL VIDEOS</b></font>
+  <font size="-1" color="#ff6666"><b>ARCHIVAL VIDEOS</b></font>
   <div id="videoList"></div>
   <div id="pagination">
     <button onclick="prevPage()">Previous</button>
@@ -107,101 +70,169 @@
   </div>
 </div>
 
-<br><br>
+<!-- WINSTON TAB -->
+<div id="winston" class="tab-content">
+  <font size="-1" color="#ff6666"><b>WINSTON FAN CLUB</b></font>
+  <div class="centered">
+    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" class="discord-link">join the discord!</a>
+    <img src="https://grocerybag.tv/media/winston.jpg" alt="Winston" style="max-width:80%; max-height:60vh; border:2px solid #990000; border-radius:10px;">
+    <button id="muteBtn" class="mute-button">mute</button>
+    <audio id="backgroundAudio" loop>
+      <source src="https://grocerybag.tv/media/SNOW3.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+</div>
+
+<!-- MISC TAB -->
+<div id="misc" class="tab-content">
+  <font size="-1" color="#ff6666"><b>MISC PHOTOS</b></font>
+  <div id="photoGrid" class="photo-grid"></div>
+  <div id="photoPagination">
+    <button onclick="prevPhotoPage()">Previous</button>
+    <button onclick="nextPhotoPage()">Next</button>
+  </div>
+</div>
+
 <hr width="40%" color="#990000">
-<font size="-2" face="Courier New, monospace">ANGELS OF SICMR<br>a webpage (not a cult) run by guppy</font>
-<br><br><br>
+<font size="-2">ANGELS OF SICMR<br>a webpage (not a cult) run by guppy</font>
 
 <script>
-// Timer
+// TIMER
 var time = 216;
 var timerElement = document.getElementById("timer");
-var joinText = document.getElementById("joinText");
 function updateTimer() {
-  var minutes = Math.floor(time / 60);
-  var seconds = time % 60;
-  if(seconds < 10) seconds = "0" + seconds;
-  if(time > 0){
-    timerElement.innerHTML = minutes + ":" + seconds;
+  if(document.getElementById("main").classList.contains("active")) {
+    var minutes = Math.floor(time / 60);
+    var seconds = time % 60;
+    if(seconds<10) seconds="0"+seconds;
+    if(time>0) timerElement.innerHTML = minutes+":"+seconds;
+    else timerElement.innerHTML="awh poor Brittany. Nobody cared. You're dead.";
     time--;
-  } else {
-    timerElement.innerHTML = "awh poor Brittany. Nobody cared. You're dead.";
-    joinText.innerHTML = "She's dead. You can still join though.";
-  }
+  } else { timerElement.innerHTML=""; }
 }
-setInterval(updateTimer, 1000);
+setInterval(updateTimer,1000);
 
-// Tabs
+// TABS
 function openTab(tabName){
-  var i, x, tabs;
-  x = document.getElementsByClassName("tab-content");
-  for(i=0;i<x.length;i++){ x[i].classList.remove('active'); }
+  var tabs = document.getElementsByClassName('tab-content');
+  for(var i=0;i<tabs.length;i++){ tabs[i].classList.remove('active'); }
   document.getElementById(tabName).classList.add('active');
-
-  tabs = document.getElementsByClassName('tab');
-  for(i=0;i<tabs.length;i++){ tabs[i].classList.remove('active'); }
-  if(tabName==='main'){ tabs[0].classList.add('active'); } else if(tabName==='chat'){ tabs[1].classList.add('active'); } else { tabs[2].classList.add('active'); }
+  
+  var tabButtons = document.getElementsByClassName('tab');
+  for(var i=0;i<tabButtons.length;i++){ tabButtons[i].classList.remove('active'); }
+  document.querySelector('.tab[onclick*="'+tabName+'"]').classList.add('active');
 }
 
-// Chat
+// CHAT
 var username = '';
 window.onload = function(){
   username = prompt('Choose a username before chatting:');
-  if(username && username.trim() !== ''){
+  if(username && username.trim()!==''){
     document.getElementById('chatInput').removeAttribute('readonly');
-    document.getElementById('chatInput').placeholder = 'type your message here';
-    document.getElementById('chatButton').disabled = false;
+    document.getElementById('chatInput').placeholder='type your message here';
+    document.getElementById('chatButton').disabled=false;
   }
   loadVideos();
+  loadPhotos();
 }
 function sendMessage(){
-  var input = document.getElementById('chatInput');
-  var log = document.getElementById('chatLog');
-  if(input.value.trim() !== ''){
-    log.innerHTML += '<div style="margin-bottom:5px;">' + username + ': ' + input.value + '</div>';
+  var input=document.getElementById('chatInput');
+  var log=document.getElementById('chatLog');
+  if(input.value.trim()!==''){
+    log.innerHTML+='<div>'+username+': '+input.value+'</div>';
     log.scrollTop = log.scrollHeight;
-    input.value = '';
+    input.value='';
   }
 }
 
-// Videos pagination
-var videos = [
-  'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview',
-  'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview',
-  'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview',
-  'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview',
-  'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview',
-  'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview',
-  'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview',
-  'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview',
-  'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview',
-  'https://drive.google.com/file/d/1Zr5qBZGjPPKlYFJi6pMNpZrdq7hqV9UU/preview',
-  'https://www.youtube.com/embed/nG1eqKYuT-A'
+// VIDEOS
+var videos=[
+'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview',
+'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview',
+'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview',
+'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview',
+'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview',
+'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview',
+'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview',
+'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview',
+'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview',
+'https://drive.google.com/file/d/1Zr5qBZGjPPKlYFJi6pMNpZrdq7hqV9UU/preview',
+'https://drive.google.com/file/d/1Wl8qMjUGRSkrsVe_r9cAV8guWpcZSs1Z/preview',
+'https://web.archive.org/...', // shortened for brevity
+'https://drive.google.com/file/d/14LNJHStYFzFlJdUFv3EoWww8DUImhjfT/preview',
+'https://drive.google.com/file/d/1pVLNodC8gqYIv-9MI6Hg9m4TFxEwRm1j/preview',
+'https://drive.google.com/file/d/1vXpkO2fSfLgy70i-zIHrfrveoEyCySyU/preview',
+'https://drive.google.com/file/d/1tgJRuhXNjDUqmnGaYmgGxGwZ6T229zWI/preview',
+'https://drive.google.com/file/d/1F7XMY7yHovr-j-kbxe1bZPmWMsyTNzIk/preview',
+'https://drive.google.com/file/d/1GYdIwNcPO5kmeZMHl_3NbMI9UidL6-K9/preview',
+'https://drive.google.com/file/d/1i-CwzuInjqY4RvYwgBBeVRrucBXWrikz/preview',
+'https://drive.google.com/file/d/1V897Rk40PX6Xt8rOix6PsArhyQtimoKo/preview',
+'https://drive.google.com/file/d/14o4XlH1o_oL_c1qJwg5_vUIE6ZyNsyXu/preview',
+'https://drive.google.com/file/d/1GB7ConILrKSIMRW2RPZUJedZHiLcov8p/preview',
+'https://drive.google.com/file/d/1AcnFKhWOSYBPiKjUjbYhY2zDQTMC798i/preview',
+'https://drive.google.com/file/d/1teOsyrRDUMXy80l3QsMqByqDiil9iQ8o/preview',
+'https://web.archive.org/...', // shortened
+'https://drive.google.com/file/d/1BUh2Oi2zoT1Y8FBp94MLB9lIDMpbe9fK/preview',
+'https://drive.google.com/file/d/1Zu1yZ_8v1V1Al3OyG5l2rCbVw9ES2iL9/preview',
+'https://drive.google.com/file/d/1G6PpfeQqKnkgdBN63YZk2058ksx6PcUi/preview',
+'https://drive.google.com/file/d/1ehqGDqlLREUwR6ihmO3KurEEbtt7gxO5/preview',
+'https://drive.google.com/file/d/1orIhGHZzCkHXTcEPyeQTUD9dHKATCpSg/preview',
+'https://drive.google.com/file/d/1WzB2I3ojjPt2ZqgorW3Bxyqu3dt0zmSh/preview',
+'https://drive.google.com/file/d/1wwCLwE03wY9ogZmCLspq_CDjvjJJY4p/preview'
 ];
-var currentPage = 0;
-var perPage = 10;
+
+var currentPage=0;
+var perPage=5;
 
 function loadVideos(){
-  var list = document.getElementById('videoList');
-  list.innerHTML = '';
-  var start = currentPage * perPage;
-  var end = Math.min(start + perPage, videos.length);
+  var list=document.getElementById('videoList');
+  list.innerHTML='';
+  var start=currentPage*perPage;
+  var end=Math.min(start+perPage,videos.length);
   for(var i=start;i<end;i++){
-    list.innerHTML += '<div class="video-item"><iframe src="'+videos[i]+'" width="560" height="315" allowfullscreen></iframe></div>';
+    list.innerHTML+='<div class="video-item"><iframe src="'+videos[i]+'" width="560" height="315" allowfullscreen></iframe></div>';
   }
 }
-function nextPage(){
-  if((currentPage+1)*perPage < videos.length){
-    currentPage++;
-    loadVideos();
+
+function nextPage(){ if((currentPage+1)*perPage<videos.length){ currentPage++; loadVideos(); } }
+function prevPage(){ if(currentPage>0){ currentPage--; loadVideos(); } }
+
+// MISC PHOTOS
+var photos=[
+'https://via.placeholder.com/150/FF0000',
+'https://via.placeholder.com/150/00FF00',
+'https://via.placeholder.com/150/0000FF',
+'https://via.placeholder.com/150/FFFF00',
+'https://via.placeholder.com/150/FF00FF',
+'https://via.placeholder.com/150/00FFFF',
+'https://via.placeholder.com/150/999999',
+'https://via.placeholder.com/150/333333'
+];
+
+var currentPhotoPage=0;
+var photosPerPage=6;
+
+function loadPhotos(){
+  var grid=document.getElementById('photoGrid');
+  grid.innerHTML='';
+  var start=currentPhotoPage*photosPerPage;
+  var end=Math.min(start+photosPerPage,photos.length);
+  for(var i=start;i<end;i++){
+    grid.innerHTML+='<div class="photo-item"><img src="'+photos[i]+'"></div>';
   }
 }
-function prevPage(){
-  if(currentPage>0){
-    currentPage--;
-    loadVideos();
-  }
-}
+function nextPhotoPage(){ if((currentPhotoPage+1)*photosPerPage<photos.length){ currentPhotoPage++; loadPhotos(); } }
+function prevPhotoPage(){ if(currentPhotoPage>0){ currentPhotoPage--; loadPhotos(); } }
+
+// WINSTON AUDIO
+const audio=document.getElementById('backgroundAudio');
+const btn=document.getElementById('muteBtn');
+window.addEventListener('load',()=>{ audio.play().catch(()=>{ btn.textContent='where is all the snow?'; }); });
+audio.muted=false; btn.textContent='mute';
+btn.addEventListener('click',()=>{
+  if(audio.paused){ audio.play(); btn.textContent='mute'; }
+  else{ audio.muted=!audio.muted; btn.textContent=audio.muted?'unmute':'mute'; }
+});
 </script>
 </center>
 </body>
