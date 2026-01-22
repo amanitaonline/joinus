@@ -4,158 +4,205 @@
   <meta charset="UTF-8">
   <title>ANGELS OF SICMR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { background-color: #000000; color: #ffffff; font-family: 'Courier New', monospace; }
+    a { color: #ff6666; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .tab { cursor: pointer; padding: 10px 20px; border: 2px solid #990000; display: inline-block; margin-right: 5px; font-family: 'Courier New', monospace; }
+    .tab.active { background-color: #990000; color: #000; }
+    .tab-content { display: none; margin-top: 20px; font-family: 'Times New Roman', Times, serif; }
+    .tab-content.active { display: block; }
+    #chatLog { width: 70%; height: 150px; border:2px solid #990000; background:#000; overflow-y:scroll; padding:10px; margin:auto; font-family: 'Courier New', monospace; }
+    #chatInput { width:70%; padding:10px; margin-top:10px; background:#000; color:#fff; border:2px solid #990000; font-family: 'Courier New', monospace; }
+    #chatButton { padding:10px 20px; margin-top:5px; background:#000; color:#fff; border:2px solid #990000; font-family: 'Courier New', monospace; }
+    .video-item { margin-bottom: 15px; }
+    .video-item iframe { max-width: 100%; }
+    #pagination { margin-top: 20px; }
+    #pagination button { padding: 5px 10px; margin: 0 5px; background: #000; color:#fff; border:2px solid #990000; font-family: 'Courier New', monospace; cursor:pointer; }
+  </style>
 </head>
 
-<body bgcolor="#000000" text="#ffffff" link="#ff6666" vlink="#ff9999" alink="#ffcccc">
-
+<body>
 <center>
-
-<!-- Small header -->
-<font face="Courier New, Courier, monospace" size="-1" color="#990000">
-  grocerybag.tv
-</font>
+<font size="-1" color="#990000" face="Courier New, monospace">welcome to grocerybag.tv</font>
 <br><br>
-
-<font face="Times New Roman, Times, serif" size="+4">
-  <b>✶ ANGELS OF SICMR ✶</b>
-</font>
-
+<font size="+4" face="Times New Roman, Times, serif"><b>✶ ANGELS OF SICMR ✶</b></font>
 <br><br>
-
-<font face="Courier New, Courier, monospace" size="+1">
-  <i>"answer to your fucking questions"</i>
-</font>
-
+<font size="+1" face="Courier New, monospace"><i>"answer to your fucking questions"</i></font>
 <br><br><br>
-
-<font face="Courier New, Courier, monospace" size="+2" color="#990000">
-  <span id="timer">03:36</span>
-</font>
-
+<font size="+2" color="#990000" face="Courier New, monospace"><span id="timer">03:36</span></font>
 <br><br>
+<div>
+  <div class="tab active" onclick="openTab('main')">MAIN</div>
+  <div class="tab" onclick="openTab('chat')">CHAT</div>
+  <div class="tab" onclick="openTab('videos')">VIDEOS</div>
+</div>
 
-<!-- VIDEO CONTAINER -->
-<table width="70%" border="1" cellpadding="20" cellspacing="0" bordercolor="#990000">
-  <tr>
-    <td bgcolor="#000000" align="center">
+<!-- Main tab -->
+<div id="main" class="tab-content active">
+  <table width="70%" border="1" cellpadding="20" cellspacing="0" bordercolor="#990000">
+    <tr><td bgcolor="#000" align="center">
       <iframe width="560" height="315" src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&controls=0&rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    </td>
-  </tr>
-</table>
+    </td></tr>
+  </table>
+  <br><br>
 
-<br><br>
-
-<!-- TEXT CONTAINER -->
-<table width="70%" border="1" cellpadding="20" cellspacing="0" bordercolor="#990000">
-  <tr>
-    <td bgcolor="#000000">
-      <font face="Times New Roman, Times, serif" size="+1">
-        You have reached this page for a reason.<br><br>
-        This is not a coincidence.<br>
-        This is not advertising.<br>
-        This is a threshold.
-
-        <br><br>
-        Beyond this point exists a private gathering place<br>
-        where observation precedes speech<br>
-        and meaning outweighs noise.
-
-        <br><br>
-        You have felt the pressure before.<br>
-        The quiet insistence.<br>
-        The sense that time is running incorrectly.
-
-        <br><br>
-        If these words disturb you,<br>
-        you are free to leave now.
-        <br>
-        If they resonate,<br>
-        you already understand.
+  <table width="70%" border="1" cellpadding="20" cellspacing="0" bordercolor="#990000">
+    <tr><td bgcolor="#000">
+      <font size="+1" face="Times New Roman, Times, serif">
+        You found this page.<br>
+        Not by chance.<br>
+        Not by accident.<br><br>
+        This is private.<br>
+        You see. You speak. You act.<br><br>
+        The pressure is real.<br>
+        Time isn’t right.<br><br>
+        Leave if it scares you.<br>
+        Stay if you get it.
       </font>
-    </td>
-  </tr>
-</table>
+    </td></tr>
+  </table>
 
-<br><br>
-
-<font face="Courier New, Courier, monospace" size="+1">
-  <b>PRINCIPLES</b>
-</font>
-
-<br><br>
-
-<table width="60%" border="0" cellpadding="10" cellspacing="0">
-  <tr>
-    <td>
-      <font face="Courier New, Courier, monospace" size="-1">
-        • LOYALTY IS ACCESS<br>
-        • EXCLUSIVITY IS THE POINT<br>
-        • ARCHIVAL MATERIAL IS UNLOCKED<br>
-        • UNRELEASED, REMOVED, AND FORGOTTEN CONTENT<br>
-        • CONTEXT THAT WAS NEVER PUBLIC<br>
+  <br><br>
+  <font size="+1" face="Courier New, monospace"><b>PRINCIPLES</b></font>
+  <br><br>
+  <table width="60%" border="0" cellpadding="10" cellspacing="0">
+    <tr><td>
+      <font size="-1" face="Courier New, monospace">
+        • LOYALTY GAINS ACCESS<br>
+        • BE EXCLUSIVITY<br>
+        • JOINING MEANS ARCHIVAL MATERIAL IS UNLOCKED<br>
         • DIRECT DISCUSSION WITH PEOPLE WHO ACTUALLY KNOW HER WORK<br>
-        • EVERYTHING UPCOMING, EVERYTHING THAT DISAPPEARED
-        <br><br>
+        • EVERYTHING UPCOMING!<br><br>
         • ENTRY REQUIRES COMMITMENT<br>
         • LOYALTY IS EXPECTED, NOT REQUESTED<br>
         • DOUBT IS NOISE<br>
         • OBSERVATION BECOMES PARTICIPATION
       </font>
-    </td>
-  </tr>
-</table>
+    </td></tr>
+  </table>
+
+  <br><br>
+  <a href="https://discord.gg/UE8SXH7RTf" style="display:inline-block;padding:15px 35px;margin-top:20px;background-color:#000;color:#fff;font-family:'Courier New', monospace;font-size:16px;text-decoration:none;border:2px solid #990000;" id="joinButton">JOIN NOW</a>
+  <br><br>
+  <font size="-1" id="joinText" face="Courier New, monospace">join before she drowns</font>
+</div>
+
+<!-- Chat tab -->
+<div id="chat" class="tab-content">
+  <font size="-1" color="#ff6666" face="Courier New, monospace"><b>COMMUNITY CHAT</b></font>
+  <br><i>chat to yourself. maybe someone will respond.</i>
+  <div id="chatLog"></div>
+  <input type="text" id="chatInput" placeholder="choose a username first" readonly>
+  <button id="chatButton" onclick="sendMessage()" disabled>SEND</button>
+</div>
+
+<!-- Videos tab -->
+<div id="videos" class="tab-content">
+  <font size="-1" color="#ff6666" face="Courier New, monospace"><b>ARCHIVAL VIDEOS</b></font>
+  <div id="videoList"></div>
+  <div id="pagination">
+    <button onclick="prevPage()">Previous</button>
+    <button onclick="nextPage()">Next</button>
+  </div>
+</div>
 
 <br><br>
-
-<a href="https://discord.gg/UE8SXH7RTf"
-style="display:inline-block;padding:15px 35px;margin-top:20px;
-background-color:#000000;color:#ffffff;
-font-family:'Courier New', monospace;
-font-size:16px;text-decoration:none;
-border:2px solid #990000;" id="joinButton">
-JOIN NOW
-</a>
-
-<br><br>
-
-<font face="Courier New, Courier, monospace" size="-1" id="joinText">
-  join before she drowns
-</font>
-
-<br><br><br>
-
 <hr width="40%" color="#990000">
-
-<br>
-
-<font face="Courier New, Courier, monospace" size="-2">
-  ANGELS OF SICMR<br>
-</font>
-
+<font size="-2" face="Courier New, monospace">ANGELS OF SICMR<br>a webpage (not a cult) run by guppy</font>
 <br><br><br>
 
 <script>
-  var time = 216;
-  var timerElement = document.getElementById("timer");
-  var joinText = document.getElementById("joinText");
-
-  function updateTimer() {
-    var minutes = Math.floor(time / 60);
-    var seconds = time % 60;
-    if (seconds < 10) seconds = "0" + seconds;
-    if(time > 0){
-      timerElement.innerHTML = minutes + ":" + seconds;
-      time--;
-    } else {
-      timerElement.innerHTML = "awh poor Brittany. Nobody cared. You're dead.";
-      joinText.innerHTML = "She's dead. You can still join though.";
-    }
+// Timer
+var time = 216;
+var timerElement = document.getElementById("timer");
+var joinText = document.getElementById("joinText");
+function updateTimer() {
+  var minutes = Math.floor(time / 60);
+  var seconds = time % 60;
+  if(seconds < 10) seconds = "0" + seconds;
+  if(time > 0){
+    timerElement.innerHTML = minutes + ":" + seconds;
+    time--;
+  } else {
+    timerElement.innerHTML = "awh poor Brittany. Nobody cared. You're dead.";
+    joinText.innerHTML = "She's dead. You can still join though.";
   }
+}
+setInterval(updateTimer, 1000);
 
-  setInterval(updateTimer, 1000);
+// Tabs
+function openTab(tabName){
+  var i, x, tabs;
+  x = document.getElementsByClassName("tab-content");
+  for(i=0;i<x.length;i++){ x[i].classList.remove('active'); }
+  document.getElementById(tabName).classList.add('active');
+
+  tabs = document.getElementsByClassName('tab');
+  for(i=0;i<tabs.length;i++){ tabs[i].classList.remove('active'); }
+  if(tabName==='main'){ tabs[0].classList.add('active'); } else if(tabName==='chat'){ tabs[1].classList.add('active'); } else { tabs[2].classList.add('active'); }
+}
+
+// Chat
+var username = '';
+window.onload = function(){
+  username = prompt('Choose a username before chatting:');
+  if(username && username.trim() !== ''){
+    document.getElementById('chatInput').removeAttribute('readonly');
+    document.getElementById('chatInput').placeholder = 'type your message here';
+    document.getElementById('chatButton').disabled = false;
+  }
+  loadVideos();
+}
+function sendMessage(){
+  var input = document.getElementById('chatInput');
+  var log = document.getElementById('chatLog');
+  if(input.value.trim() !== ''){
+    log.innerHTML += '<div style="margin-bottom:5px;">' + username + ': ' + input.value + '</div>';
+    log.scrollTop = log.scrollHeight;
+    input.value = '';
+  }
+}
+
+// Videos pagination
+var videos = [
+  'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview',
+  'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview',
+  'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview',
+  'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview',
+  'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview',
+  'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview',
+  'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview',
+  'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview',
+  'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview',
+  'https://drive.google.com/file/d/1Zr5qBZGjPPKlYFJi6pMNpZrdq7hqV9UU/preview',
+  'https://www.youtube.com/embed/nG1eqKYuT-A'
+];
+var currentPage = 0;
+var perPage = 10;
+
+function loadVideos(){
+  var list = document.getElementById('videoList');
+  list.innerHTML = '';
+  var start = currentPage * perPage;
+  var end = Math.min(start + perPage, videos.length);
+  for(var i=start;i<end;i++){
+    list.innerHTML += '<div class="video-item"><iframe src="'+videos[i]+'" width="560" height="315" allowfullscreen></iframe></div>';
+  }
+}
+function nextPage(){
+  if((currentPage+1)*perPage < videos.length){
+    currentPage++;
+    loadVideos();
+  }
+}
+function prevPage(){
+  if(currentPage>0){
+    currentPage--;
+    loadVideos();
+  }
+}
 </script>
-
 </center>
-
 </body>
 </html>
