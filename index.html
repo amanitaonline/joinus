@@ -24,7 +24,13 @@
         ::-webkit-scrollbar-thumb { background: #990000; }
         .winston-content { background: white !important; color: black !important; font-family: 'Times New Roman', serif; }
         .discord-btn { background: #7289da; color: white !important; padding: 10px 24px; border-radius: 8px; font-weight: bold; border: 2px solid #990000; display: inline-block; }
-        .window-container { cursor: default; }
+        
+        /* macOS Traffic Lights */
+        .traffic-light { width: 12px; height: 12px; border-radius: 50%; display: inline-block; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
+        .close-btn { background: #ff5f56; }
+        .minimize-btn { background: #ffbd2e; }
+        .expand-btn { background: #27c93f; }
+        .traffic-light:hover { filter: brightness(0.8); }
     </style>
 </head>
 <body>
@@ -74,10 +80,8 @@
             const toggleApp = (app) => {
                 if (!openApps[app]) {
                     setOpenApps(prev => ({ ...prev, [app]: true }));
-                    bringToFront(app);
-                } else {
-                    bringToFront(app);
                 }
+                bringToFront(app);
             };
 
             const closeApp = (app) => {
@@ -182,9 +186,13 @@
                     style={{ zIndex: zIndex }}
                     className={`absolute ${pos} w-[90%] md:w-[480px] h-[520px] border-2 shadow-2xl flex flex-col ${theme.winBg} ${theme.winBorder}`}
                 >
-                    <div className={`${theme.titleBar} border-b ${theme.winBorder} p-2 px-4 flex justify-between items-center cursor-move`}>
-                        <span className="text-[10px] font-bold tracking-widest uppercase">{title}</span>
-                        <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="text-sm font-bold hover:scale-125">✕</button>
+                    <div className={`${theme.titleBar} border-b ${theme.winBorder} p-2 px-4 flex items-center gap-2 cursor-move`}>
+                        <div className="flex gap-2 mr-4">
+                            <div onClick={(e) => { e.stopPropagation(); onClose(); }} className="traffic-light close-btn"></div>
+                            <div className="traffic-light minimize-btn"></div>
+                            <div className="traffic-light expand-btn"></div>
+                        </div>
+                        <span className="text-[10px] font-bold tracking-widest uppercase flex-1 text-center pr-12">{title}</span>
                     </div>
                     <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white' : ''}`}>
                         {children}
