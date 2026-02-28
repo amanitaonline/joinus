@@ -13,7 +13,7 @@
         body { margin: 0; padding: 0; overflow: hidden; font-family: 'Courier New', monospace; transition: background 0.5s ease; }
         .video-background {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; pointer-events: none; opacity: 0.4; filter: grayscale(100%) contrast(120%);
+            z-index: -1; pointer-events: none; opacity: 0.35; filter: grayscale(100%) contrast(110%);
         }
         .video-background iframe {
             width: 100vw; height: 56.25vw;
@@ -23,7 +23,8 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #990000; }
         .winston-content { background: white !important; color: black !important; font-family: 'Times New Roman', serif; }
-        .discord-btn { background: #7289da; color: white !important; padding: 10px 20px; border-radius: 8px; font-weight: bold; border: 2px solid #990000; display: inline-block; }
+        .discord-btn { background: #7289da; color: white !important; padding: 10px 24px; border-radius: 8px; font-weight: bold; border: 2px solid #990000; display: inline-block; }
+        .window-container { cursor: default; }
     </style>
 </head>
 <body>
@@ -43,7 +44,10 @@
 
         function App() {
             const [isDark, setIsDark] = useState(true);
-            const [openApp, setOpenApp] = useState(null);
+            const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false });
+            const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10 });
+            const [topZ, setTopZ] = useState(20);
+            
             const [timer, setTimer] = useState(216);
             const [isMuted, setIsMuted] = useState(false);
             const audioRef = useRef(null);
@@ -61,6 +65,25 @@
                 return () => clearInterval(countdown);
             }, []);
 
+            const bringToFront = (app) => {
+                const newZ = topZ + 1;
+                setZIndices(prev => ({ ...prev, [app]: newZ }));
+                setTopZ(newZ);
+            };
+
+            const toggleApp = (app) => {
+                if (!openApps[app]) {
+                    setOpenApps(prev => ({ ...prev, [app]: true }));
+                    bringToFront(app);
+                } else {
+                    bringToFront(app);
+                }
+            };
+
+            const closeApp = (app) => {
+                setOpenApps(prev => ({ ...prev, [app]: false }));
+            };
+
             return (
                 <div className={`h-screen w-full relative transition-colors duration-500 ${theme.bg} ${theme.text}`} onClick={() => audioRef.current?.play()}>
                     <audio ref={audioRef} loop src="https://grocerybag.tv/media/SNOW3.mp3" muted={isMuted} />
@@ -69,7 +92,7 @@
                         <iframe src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&loop=1&playlist=8uy6OhNEg1w&controls=0&showinfo=0" frameBorder="0"></iframe>
                     </div>
 
-                    <div className={`h-8 w-full border-b flex justify-between items-center px-4 fixed top-0 z-[60] ${theme.bar}`}>
+                    <div className={`h-8 w-full border-b flex justify-between items-center px-4 fixed top-0 z-[1000] ${theme.bar}`}>
                         <div className="text-[10px] font-bold tracking-widest uppercase">
                             ✶ Angels Of SICMR — {Math.floor(timer/60)}:{String(timer%60).padStart(2,'0')}
                         </div>
@@ -84,17 +107,17 @@
                     </div>
 
                     <div className="absolute inset-0 flex flex-col items-center justify-center opacity-30 pointer-events-none">
-                        <h1 className="text-6xl mb-4 font-serif italic">PRINCIPLES</h1>
-                        <div className="text-center text-[11px] space-y-1 font-bold">
-                            <p>LOYALTY GAINS ACCESS</p>
-                            <p>ENTRY REQUIRES COMMITMENT</p>
-                            <p>OBSERVATION BECOMES PARTICIPATION</p>
-                        </div>
+                        <h1 className="text-6xl mb-4 font-serif italic text-center">ANGELS OF SICMR</h1>
                     </div>
 
                     <AnimatePresence>
-                        {openApp === 'VIDEOS' && (
-                            <Window title="ARCHIVE_LIBRARY" theme={theme} onClose={() => setOpenApp(null)} pos="left-10 md:left-20 top-20">
+                        {openApps.VIDEOS && (
+                            <Window title="ARCHIVE_LIBRARY" theme={theme} 
+                                onClose={() => closeApp('VIDEOS')} 
+                                onFocus={() => bringToFront('VIDEOS')}
+                                zIndex={zIndices.VIDEOS}
+                                pos="left-[5%] top-20"
+                            >
                                 <div className="p-4 space-y-8">
                                     {videoLinks.map((url, i) => (
                                         <div key={i} className="border border-current p-2 bg-black/50">
@@ -106,8 +129,13 @@
                             </Window>
                         )}
 
-                        {openApp === 'PHOTOS' && (
-                            <Window title="IMAGE_ARCHIVE" theme={theme} onClose={() => setOpenApp(null)} pos="left-1/2 -translate-x-1/2 top-32">
+                        {openApps.PHOTOS && (
+                            <Window title="IMAGE_ARCHIVE" theme={theme} 
+                                onClose={() => closeApp('PHOTOS')} 
+                                onFocus={() => bringToFront('PHOTOS')}
+                                zIndex={zIndices.PHOTOS}
+                                pos="left-1/2 -translate-x-1/2 top-32"
+                            >
                                 <div className="grid grid-cols-1 gap-6 p-4">
                                     {photoLinks.map((url, i) => (
                                         <img key={i} src={url} className="w-full border-2 border-current shadow-lg" />
@@ -116,38 +144,47 @@
                             </Window>
                         )}
 
-                        {openApp === 'WINSTON' && (
-                            <Window title="WINSTON" theme={theme} onClose={() => setOpenApp(null)} pos="right-10 md:right-20 top-20" isWinston>
-                                <div className="winston-content p-10 h-full flex flex-col items-center text-center space-y-6">
-                                    <h2 className="text-3xl font-bold">WINSTON FAN CLUB</h2>
-                                    <img src="media/winston.JPG" className="w-48 h-48 rounded-xl border-4 border-red-900 shadow-2xl" />
-                                    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="discord-btn">JOIN THE DISCORD!</a>
-                                    <p className="italic text-gray-500 text-sm">Loyalty is expected, not requested.</p>
+                        {openApps.WINSTON && (
+                            <Window title="WINSTON" theme={theme} 
+                                onClose={() => closeApp('WINSTON')} 
+                                onFocus={() => bringToFront('WINSTON')}
+                                zIndex={zIndices.WINSTON}
+                                pos="right-[5%] top-24" 
+                                isWinston
+                            >
+                                <div className="winston-content p-10 h-full flex flex-col items-center text-center space-y-8">
+                                    <h2 className="text-3xl font-bold tracking-tighter">WINSTON FAN CLUB</h2>
+                                    <img src="media/winston.JPG" className="w-56 h-56 rounded-xl border-4 border-red-900 shadow-2xl object-cover" />
+                                    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="discord-btn">JOIN THE DISCORD</a>
                                 </div>
                             </Window>
                         )}
                     </AnimatePresence>
 
-                    <div className="fixed bottom-8 w-full flex justify-center z-[70]">
+                    <div className="fixed bottom-8 w-full flex justify-center z-[1000]">
                         <div className={`${theme.bar} border-2 flex gap-10 p-3 px-12 rounded-full shadow-2xl backdrop-blur-md`}>
-                            <button onClick={() => setOpenApp('VIDEOS')} className="text-2xl hover:scale-125 transition-transform">📽️</button>
-                            <button onClick={() => setOpenApp('PHOTOS')} className="text-2xl hover:scale-125 transition-transform">🖼️</button>
-                            <button onClick={() => setOpenApp('WINSTON')} className="text-2xl hover:scale-125 transition-transform">🐶</button>
+                            <button onClick={() => toggleApp('VIDEOS')} className="text-2xl hover:scale-125 transition-transform">📽️</button>
+                            <button onClick={() => toggleApp('PHOTOS')} className="text-2xl hover:scale-125 transition-transform">🖼️</button>
+                            <button onClick={() => toggleApp('WINSTON')} className="text-2xl hover:scale-125 transition-transform">🐶</button>
                         </div>
                     </div>
                 </div>
             );
         }
 
-        function Window({ title, children, onClose, theme, isWinston, pos }) {
+        function Window({ title, children, onClose, onFocus, theme, isWinston, pos, zIndex }) {
             return (
                 <motion.div 
-                    initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
-                    className={`absolute ${pos} w-[90%] md:w-[500px] h-[500px] border-2 shadow-2xl flex flex-col z-50 ${theme.winBg} ${theme.winBorder}`}
+                    initial={{ scale: 0.95, opacity: 0 }} 
+                    animate={{ scale: 1, opacity: 1 }} 
+                    exit={{ scale: 0.95, opacity: 0 }}
+                    onMouseDown={onFocus}
+                    style={{ zIndex: zIndex }}
+                    className={`absolute ${pos} w-[90%] md:w-[480px] h-[520px] border-2 shadow-2xl flex flex-col ${theme.winBg} ${theme.winBorder}`}
                 >
-                    <div className={`${theme.titleBar} border-b ${theme.winBorder} p-2 px-4 flex justify-between items-center`}>
+                    <div className={`${theme.titleBar} border-b ${theme.winBorder} p-2 px-4 flex justify-between items-center cursor-move`}>
                         <span className="text-[10px] font-bold tracking-widest uppercase">{title}</span>
-                        <button onClick={onClose} className="text-sm font-bold hover:scale-125">✕</button>
+                        <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="text-sm font-bold hover:scale-125">✕</button>
                     </div>
                     <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white' : ''}`}>
                         {children}
