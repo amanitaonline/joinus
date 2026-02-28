@@ -12,7 +12,7 @@
     <style>
         body { margin: 0; padding: 0; overflow: hidden; font-family: 'Courier New', monospace; transition: background 0.5s ease; background: black; }
         
-        /* Dynamic Wallpaper System */
+        /* Wallpaper System */
         .wallpaper-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -2; background-size: cover; background-position: center;
@@ -21,47 +21,47 @@
 
         .video-background {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; pointer-events: none; opacity: 0.3; filter: grayscale(100%) contrast(110%);
+            z-index: -1; pointer-events: none; opacity: 0.2; filter: grayscale(100%) contrast(110%);
         }
         .video-background iframe {
             width: 100vw; height: 56.25vw;
             min-height: 100vh; min-width: 177.77vh;
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-thumb { background: #990000; border-radius: 10px; }
-        
+
         .glass-panel {
-            backdrop-filter: blur(25px);
-            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .dark .glass-panel {
-            background: rgba(15, 15, 15, 0.75);
+            background: rgba(10, 10, 10, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
         
+        /* Glowing Triangle */
         .illuminati-logo {
             width: 0; height: 0;
             border-left: 8px solid transparent; border-right: 8px solid transparent;
             border-bottom: 14px solid currentColor; display: inline-block;
+            filter: drop-shadow(0 0 2px currentColor);
+            animation: triangle-glow 2s infinite alternate;
+        }
+        @keyframes triangle-glow {
+            from { filter: drop-shadow(0 0 1px currentColor); opacity: 0.7; }
+            to { filter: drop-shadow(0 0 8px currentColor); opacity: 1; }
         }
 
-        .traffic-light { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; transition: opacity 0.2s; }
+        .traffic-light { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
         .close-btn { background: #ff5f56; }
         .minimize-btn { background: #ffbd2e; }
         .expand-btn { background: #27c93f; }
 
-        .itunes-player {
-            background: rgba(40, 40, 40, 0.9);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px; padding: 4px 12px;
-            display: flex; items-center; gap: 15px;
-            font-size: 11px; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
         .winston-img { width: 220px; height: 220px; border-radius: 24px; object-fit: cover; border: 4px solid #990000; }
         .discord-btn { background: #7289da; color: white !important; padding: 12px 24px; border-radius: 12px; font-weight: bold; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #990000; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -72,11 +72,11 @@
         const { motion, AnimatePresence } = window.Motion;
 
         const videoLinks = [
-            'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview', 'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview', 'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview', 'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview', 'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview', 'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview', 'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview', 'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview', 'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview', 'https://drive.google.com/file/d/1Zr5qBZGjPPKlYFJi6pMNpZrdq7hqV9UU/preview', 'https://drive.google.com/file/d/1Wl8qMjUGRSkrsVe_r9cAV8guWpcZSs1Z/preview', 'https://web.archive.org/web/20120226011651oe_/http://v1.cache1.c.youtube.com/videoplayback?sparams=id%2Cexpire%2Cip%2Cipbits%2Citag%2Csource%2Cratebypass%2Ccp&fexp=914023%2C906500%2C914102&itag=45&ip=207.0.0.0&signature=0462702E6899831AA8F11D392929B9579639F2D2.98B611320866F2C521B2200D0BA40D9792E90974&sver=3&ratebypass=yes&source=youtube&expire=1330244443&key=yt1&ipbits=8&cp=U0hSRVJPUl9JTUNOMl9KSVZFOl9icENCYjJyYWly&id=bca4844902a58242&redirect_counter=1', 'https://drive.google.com/file/d/14LNJHStYFzFlJdUFv3EoWww8DUImhjfT/preview', 'https://drive.google.com/file/d/1pVLNodC8gqYIv-9MI6Hg9m4TFxEwRm1j/preview', 'https://drive.google.com/file/d/1vXpkO2fSfLgy70i-zIHrfrveoEyCySyU/preview', 'https://drive.google.com/file/d/1tgJRuhXNjDUqmnGaYmgGxGwZ6T229zWI/preview', 'https://drive.google.com/file/d/1F7XMY7yHovr-j-kbxe1bZPmWMsyTNzIk/preview', 'https://drive.google.com/file/d/1GYdIwNcPO5kmeZMHl_3NbMI9UidL6-K9/preview', 'https://drive.google.com/file/d/1i-CwzuInjqY4RvYwgBBeVRrucBXWrikz/preview', 'https://drive.google.com/file/d/1V897Rk40PX6Xt8rOix6PsArhyQtimoKo/preview', 'https://drive.google.com/file/d/14o4XlH1o_oL_c1qJwg5_vUIE6ZyNsyXu/preview', 'https://drive.google.com/file/d/1GB7ConILrKSIMRW2RPZUJedZHiLcov8p/preview', 'https://drive.google.com/file/d/1AcnFKhWOSYBPiKjUjbYhY2zDQTMC798i/preview', 'https://drive.google.com/file/d/1teOsyrRDUMXy80l3QsMqByqDiil9iQ8o/preview', 'https://web.archive.org/web/20120622071749oe_/http://o-o.preferred.nuq04s10.v21.lscache3.c.youtube.com/videoplayback?upn=MQ0QxqjzUwc&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=905604%2C906335%2C905600%2C923002%2C902517%2C907217%2C907335%2C921602%2C919306%2C922600%2C919316%2C920704%2C912804%2C913542%2C919324%2C907344%2C912706&ms=au&itag=45&ip=207.0.0.0&signature=0B550FE7FCC9A4456F05DD3F78238028441DD5DB.31E144A94770C2414DE6539BEF5A568DCC32AEF0&sver=3&mt=1340349013&ratebypass=yes&source=youtube&expire=1340372997&key=yt1&ipbits=8&cp=U0hSRVNSUF9OUUNOM19LTFRKOnRGNmt4Z0dWTXhq&id=1f0a898373a952ab', 'https://web.archive.org/web/20121210025752oe_/http://r4---sn-a5m7zu7s.c.youtube.com/videoplayback?upn=Pbc5Q_wBh3Y&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=901803%2C918106%2C910013%2C914086%2C916611%2C922401%2C920704%2C912806%2C925703%2C925706%2C928001%2C922403%2C922405%2C929901%2C913605%2C913546%2C913556%2C920201%2C913302%2C911116%2C901451%2C902556&key=yt1&expire=1355129371&itag=22&ipbits=8&sver=3&ratebypass=yes&mt=1355108222&ip=207.241.237.138&mv=m&source=youtube&ms=tsu&cp=U0hUSlFNV19MS0NONF9JR0FEOkNQa3Preparation preparing for she drowns8RC&id=8a7b6e64b7a17e0a&signature=33EF7B450A041FFC756A231E36686C6D2477EB53.2CD494C79ECD687DD08657C1E2422BF552FA99C7&redirect_counter=1', 'https://drive.google.com/file/d/1BUh2Oi2zoT1Y8FBp94MLB9lIDMpbe9fK/preview', 'https://drive.google.com/file/d/1Zu1yZ_8v1V1Al3OyG5l2rCbVw9ES2iL9/preview', 'https://drive.google.com/file/d/1G6PpfeQqKnkgdBN63YZk2058ksx6PcUi/preview', 'https://drive.google.com/file/d/1ehqGDqlLREUwR6ihmO3KurEEbtt7gxO5/preview', 'https://drive.google.com/file/d/1orIhGHZzCkHXTcEPyeQTUD9dHKATCpSg/preview', 'https://drive.google.com/file/d/1WzB2I3ojjPt2ZqgorW3Bxyqu3dt0zmSh/preview', 'https://drive.google.com/file/d/1wwCLwE03wY9ogZmCLspq_CDjvjJJY4pW/preview'
+            'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview', 'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview', 'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview', 'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview', 'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview', 'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview', 'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview', 'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview', 'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview'
         ];
 
         const photoLinks = [
-            'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg', 'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg', 'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg', 'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg', 'https://static.wikia.nocookie.net/marsargo/images/b/ba/70ba1c59a8024d8eae890a643c969b48.jpeg', 'https://static.wikia.nocookie.net/marsargo/images/8/86/KewlOuttake.jpg', 'https://static.wikia.nocookie.net/marsargo/images/8/89/2015-10-11_11.10.39_1093537410520121192_362742494.jpg', 'https://static.wikia.nocookie.net/marsargo/images/c/c4/Tumblr_osigop18Bt1uftv1so2_1280.jpg', 'https://static.wikia.nocookie.net/marsargo/images/3/34/Tumblr_osigop18Bt1uftv1so1_1280.jpg', 'https://static.wikia.nocookie.net/marsargo/images/5/5b/WRIFURHE.jpg', 'https://static.wikia.nocookie.net/marsargo/images/5/53/Marsargo2015.jpg'
+            'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg', 'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg', 'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg', 'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg', 'https://static.wikia.nocookie.net/marsargo/images/b/ba/70ba1c59a8024d8eae890a643c969b48.jpeg', 'https://static.wikia.nocookie.net/marsargo/images/8/86/KewlOuttake.jpg', 'https://static.wikia.nocookie.net/marsargo/images/8/89/2015-10-11_11.10.39_1093537410520121192_362742494.jpg'
         ];
 
         function App() {
@@ -85,16 +85,9 @@
             const [isDark, setIsDark] = useState(true);
             const [isMuted, setIsMuted] = useState(false);
             const [wallpaper, setWallpaper] = useState("");
-            
             const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false });
-            const [maximizedApps, setMaximizedApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false });
             const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10 });
             const [topZ, setTopZ] = useState(20);
-
-            const [positions, setPositions] = useState({
-                VIDEOS: { x: 100, y: 120 }, PHOTOS: { x: 180, y: 180 },
-                CHAT: { x: 500, y: 100 }, WINSTON: { x: 300, y: 180 }
-            });
 
             const theme = isDark ? {
                 bg: "bg-black", text: "text-red-600", winBg: "bg-zinc-900/95", winBorder: "border-red-900/40", titleBar: "bg-red-950/20"
@@ -106,11 +99,6 @@
                 const newZ = topZ + 1;
                 setZIndices(prev => ({ ...prev, [app]: newZ }));
                 setTopZ(newZ);
-            };
-
-            const handleDockClick = (app) => {
-                if (!openApps[app]) setOpenApps(prev => ({ ...prev, [app]: true }));
-                bringToFront(app);
             };
 
             if (!isLoggedIn) {
@@ -130,46 +118,54 @@
                 <div className={`h-screen w-full relative transition-colors duration-500 overflow-hidden ${isDark ? 'dark' : ''} ${theme.bg} ${theme.text}`}>
                     <audio autoPlay loop src="https://grocerybag.tv/media/SNOW3.mp3" muted={isMuted} />
                     
+                    {/* Fixed Wallpaper Layer */}
                     <div className="wallpaper-layer" style={{ backgroundImage: wallpaper ? `url(${wallpaper})` : 'none' }}></div>
                     <div className="video-background">
                         <iframe src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&loop=1&playlist=8uy6OhNEg1w&controls=0" frameBorder="0"></iframe>
                     </div>
 
-                    {/* RESTORED TOP BAR */}
-                    <div className="fixed top-0 w-full z-[10000] px-4 py-2 flex justify-between items-center glass-panel border-b border-white/5">
-                        <div className="flex items-center gap-6 text-[11px] font-bold tracking-widest">
-                            <div className="illuminati-logo"></div>
-                            <span className="cursor-default">AOS File</span>
-                            <span className="cursor-default opacity-50">Archive</span>
-                            <span className="cursor-default opacity-50">View</span>
+                    {/* TOP BAR - NOT FLOATING */}
+                    <div className="fixed top-0 left-0 w-full h-8 z-[10000] flex justify-between items-center px-4 glass-panel border-b border-white/5 text-[10px] font-bold tracking-widest uppercase">
+                        <div className="flex items-center gap-6">
+                            <div className="illuminati-logo scale-75"></div>
+                            <span>AOS File Archive</span>
+                            <span className="opacity-40">System</span>
                         </div>
-                        
-                        {/* RESTORED ITUNES PLAYER */}
-                        <div className="itunes-player">
-                            <button onClick={() => setIsMuted(!isMuted)} className="hover:text-red-500">{isMuted ? '▶' : '||'}</button>
-                            <div className="flex flex-col items-center min-w-[120px]">
-                                <span className="font-bold tracking-tighter">SNOW3.mp3</span>
-                                <div className="w-full h-1 bg-white/10 rounded-full mt-1"><div className="w-1/3 h-full bg-red-600 rounded-full"></div></div>
-                            </div>
-                            <span>2:44</span>
-                        </div>
-
                         <div className="flex items-center gap-4">
-                            <button className="text-[10px] border px-2 py-1 rounded border-current" onClick={() => setIsDark(!isDark)}>{isDark ? 'LIGHT' : 'DARK'}</button>
-                            <span className="text-[11px] font-bold">11:11 PM</span>
+                            <button onClick={() => setIsDark(!isDark)} className="border border-current px-2 py-0.5 rounded hover:bg-current hover:text-black transition-all">
+                                {isDark ? 'LIGHT' : 'DARK'}
+                            </button>
+                            <span>11:11 PM</span>
                         </div>
                     </div>
 
-                    {/* RESTORED CENTERED BRANDING */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
+                    {/* ITUNES PLAYER - NOT FLOATING */}
+                    <div className="fixed top-8 right-0 w-64 h-12 z-[9999] glass-panel border-l border-b border-white/5 flex items-center px-3 gap-3">
+                        <div className="w-8 h-8 bg-black rounded shrink-0 border border-white/10 overflow-hidden">
+                            <img src="https://grocerybag.tv/media/winston.JPG" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-1 overflow-hidden">
+                            <div className="flex justify-between items-baseline">
+                                <span className="text-[9px] font-black truncate">SNOW3.mp3</span>
+                                <span className="text-[7px] opacity-50">2:44</span>
+                            </div>
+                            <div className="w-full h-1 bg-white/10 rounded-full mt-1 overflow-hidden">
+                                <motion.div animate={{ width: ["0%", "100%"] }} transition={{ duration: 160, repeat: Infinity, ease: "linear" }} className="h-full bg-red-600" />
+                            </div>
+                        </div>
+                        <button onClick={() => setIsMuted(!isMuted)} className="text-xs">{isMuted ? '▶' : '||'}</button>
+                    </div>
+
+                    {/* CENTERED BRANDING */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none z-0">
                         <h1 className="text-6xl font-serif font-black tracking-tighter mb-2 mix-blend-difference" style={{ color: 'white' }}>✶ ANGELS OF SICMR ✶</h1>
                         <p className="text-xs tracking-[0.5em] uppercase opacity-40 mix-blend-difference" style={{ color: 'white' }}>"answer to your fucking questions"</p>
                     </div>
 
                     <AnimatePresence>
                         {openApps.VIDEOS && (
-                            <Window title="ARCHIVE_LIBRARY" theme={theme} onClose={() => setOpenApps(p => ({...p, VIDEOS: false}))} onFocus={() => bringToFront('VIDEOS')} onExpand={() => setMaximizedApps(p => ({...p, VIDEOS: !p.VIDEOS}))} isMaximized={maximizedApps.VIDEOS} zIndex={zIndices.VIDEOS} initialX={positions.VIDEOS.x} initialY={positions.VIDEOS.y} onDragEnd={(pos) => setPositions(p => ({...p, VIDEOS: pos}))}>
-                                <div className="p-4 space-y-6">
+                            <Window title="ARCHIVE_LIBRARY" theme={theme} onClose={() => setOpenApps(p => ({...p, VIDEOS: false}))} onFocus={() => bringToFront('VIDEOS')} zIndex={zIndices.VIDEOS} initialX={100} initialY={100}>
+                                <div className="p-4 space-y-4">
                                     {videoLinks.map((url, i) => (
                                         <div key={i} className="border border-current/20 p-1 bg-black rounded-xl overflow-hidden"><iframe src={url} className="w-full aspect-video rounded-lg" frameBorder="0" allowFullScreen></iframe></div>
                                     ))}
@@ -178,9 +174,9 @@
                         )}
 
                         {openApps.PHOTOS && (
-                            <Window title="IMAGE_ARCHIVE" theme={theme} onClose={() => setOpenApps(p => ({...p, PHOTOS: false}))} onFocus={() => bringToFront('PHOTOS')} onExpand={() => setMaximizedApps(p => ({...p, PHOTOS: !p.PHOTOS}))} isMaximized={maximizedApps.PHOTOS} zIndex={zIndices.PHOTOS} initialX={positions.PHOTOS.x} initialY={positions.PHOTOS.y} onDragEnd={(pos) => setPositions(p => ({...p, PHOTOS: pos}))}>
+                            <Window title="IMAGE_ARCHIVE" theme={theme} onClose={() => setOpenApps(p => ({...p, PHOTOS: false}))} onFocus={() => bringToFront('PHOTOS')} zIndex={zIndices.PHOTOS} initialX={150} initialY={150}>
                                 <div className="p-4 grid grid-cols-1 gap-4">
-                                    <p className="text-[10px] text-center opacity-50 uppercase mb-2">Click an image to set as wallpaper</p>
+                                    <p className="text-[9px] opacity-50 text-center uppercase tracking-widest mb-2">Click image to set wallpaper</p>
                                     {photoLinks.map((url, i) => (
                                         <img key={i} src={url} onClick={() => setWallpaper(url)} className="w-full border border-current/30 rounded-xl cursor-pointer hover:scale-[1.02] transition-transform" />
                                     ))}
@@ -188,44 +184,35 @@
                             </Window>
                         )}
 
-                        {openApps.CHAT && (
-                            <Window title="ENCRYPTED_CHAT" theme={theme} onClose={() => setOpenApps(p => ({...p, CHAT: false}))} onFocus={() => bringToFront('CHAT')} onExpand={() => setMaximizedApps(p => ({...p, CHAT: !p.CHAT}))} isMaximized={maximizedApps.CHAT} zIndex={zIndices.CHAT} initialX={positions.CHAT.x} initialY={positions.CHAT.y} onDragEnd={(pos) => setPositions(p => ({...p, CHAT: pos}))}>
-                                <div className="flex flex-col h-full p-4"><div className="flex-1 opacity-50 text-[11px] italic">Channel open...</div><input placeholder="Message..." className="w-full bg-transparent outline-none border-b border-current/20 pb-1 text-sm" /></div>
-                            </Window>
-                        )}
-
                         {openApps.WINSTON && (
-                            <Window title="WINSTON" theme={theme} onClose={() => setOpenApps(p => ({...p, WINSTON: false}))} onFocus={() => bringToFront('WINSTON')} onExpand={() => setMaximizedApps(p => ({...p, WINSTON: !p.WINSTON}))} isMaximized={maximizedApps.WINSTON} zIndex={zIndices.WINSTON} initialX={positions.WINSTON.x} initialY={positions.WINSTON.y} onDragEnd={(pos) => setPositions(p => ({...p, WINSTON: pos}))} isWinston>
-                                <div className="p-8 text-center flex flex-col items-center bg-white text-black h-full"><h2 className="text-3xl font-black mb-6">WINSTON FAN CLUB</h2><img src="https://grocerybag.tv/media/winston.JPG" className="winston-img mb-8 shadow-2xl" /><a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="discord-btn shadow-lg">JOIN SERVER</a></div>
+                            <Window title="WINSTON" theme={theme} onClose={() => setOpenApps(p => ({...p, WINSTON: false}))} onFocus={() => bringToFront('WINSTON')} zIndex={zIndices.WINSTON} initialX={window.innerWidth/2 - 210} initialY={120} isWinston>
+                                <div className="p-8 text-center flex flex-col items-center bg-white text-black h-full"><h2 className="text-3xl font-black mb-6 tracking-tighter">WINSTON FAN CLUB</h2><img src="https://grocerybag.tv/media/winston.JPG" className="winston-img mb-8 shadow-2xl" /><a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="discord-btn shadow-lg">JOIN SERVER</a></div>
                             </Window>
                         )}
                     </AnimatePresence>
 
-                    <div className="fixed bottom-6 w-full flex justify-center z-[10000]">
+                    {/* DOCK */}
+                    <div className="fixed bottom-6 w-full flex justify-center z-[5000]">
                         <div className="glass-panel p-3 px-8 rounded-[32px] flex gap-10 shadow-2xl items-center">
-                            <button onClick={() => handleDockClick('VIDEOS')} className="text-3xl hover:scale-125 transition-all">📽️</button>
-                            <button onClick={() => handleDockClick('PHOTOS')} className="text-3xl hover:scale-125 transition-all">🖼️</button>
-                            <button onClick={() => handleDockClick('CHAT')} className="text-3xl hover:scale-125 transition-all">💬</button>
-                            <button onClick={() => handleDockClick('WINSTON')} className="text-3xl hover:scale-125 transition-all">🐶</button>
+                            <button onClick={() => setOpenApps(p => ({...p, VIDEOS: true})) || bringToFront('VIDEOS')} className="text-3xl hover:scale-125 transition-all">📽️</button>
+                            <button onClick={() => setOpenApps(p => ({...p, PHOTOS: true})) || bringToFront('PHOTOS')} className="text-3xl hover:scale-125 transition-all">🖼️</button>
+                            <button onClick={() => setOpenApps(p => ({...p, WINSTON: true})) || bringToFront('WINSTON')} className="text-3xl hover:scale-125 transition-all">🐶</button>
                         </div>
                     </div>
                 </div>
             );
         }
 
-        function Window({ title, children, onClose, onFocus, onExpand, isMaximized, theme, isWinston, zIndex, initialX, initialY, onDragEnd }) {
-            const controls = { width: isMaximized ? '100vw' : '420px', height: isMaximized ? '100vh' : '500px', x: isMaximized ? 0 : initialX, y: isMaximized ? 0 : initialY, borderRadius: isMaximized ? '0px' : '24px' };
+        function Window({ title, children, onClose, onFocus, theme, isWinston, zIndex, initialX, initialY }) {
             return (
-                <motion.div drag={!isMaximized} dragMomentum={false} onDragStart={onFocus} onDragEnd={(e) => { const el = e.target.closest('.window-container'); if (el) { const rect = el.getBoundingClientRect(); if (onDragEnd) onDragEnd({ x: rect.left, y: rect.top }); } }}
-                    initial={{ opacity: 0, scale: 0.5, x: initialX, y: window.innerHeight }} animate={{ opacity: 1, scale: 1, ...controls }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} exit={{ opacity: 0, scale: 0.2, y: window.innerHeight }}
-                    style={{ zIndex: zIndex, position: 'absolute' }} className={`window-container border shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl ${theme.winBg} ${theme.winBorder}`}>
-                    <div className={`${theme.titleBar} p-4 flex items-center relative ${isMaximized ? '' : 'cursor-grab'}`}>
-                        <div className="flex gap-2 absolute left-4 z-10">
+                <motion.div drag dragMomentum={false} onDragStart={onFocus} initial={{ opacity: 0, scale: 0.9, x: initialX, y: initialY }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} style={{ zIndex: zIndex, position: 'absolute' }} className={`w-[420px] h-[500px] border shadow-2xl flex flex-col rounded-[24px] overflow-hidden backdrop-blur-2xl ${theme.winBg} ${theme.winBorder}`}>
+                    <div className={`${theme.titleBar} p-4 flex items-center relative cursor-grab active:cursor-grabbing`}>
+                        <div className="flex gap-2 absolute left-4">
                             <div onClick={(e) => { e.stopPropagation(); onClose(); }} className="traffic-light close-btn"></div>
-                            <div onClick={(e) => { e.stopPropagation(); onClose(); }} className="traffic-light minimize-btn"></div>
-                            <div onClick={(e) => { e.stopPropagation(); onExpand(); }} className="traffic-light expand-btn"></div>
+                            <div className="traffic-light minimize-btn"></div>
+                            <div className="traffic-light expand-btn"></div>
                         </div>
-                        <span className="text-[10px] font-bold tracking-widest uppercase w-full text-center opacity-50 select-none pointer-events-none">{title}</span>
+                        <span className="text-[10px] font-bold tracking-widest uppercase w-full text-center opacity-50 pointer-events-none">{title}</span>
                     </div>
                     <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white' : ''}`}>{children}</div>
                 </motion.div>
