@@ -10,10 +10,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
     <style>
-        body { background: black; overflow: hidden; font-family: 'Courier New', monospace; }
-        .window-shadow { shadow-2xl; }
-        ::-webkit-scrollbar { width: 5px; }
+        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Courier New', monospace; transition: background 0.5s ease; }
+        .video-background {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none; opacity: 0.4; filter: grayscale(100%) contrast(120%);
+        }
+        .video-background iframe {
+            width: 100vw; height: 56.25vw; /* 16:9 Aspect Ratio */
+            min-height: 100vh; min-width: 177.77vh;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #990000; }
+        .winston-content { background: white !important; color: black !important; font-family: 'Times New Roman', serif; }
+        .discord-btn { background: #7289da; color: white !important; padding: 10px 20px; border-radius: 8px; font-weight: bold; border: 2px solid #990000; display: inline-block; }
     </style>
 </head>
 <body>
@@ -57,7 +67,7 @@
             'https://drive.google.com/file/d/1orIhGHZzCkHXTcEPyeQTUD9dHKATCpSg/preview',
             'https://drive.google.com/file/d/1WzB2I3ojjPt2ZqgorW3Bxyqu3dt0zmSh/preview',
             'https://drive.google.com/file/d/1wwCLwE03wY9ogZmCLspq_CDjvjJJY4pW/preview'
-        ]; // All 33 videos restored
+        ];
 
         const photoLinks = [
             'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg/revision/latest?cb=20220524185305',
@@ -71,66 +81,84 @@
             'https://static.wikia.nocookie.net/marsargo/images/3/34/Tumblr_osigop18Bt1uftv1so1_1280.jpg/revision/latest?cb=20170831213313',
             'https://static.wikia.nocookie.net/marsargo/images/5/5b/WRIFURHE.jpg/revision/latest?cb=20240903201454',
             'https://static.wikia.nocookie.net/marsargo/images/5/53/Marsargo2015.jpg/revision/latest?cb=20240903195933'
-        ]; // All 11 photos restored
+        ];
 
         function App() {
+            const [isDark, setIsDark] = useState(true);
             const [openApp, setOpenApp] = useState(null);
-            const [timer, setTimer] = useState(216); // 03:36
+            const [timer, setTimer] = useState(216);
             const [isMuted, setIsMuted] = useState(false);
             const audioRef = useRef(null);
 
+            const theme = isDark ? {
+                bg: "bg-black",
+                text: "text-red-600",
+                bar: "bg-zinc-900 border-red-900",
+                winBg: "bg-zinc-900",
+                winBorder: "border-red-900",
+                titleBar: "bg-red-950/20"
+            } : {
+                bg: "bg-[#d6d2c4]", // Bone
+                text: "text-[#4a3f35]", // Brown
+                bar: "bg-[#c2beb0] border-[#8c867a]",
+                winBg: "bg-[#eceae0]",
+                winBorder: "border-[#8c867a]",
+                titleBar: "bg-[#b0ab99]"
+            };
+
             useEffect(() => {
-                const countdown = setInterval(() => {
-                    setTimer(t => t > 0 ? t - 1 : 0);
-                }, 1000);
+                const countdown = setInterval(() => setTimer(t => t > 0 ? t - 1 : 0), 1000);
                 return () => clearInterval(countdown);
             }, []);
 
-            const playAudio = () => {
-                if (audioRef.current) audioRef.current.play().catch(() => {});
-            };
-
             const formatTime = (s) => {
-                if (s === 0) return "TIME IS UP";
                 const m = Math.floor(s / 60);
                 const rs = s % 60;
                 return `${m}:${rs < 10 ? '0' : ''}${rs}`;
             };
 
             return (
-                <div className="h-screen w-full relative bg-black text-red-600 overflow-hidden" onClick={playAudio}>
+                <div className={`h-screen w-full relative transition-colors duration-500 ${theme.bg} ${theme.text}`} onClick={() => audioRef.current?.play()}>
                     <audio ref={audioRef} loop src="https://grocerybag.tv/media/SNOW3.mp3" muted={isMuted} />
+                    
+                    {/* Background Video (Drowning) */}
+                    <div className="video-background">
+                        <iframe src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&loop=1&playlist=8uy6OhNEg1w&controls=0&showinfo=0" frameBorder="0"></iframe>
+                    </div>
 
                     {/* Top Bar */}
-                    <div className="h-8 w-full border-b border-red-900 bg-zinc-900 flex justify-between items-center px-4 fixed top-0 z-50">
+                    <div className={`h-8 w-full border-b flex justify-between items-center px-4 fixed top-0 z-[60] ${theme.bar}`}>
                         <div className="text-[10px] font-bold tracking-widest uppercase">
                             ✶ Angels Of SICMR — {formatTime(timer)}
                         </div>
-                        <div className="flex gap-4 text-[10px] uppercase opacity-70">
-                            <button onClick={() => setIsMuted(!isMuted)}>{isMuted ? 'UNMUTE' : 'MUTE'}</button>
-                            <span>grocerybag.tv</span>
+                        <div className="flex gap-4 items-center">
+                            <button className="text-[9px] border px-2 py-0.5 rounded border-current" onClick={() => setIsDark(!isDark)}>
+                                {isDark ? 'LIGHT MODE' : 'DARK MODE'}
+                            </button>
+                            <button className="text-[9px] font-bold" onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}>
+                                {isMuted ? 'UNMUTE' : 'MUTE'}
+                            </button>
                         </div>
                     </div>
 
-                    {/* Desktop Content (Principles Table) */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-20 pointer-events-none">
-                        <h1 className="text-4xl mb-4 font-serif">PRINCIPLES</h1>
-                        <div className="text-center text-[10px] space-y-1">
+                    {/* Principles Overlay */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-30 pointer-events-none">
+                        <h1 className="text-6xl mb-4 font-serif italic">PRINCIPLES</h1>
+                        <div className="text-center text-[11px] space-y-1 font-bold">
                             <p>LOYALTY GAINS ACCESS</p>
                             <p>ENTRY REQUIRES COMMITMENT</p>
-                            <p>DOUBT IS NOISE</p>
                             <p>OBSERVATION BECOMES PARTICIPATION</p>
                         </div>
                     </div>
 
-                    {/* App Windows */}
+                    {/* Windows */}
                     <AnimatePresence>
                         {openApp === 'VIDEOS' && (
-                            <Window title="ARCHIVE_LIBRARY" onClose={() => setOpenApp(null)}>
-                                <div className="p-4 space-y-6">
+                            <Window title="ARCHIVE_LIBRARY" theme={theme} onClose={() => setOpenApp(null)}>
+                                <div className="p-4 space-y-8">
                                     {videoLinks.map((url, i) => (
-                                        <div key={i} className="border border-red-900/40 p-2">
-                                            <p className="text-[8px] mb-1">ENTRY_{i+1}</p>
+                                        <div key={i} className="border border-current p-2 bg-black/50">
+                                            <p className="text-[8px] mb-2">ENTRY_FILE_{i+1}</p>
                                             <iframe src={url} className="w-full aspect-video" frameBorder="0" allowFullScreen></iframe>
                                         </div>
                                     ))}
@@ -139,51 +167,50 @@
                         )}
 
                         {openApp === 'PHOTOS' && (
-                            <Window title="IMAGE_ARCHIVE" onClose={() => setOpenApp(null)}>
-                                <div className="grid grid-cols-2 gap-2 p-2">
+                            <Window title="IMAGE_ARCHIVE" theme={theme} onClose={() => setOpenApp(null)}>
+                                <div className="grid grid-cols-1 gap-6 p-4">
                                     {photoLinks.map((url, i) => (
-                                        <img key={i} src={url} className="w-full border border-red-900 grayscale hover:grayscale-0 transition-all cursor-crosshair" />
+                                        <img key={i} src={url} className="w-full border-2 border-current shadow-lg" />
                                     ))}
                                 </div>
                             </Window>
                         )}
-                        
+
                         {openApp === 'WINSTON' && (
-                            <Window title="WINSTON" onClose={() => setOpenApp(null)}>
-                                <div className="flex flex-col items-center p-8 text-center space-y-4">
-                                    <img src="media/winston.JPG" className="w-32 h-32 rounded-full border-2 border-red-900 grayscale" />
-                                    <p className="text-[10px]">LOYALTY IS EXPECTED, NOT REQUESTED.</p>
-                                    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="border border-red-900 px-4 py-1 text-[10px] hover:bg-red-900 hover:text-white">JOIN DISCORD</a>
+                            <Window title="WINSTON" theme={theme} onClose={() => setOpenApp(null)} isWinston>
+                                <div className="winston-content p-10 h-full flex flex-col items-center text-center space-y-6">
+                                    <h2 className="text-3xl font-bold">WINSTON FAN CLUB</h2>
+                                    <img src="media/winston.JPG" className="w-48 h-48 rounded-xl border-4 border-red-900 shadow-2xl" />
+                                    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="discord-btn">JOIN THE DISCORD!</a>
+                                    <p className="italic text-gray-500 text-sm">Loyalty is expected, not requested.</p>
                                 </div>
                             </Window>
                         )}
                     </AnimatePresence>
 
-                    {/* Dock */}
-                    <div className="fixed bottom-6 w-full flex justify-center z-50">
-                        <div className="bg-zinc-900 border border-red-900 flex gap-6 p-2 px-8 rounded-full">
-                            <button onClick={() => setOpenApp('VIDEOS')} className="hover:scale-110 transition-transform">📽️</button>
-                            <button onClick={() => setOpenApp('PHOTOS')} className="hover:scale-110 transition-transform">🖼️</button>
-                            <button onClick={() => setOpenApp('WINSTON')} className="hover:scale-110 transition-transform">🐶</button>
+                    {/* Navigation Dock */}
+                    <div className="fixed bottom-8 w-full flex justify-center z-[70]">
+                        <div className={`${theme.bar} border-2 flex gap-10 p-3 px-12 rounded-full shadow-2xl backdrop-blur-md`}>
+                            <button onClick={() => setOpenApp('VIDEOS')} className="text-2xl hover:scale-125 transition-transform">📽️</button>
+                            <button onClick={() => setOpenApp('PHOTOS')} className="text-2xl hover:scale-125 transition-transform">🖼️</button>
+                            <button onClick={() => setOpenApp('WINSTON')} className="text-2xl hover:scale-125 transition-transform">🐶</button>
                         </div>
                     </div>
                 </div>
             );
         }
 
-        function Window({ title, children, onClose }) {
+        function Window({ title, children, onClose, theme, isWinston }) {
             return (
                 <motion.div 
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.9, opacity: 0 }}
-                    className="absolute top-20 left-10 md:left-1/4 w-[90%] md:w-[600px] h-[500px] bg-zinc-900 border border-red-900 flex flex-col z-40"
+                    initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }}
+                    className={`absolute top-20 left-1/2 -translate-x-1/2 w-[90%] md:w-[600px] h-[550px] border-2 shadow-2xl flex flex-col z-50 ${theme.winBg} ${theme.winBorder}`}
                 >
-                    <div className="bg-red-950/20 border-b border-red-900 p-2 flex justify-between items-center">
-                        <span className="text-[9px] font-bold tracking-widest">{title}</span>
-                        <button onClick={onClose} className="text-xs hover:text-white px-2">✕</button>
+                    <div className={`${theme.titleBar} border-b ${theme.winBorder} p-2 px-4 flex justify-between items-center`}>
+                        <span className="text-[10px] font-bold tracking-widest uppercase">{title}</span>
+                        <button onClick={onClose} className="text-sm font-bold hover:scale-125">✕</button>
                     </div>
-                    <div className="flex-1 overflow-y-auto">
+                    <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white' : ''}`}>
                         {children}
                     </div>
                 </motion.div>
