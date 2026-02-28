@@ -20,7 +20,7 @@
             min-height: 100vh; min-width: 177.77vh;
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         }
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-thumb { background: #990000; border-radius: 10px; }
         
         .glass-panel {
@@ -41,7 +41,8 @@
             display: inline-block;
         }
 
-        .traffic-light { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
+        .traffic-light { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; transition: opacity 0.2s; }
+        .traffic-light:hover { opacity: 0.8; }
         .close-btn { background: #ff5f56; }
         .minimize-btn { background: #ffbd2e; }
         .expand-btn { background: #27c93f; }
@@ -57,38 +58,38 @@
         const { useState, useEffect, useRef } = React;
         const { motion, AnimatePresence } = window.Motion;
 
+        // RESTORED: All 33 Archive Videos
         const videoLinks = [
-            'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview', 'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview', 'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview', 'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview', 'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview', 'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview', 'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview', 'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview', 'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview'
+            'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview', 'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview', 'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview', 'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview', 'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview', 'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview', 'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview', 'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview', 'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview', 'https://drive.google.com/file/d/1Zr5qBZGjPPKlYFJi6pMNpZrdq7hqV9UU/preview', 'https://drive.google.com/file/d/1Wl8qMjUGRSkrsVe_r9cAV8guWpcZSs1Z/preview', 'https://web.archive.org/web/20120226011651oe_/http://v1.cache1.c.youtube.com/videoplayback?sparams=id%2Cexpire%2Cip%2Cipbits%2Citag%2Csource%2Cratebypass%2Ccp&fexp=914023%2C906500%2C914102&itag=45&ip=207.0.0.0&signature=0462702E6899831AA8F11D392929B9579639F2D2.98B611320866F2C521B2200D0BA40D9792E90974&sver=3&ratebypass=yes&source=youtube&expire=1330244443&key=yt1&ipbits=8&cp=U0hSRVJPUl9JTUNOMl9KSVZFOl9icENCYjJyYWly&id=bca4844902a58242&redirect_counter=1', 'https://drive.google.com/file/d/14LNJHStYFzFlJdUFv3EoWww8DUImhjfT/preview', 'https://drive.google.com/file/d/1pVLNodC8gqYIv-9MI6Hg9m4TFxEwRm1j/preview', 'https://drive.google.com/file/d/1vXpkO2fSfLgy70i-zIHrfrveoEyCySyU/preview', 'https://drive.google.com/file/d/1tgJRuhXNjDUqmnGaYmgGxGwZ6T229zWI/preview', 'https://drive.google.com/file/d/1F7XMY7yHovr-j-kbxe1bZPmWMsyTNzIk/preview', 'https://drive.google.com/file/d/1GYdIwNcPO5kmeZMHl_3NbMI9UidL6-K9/preview', 'https://drive.google.com/file/d/1i-CwzuInjqY4RvYwgBBeVRrucBXWrikz/preview', 'https://drive.google.com/file/d/1V897Rk40PX6Xt8rOix6PsArhyQtimoKo/preview', 'https://drive.google.com/file/d/14o4XlH1o_oL_c1qJwg5_vUIE6ZyNsyXu/preview', 'https://drive.google.com/file/d/1GB7ConILrKSIMRW2RPZUJedZHiLcov8p/preview', 'https://drive.google.com/file/d/1AcnFKhWOSYBPiKjUjbYhY2zDQTMC798i/preview', 'https://drive.google.com/file/d/1teOsyrRDUMXy80l3QsMqByqDiil9iQ8o/preview', 'https://web.archive.org/web/20120622071749oe_/http://o-o.preferred.nuq04s10.v21.lscache3.c.youtube.com/videoplayback?upn=MQ0QxqjzUwc&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=905604%2C906335%2C905600%2C923002%2C902517%2C907217%2C907335%2C921602%2C919306%2C922600%2C919316%2C920704%2C912804%2C913542%2C919324%2C907344%2C912706&ms=au&itag=45&ip=207.0.0.0&signature=0B550FE7FCC9A4456F05DD3F78238028441DD5DB.31E144A94770C2414DE6539BEF5A568DCC32AEF0&sver=3&mt=1340349013&ratebypass=yes&source=youtube&expire=1340372997&key=yt1&ipbits=8&cp=U0hSRVNSUF9OUUNOM19LTFRKOnRGNmt4Z0dWTXhq&id=1f0a898373a952ab', 'https://web.archive.org/web/20121210025752oe_/http://r4---sn-a5m7zu7s.c.youtube.com/videoplayback?upn=Pbc5Q_wBh3Y&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=901803%2C918106%2C910013%2C914086%2C916611%2C922401%2C920704%2C912806%2C925703%2C925706%2C928001%2C922403%2C922405%2C929901%2C913605%2C913546%2C913556%2C920201%2C913302%2C911116%2C901451%2C902556&key=yt1&expire=1355129371&itag=22&ipbits=8&sver=3&ratebypass=yes&mt=1355108222&ip=207.241.237.138&mv=m&source=youtube&ms=tsu&cp=U0hUSlFNV19MS0NONF9JR0FEOkNQa3Preparation preparing for she drowns8RC&id=8a7b6e64b7a17e0a&signature=33EF7B450A041FFC756A231E36686C6D2477EB53.2CD494C79ECD687DD08657C1E2422BF552FA99C7&redirect_counter=1', 'https://drive.google.com/file/d/1BUh2Oi2zoT1Y8FBp94MLB9lIDMpbe9fK/preview', 'https://drive.google.com/file/d/1Zu1yZ_8v1V1Al3OyG5l2rCbVw9ES2iL9/preview', 'https://drive.google.com/file/d/1G6PpfeQqKnkgdBN63YZk2058ksx6PcUi/preview', 'https://drive.google.com/file/d/1ehqGDqlLREUwR6ihmO3KurEEbtt7gxO5/preview', 'https://drive.google.com/file/d/1orIhGHZzCkHXTcEPyeQTUD9dHKATCpSg/preview', 'https://drive.google.com/file/d/1WzB2I3ojjPt2ZqgorW3Bxyqu3dt0zmSh/preview', 'https://drive.google.com/file/d/1wwCLwE03wY9ogZmCLspq_CDjvjJJY4pW/preview'
         ];
 
+        // RESTORED: All 11 Archive Photos
         const photoLinks = [
-            'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg/revision/latest?cb=20220524185305', 'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg/revision/latest?cb=20240406232229', 'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg/revision/latest?cb=20200524140831', 'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg/revision/latest?cb=20240406231758', 'https://static.wikia.nocookie.net/marsargo/images/b/ba/70ba1c59a8024d8eae890a643c969b48.jpeg/revision/latest?cb=20220511193735'
+            'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg/revision/latest?cb=20220524185305', 'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg/revision/latest?cb=20240406232229', 'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg/revision/latest?cb=20200524140831', 'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg/revision/latest?cb=20240406231758', 'https://static.wikia.nocookie.net/marsargo/images/b/ba/70ba1c59a8024d8eae890a643c969b48.jpeg/revision/latest?cb=20220511193735', 'https://static.wikia.nocookie.net/marsargo/images/8/86/KewlOuttake.jpg/revision/latest?cb=20211227044755', 'https://static.wikia.nocookie.net/marsargo/images/8/89/2015-10-11_11.10.39_1093537410520121192_362742494.jpg/revision/latest?cb=20170831231034', 'https://static.wikia.nocookie.net/marsargo/images/c/c4/Tumblr_osigop18Bt1uftv1so2_1280.jpg/revision/latest?cb=20170831213314', 'https://static.wikia.nocookie.net/marsargo/images/3/34/Tumblr_osigop18Bt1uftv1so1_1280.jpg/revision/latest?cb=20170831213313', 'https://static.wikia.nocookie.net/marsargo/images/5/5b/WRIFURHE.jpg/revision/latest?cb=20240903201454', 'https://static.wikia.nocookie.net/marsargo/images/5/53/Marsargo2015.jpg/revision/latest?cb=20240903195933'
         ];
 
         function App() {
-            const [isBooting, setIsBooting] = useState(true);
             const [isLoggedIn, setIsLoggedIn] = useState(false);
             const [username, setUsername] = useState("");
             const [isDark, setIsDark] = useState(true);
             const [isMuted, setIsMuted] = useState(false);
+            
             const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false });
+            const [maximizedApps, setMaximizedApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false });
             const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10 });
             const [topZ, setTopZ] = useState(20);
+
+            const [positions, setPositions] = useState({
+                VIDEOS: { x: 60, y: 80 },
+                PHOTOS: { x: 150, y: 150 },
+                CHAT: { x: typeof window !== 'undefined' ? window.innerWidth - 460 : 500, y: 100 },
+                WINSTON: { x: typeof window !== 'undefined' ? window.innerWidth / 2 - 200 : 300, y: 180 }
+            });
             
             const [chatMessages, setChatMessages] = useState([
                 { user: "SYSTEM", text: "Welcome to the network." },
-                { user: "SYSTEM", text: "JOIN OUR SERVER: https://discord.gg/CRMjDFNBm7" }
+                { user: "SYSTEM", text: "ARCHIVE RESTORED." }
             ]);
-
-            const audioRef = useRef(null);
-
-            // Handle Boot Sequence Timer
-            useEffect(() => {
-                const timer = setTimeout(() => {
-                    setIsBooting(false);
-                }, 3000); // 3 seconds boot time
-                return () => clearTimeout(timer);
-            }, []);
 
             const theme = isDark ? {
                 bg: "bg-black", text: "text-red-600", winBg: "bg-zinc-900/95", winBorder: "border-red-900/40", titleBar: "bg-red-950/20"
@@ -102,36 +103,13 @@
                 setTopZ(newZ);
             };
 
-            const toggleApp = (app) => {
-                setOpenApps(prev => ({ ...prev, [app]: !prev[app] }));
-                if (!openApps[app]) bringToFront(app);
+            const handleDockClick = (app) => {
+                if (!openApps[app]) setOpenApps(prev => ({ ...prev, [app]: true }));
+                bringToFront(app);
             };
 
-            // 1. Boot Screen Render
-            if (isBooting) {
-                return (
-                    <div className="h-screen w-full bg-black flex flex-col items-center justify-center pointer-events-none">
-                        <motion.div 
-                            initial={{ opacity: 0 }} 
-                            animate={{ opacity: 1 }} 
-                            transition={{ duration: 0.8 }}
-                            className="flex flex-col items-center"
-                        >
-                            <div className="illuminati-logo text-white scale-[4] mb-16"></div>
-                            <div className="w-48 h-1 bg-zinc-800 rounded-full overflow-hidden">
-                                <motion.div 
-                                    initial={{ width: "0%" }} 
-                                    animate={{ width: "100%" }} 
-                                    transition={{ duration: 2.5, ease: "easeInOut", delay: 0.2 }}
-                                    className="h-full bg-white"
-                                />
-                            </div>
-                        </motion.div>
-                    </div>
-                );
-            }
+            const toggleMaximize = (app) => setMaximizedApps(prev => ({ ...prev, [app]: !prev[app] }));
 
-            // 2. Login Screen Render
             if (!isLoggedIn) {
                 return (
                     <div className="h-screen w-full bg-black flex items-center justify-center text-red-600 p-4">
@@ -139,82 +117,48 @@
                             <div className="illuminati-logo scale-150 mb-2"></div>
                             <h1 className="text-sm font-bold tracking-[0.3em] uppercase opacity-80">Login to AOS</h1>
                             <input 
-                                type="text" 
-                                placeholder="Username" 
-                                className="w-full bg-black/50 border border-red-900/30 p-3 rounded-xl text-center focus:outline-none focus:border-red-600 transition-all text-sm"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                type="text" placeholder="Username" 
+                                className="w-full bg-black/50 border border-red-900/30 p-3 rounded-xl text-center focus:outline-none focus:border-red-600 text-sm"
+                                value={username} onChange={(e) => setUsername(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && username && setIsLoggedIn(true)}
                             />
-                            <button onClick={() => username && setIsLoggedIn(true)} className="w-full bg-red-900/10 hover:bg-red-900/30 border border-red-900/40 py-3 rounded-xl text-xs font-bold tracking-widest transition-all">
-                                LOGIN
-                            </button>
+                            <button onClick={() => username && setIsLoggedIn(true)} className="w-full bg-red-900/10 hover:bg-red-900/30 border border-red-900/40 py-3 rounded-xl text-xs font-bold tracking-widest transition-all">LOGIN</button>
                         </motion.div>
                     </div>
                 );
             }
 
-            // 3. Main Desktop Render
             return (
                 <div className={`h-screen w-full relative transition-colors duration-500 overflow-hidden ${isDark ? 'dark' : ''} ${theme.bg} ${theme.text}`}>
-                    <audio ref={audioRef} autoPlay loop src="https://grocerybag.tv/media/SNOW3.mp3" muted={isMuted} />
-                    
+                    <audio autoPlay loop src="https://grocerybag.tv/media/SNOW3.mp3" muted={isMuted} />
                     <div className="video-background">
                         <iframe src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&loop=1&playlist=8uy6OhNEg1w&controls=0" frameBorder="0"></iframe>
                     </div>
 
-                    {/* Floating Top Nav */}
-                    <div className="fixed top-4 w-full flex justify-center z-[5000] px-6">
+                    <div className="fixed top-4 w-full flex justify-center z-[10000] px-6">
                         <div className={`glass-panel h-11 w-full max-w-6xl rounded-full flex justify-between items-center px-6 shadow-2xl`}>
                             <div className="flex items-center text-[10px] font-bold tracking-widest uppercase">
                                 <div className="illuminati-logo mr-3"></div>
                                 Angels Of SICMR — {username}
                             </div>
-                            <div className="flex gap-4 items-center">
-                                <button className="text-[9px] border px-3 py-1 rounded-full border-current hover:bg-current hover:text-black transition-all" onClick={() => setIsDark(!isDark)}>
-                                    {isDark ? 'LIGHT' : 'DARK'}
-                                </button>
-                            </div>
+                            <button className="text-[9px] border px-3 py-1 rounded-full border-current hover:bg-current hover:text-black transition-all" onClick={() => setIsDark(!isDark)}>
+                                {isDark ? 'LIGHT' : 'DARK'}
+                            </button>
                         </div>
                     </div>
-
-                    <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none select-none">
-                        <h1 className="text-[8vw] font-serif italic text-center">ANGELS OF SICMR</h1>
-                    </div>
-
-                    {/* iTunes-esque Mini Player Widget */}
-                    <motion.div 
-                        drag dragMomentum={false}
-                        style={{ position: 'absolute', top: 76, right: 32, zIndex: 4999 }}
-                        className={`w-64 p-3 rounded-2xl border shadow-2xl backdrop-blur-2xl flex items-center gap-3 cursor-grab active:cursor-grabbing ${theme.winBg} ${theme.winBorder}`}
-                    >
-                        <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center overflow-hidden border border-current/20 shrink-0">
-                            <img src="https://grocerybag.tv/media/winston.JPG" className="w-full h-full object-cover opacity-80" />
-                        </div>
-                        <div className="flex flex-col flex-1 overflow-hidden">
-                            <div className="flex justify-between items-center mb-0.5">
-                                <span className="text-[8px] font-bold opacity-50 tracking-widest uppercase">Now Playing</span>
-                                <button onClick={() => setIsMuted(!isMuted)} className="text-[12px] hover:scale-110 transition-transform">
-                                    {isMuted ? '🔇' : '🔊'}
-                                </button>
-                            </div>
-                            <span className="text-xs font-bold truncate">SNOW3.mp3</span>
-                            <span className="text-[9px] opacity-60 truncate">System Audio</span>
-                            {/* Fake Progress Bar */}
-                            <div className="w-full h-[3px] bg-current/20 rounded-full mt-2 overflow-hidden">
-                                <motion.div 
-                                    animate={{ width: ["0%", "100%"] }} 
-                                    transition={{ duration: 180, repeat: Infinity, ease: "linear" }}
-                                    className="h-full bg-current opacity-60"
-                                />
-                            </div>
-                        </div>
-                    </motion.div>
 
                     <AnimatePresence>
                         {openApps.VIDEOS && (
-                            <Window title="ARCHIVE_LIBRARY" theme={theme} onClose={() => setOpenApps(p => ({...p, VIDEOS: false}))} onFocus={() => bringToFront('VIDEOS')} zIndex={zIndices.VIDEOS} initialX={60} initialY={80}>
+                            <Window title="ARCHIVE_LIBRARY" theme={theme} 
+                                onClose={() => setOpenApps(p => ({...p, VIDEOS: false}))} 
+                                onFocus={() => bringToFront('VIDEOS')} 
+                                onExpand={() => toggleMaximize('VIDEOS')}
+                                isMaximized={maximizedApps.VIDEOS}
+                                zIndex={zIndices.VIDEOS} initialX={positions.VIDEOS.x} initialY={positions.VIDEOS.y}
+                                onDragEnd={(pos) => setPositions(p => ({...p, VIDEOS: pos}))}
+                            >
                                 <div className="p-4 space-y-6">
+                                    <p className="text-[10px] opacity-50 text-center uppercase">33 items found in archive</p>
                                     {videoLinks.map((url, i) => (
                                         <div key={i} className="border border-current/20 p-1 bg-black/40 rounded-xl overflow-hidden">
                                             <iframe src={url} className="w-full aspect-video rounded-lg" frameBorder="0" allowFullScreen></iframe>
@@ -225,8 +169,16 @@
                         )}
 
                         {openApps.PHOTOS && (
-                            <Window title="IMAGE_ARCHIVE" theme={theme} onClose={() => setOpenApps(p => ({...p, PHOTOS: false}))} onFocus={() => bringToFront('PHOTOS')} zIndex={zIndices.PHOTOS} initialX={150} initialY={150}>
+                            <Window title="IMAGE_ARCHIVE" theme={theme} 
+                                onClose={() => setOpenApps(p => ({...p, PHOTOS: false}))} 
+                                onFocus={() => bringToFront('PHOTOS')} 
+                                onExpand={() => toggleMaximize('PHOTOS')}
+                                isMaximized={maximizedApps.PHOTOS}
+                                zIndex={zIndices.PHOTOS} initialX={positions.PHOTOS.x} initialY={positions.PHOTOS.y}
+                                onDragEnd={(pos) => setPositions(p => ({...p, PHOTOS: pos}))}
+                            >
                                 <div className="p-4 space-y-6">
+                                    <p className="text-[10px] opacity-50 text-center uppercase">11 images found in archive</p>
                                     {photoLinks.map((url, i) => (
                                         <img key={i} src={url} className="w-full border border-current/30 shadow-xl rounded-2xl" />
                                     ))}
@@ -235,7 +187,14 @@
                         )}
 
                         {openApps.CHAT && (
-                            <Window title="ENCRYPTED_CHAT" theme={theme} onClose={() => setOpenApps(p => ({...p, CHAT: false}))} onFocus={() => bringToFront('CHAT')} zIndex={zIndices.CHAT} initialX={window.innerWidth - 460} initialY={100}>
+                            <Window title="ENCRYPTED_CHAT" theme={theme} 
+                                onClose={() => setOpenApps(p => ({...p, CHAT: false}))} 
+                                onFocus={() => bringToFront('CHAT')} 
+                                onExpand={() => toggleMaximize('CHAT')}
+                                isMaximized={maximizedApps.CHAT}
+                                zIndex={zIndices.CHAT} initialX={positions.CHAT.x} initialY={positions.CHAT.y}
+                                onDragEnd={(pos) => setPositions(p => ({...p, CHAT: pos}))}
+                            >
                                 <div className="flex flex-col h-full">
                                     <div className="flex-1 p-4 overflow-y-auto space-y-3 text-[11px]">
                                         {chatMessages.map((m, i) => (
@@ -245,23 +204,26 @@
                                         ))}
                                     </div>
                                     <div className="p-4 border-t border-current/10">
-                                        <input 
-                                            placeholder="Message..." 
-                                            className="w-full bg-transparent outline-none border-b border-current/20 pb-1"
-                                            onKeyDown={(e) => {
-                                                if(e.key === 'Enter' && e.target.value.trim()){
-                                                    setChatMessages([...chatMessages, { user: username, text: e.target.value }]);
-                                                    e.target.value = '';
-                                                }
-                                            }}
-                                        />
+                                        <input placeholder="Message..." className="w-full bg-transparent outline-none border-b border-current/20 pb-1" onKeyDown={(e) => {
+                                            if(e.key === 'Enter' && e.target.value.trim()){
+                                                setChatMessages([...chatMessages, { user: username, text: e.target.value }]);
+                                                e.target.value = '';
+                                            }
+                                        }}/>
                                     </div>
                                 </div>
                             </Window>
                         )}
 
                         {openApps.WINSTON && (
-                            <Window title="WINSTON" theme={theme} onClose={() => setOpenApps(p => ({...p, WINSTON: false}))} onFocus={() => bringToFront('WINSTON')} zIndex={zIndices.WINSTON} initialX={window.innerWidth/2 - 200} initialY={180} isWinston>
+                            <Window title="WINSTON" theme={theme} 
+                                onClose={() => setOpenApps(p => ({...p, WINSTON: false}))} 
+                                onFocus={() => bringToFront('WINSTON')} 
+                                onExpand={() => toggleMaximize('WINSTON')}
+                                isMaximized={maximizedApps.WINSTON}
+                                zIndex={zIndices.WINSTON} initialX={positions.WINSTON.x} initialY={positions.WINSTON.y}
+                                onDragEnd={(pos) => setPositions(p => ({...p, WINSTON: pos}))} isWinston
+                            >
                                 <div className="p-8 text-center flex flex-col items-center bg-white text-black h-full">
                                     <h2 className="text-3xl font-black tracking-tighter mb-6">WINSTON FAN CLUB</h2>
                                     <img src="https://grocerybag.tv/media/winston.JPG" className="winston-img mb-8 shadow-2xl" />
@@ -271,38 +233,53 @@
                         )}
                     </AnimatePresence>
 
-                    {/* macOS Dock */}
-                    <div className="fixed bottom-6 w-full flex justify-center z-[5000]">
+                    <div className="fixed bottom-6 w-full flex justify-center z-[10000]">
                         <div className={`glass-panel p-3 px-8 rounded-[32px] flex gap-10 shadow-2xl items-center`}>
-                            <button onClick={() => toggleApp('VIDEOS')} className="text-3xl hover:scale-125 transition-transform">📽️</button>
-                            <button onClick={() => toggleApp('PHOTOS')} className="text-3xl hover:scale-125 transition-transform">🖼️</button>
-                            <button onClick={() => toggleApp('CHAT')} className="text-3xl hover:scale-125 transition-transform">💬</button>
-                            <button onClick={() => toggleApp('WINSTON')} className="text-3xl hover:scale-125 transition-transform">🐶</button>
+                            <button onClick={() => handleDockClick('VIDEOS')} className="text-3xl hover:scale-125 transition-all">📽️</button>
+                            <button onClick={() => handleDockClick('PHOTOS')} className="text-3xl hover:scale-125 transition-all">🖼️</button>
+                            <button onClick={() => handleDockClick('CHAT')} className="text-3xl hover:scale-125 transition-all">💬</button>
+                            <button onClick={() => handleDockClick('WINSTON')} className="text-3xl hover:scale-125 transition-all">🐶</button>
                         </div>
                     </div>
                 </div>
             );
         }
 
-        function Window({ title, children, onClose, onFocus, theme, isWinston, zIndex, initialX, initialY }) {
+        function Window({ title, children, onClose, onFocus, onExpand, isMaximized, theme, isWinston, zIndex, initialX, initialY, onDragEnd }) {
+            const controls = {
+                width: isMaximized ? '100vw' : '420px',
+                height: isMaximized ? '100vh' : '500px',
+                x: isMaximized ? 0 : initialX,
+                y: isMaximized ? 0 : initialY,
+                borderRadius: isMaximized ? '0px' : '24px'
+            };
+
             return (
                 <motion.div 
-                    drag dragMomentum={false} onDragStart={onFocus}
-                    initial={{ opacity: 0, scale: 0.9, x: initialX, y: initialY }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
+                    drag={!isMaximized} dragMomentum={false} onDragStart={onFocus}
+                    onDragEnd={(e) => {
+                        const el = e.target.closest('.window-container');
+                        if (el) {
+                            const rect = el.getBoundingClientRect();
+                            if (onDragEnd) onDragEnd({ x: rect.left, y: rect.top });
+                        }
+                    }}
+                    initial={{ opacity: 0, scale: 0.5, x: initialX, y: window.innerHeight }}
+                    animate={{ opacity: 1, scale: 1, ...controls }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                    exit={{ opacity: 0, scale: 0.2, y: window.innerHeight, transition: { duration: 0.4 } }}
                     style={{ zIndex: zIndex, position: 'absolute' }}
-                    className={`w-[420px] h-[500px] border shadow-2xl flex flex-col rounded-[24px] overflow-hidden backdrop-blur-2xl ${theme.winBg} ${theme.winBorder}`}
+                    className={`window-container border shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl ${theme.winBg} ${theme.winBorder}`}
                 >
-                    <div className={`${theme.titleBar} p-4 flex items-center relative cursor-grab active:cursor-grabbing`}>
+                    <div className={`${theme.titleBar} p-4 flex items-center relative ${isMaximized ? '' : 'cursor-grab'}`}>
                         <div className="flex gap-2 absolute left-4">
                             <div onClick={(e) => { e.stopPropagation(); onClose(); }} className="traffic-light close-btn"></div>
-                            <div className="traffic-light minimize-btn"></div>
-                            <div className="traffic-light expand-btn"></div>
+                            <div onClick={(e) => { e.stopPropagation(); onClose(); }} className="traffic-light minimize-btn"></div>
+                            <div onClick={(e) => { e.stopPropagation(); onExpand(); }} className="traffic-light expand-btn"></div>
                         </div>
-                        <span className="text-[10px] font-bold tracking-widest uppercase w-full text-center opacity-50 pointer-events-none">{title}</span>
+                        <span className="text-[10px] font-bold tracking-widest uppercase w-full text-center opacity-50 select-none pointer-events-none">{title}</span>
                     </div>
-                    <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white rounded-b-[24px]' : ''}`}>
+                    <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white' : ''}`}>
                         {children}
                     </div>
                 </motion.div>
