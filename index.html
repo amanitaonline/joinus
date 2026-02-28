@@ -21,16 +21,27 @@
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         }
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #990000; }
-        .winston-content { background: white !important; color: black !important; font-family: 'Times New Roman', serif; }
-        .discord-btn { background: #7289da; color: white !important; padding: 10px 24px; border-radius: 8px; font-weight: bold; border: 2px solid #990000; display: inline-block; }
+        ::-webkit-scrollbar-thumb { background: #990000; border-radius: 10px; }
         
-        /* macOS Traffic Lights */
-        .traffic-light { width: 12px; height: 12px; border-radius: 50%; display: inline-block; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); }
+        .winston-content { background: white !important; color: black !important; font-family: 'Times New Roman', serif; }
+        .discord-btn { background: #7289da; color: white !important; padding: 10px 24px; border-radius: 12px; font-weight: bold; border: 2px solid #990000; display: inline-block; }
+        
+        /* macOS Style Traffic Lights */
+        .traffic-light { width: 12px; height: 12px; border-radius: 50%; display: inline-block; cursor: pointer; }
         .close-btn { background: #ff5f56; }
         .minimize-btn { background: #ffbd2e; }
         .expand-btn { background: #27c93f; }
-        .traffic-light:hover { filter: brightness(0.8); }
+        
+        /* Floating Dock Blur */
+        .mac-dock {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark .mac-dock {
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -53,17 +64,16 @@
             const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false });
             const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10 });
             const [topZ, setTopZ] = useState(20);
-            
             const [timer, setTimer] = useState(216);
             const [isMuted, setIsMuted] = useState(false);
             const audioRef = useRef(null);
 
             const theme = isDark ? {
-                bg: "bg-black", text: "text-red-600", bar: "bg-zinc-900 border-red-900",
-                winBg: "bg-zinc-900", winBorder: "border-red-900", titleBar: "bg-red-950/20"
+                bg: "bg-black", text: "text-red-600", bar: "bg-zinc-950/80 border-red-900",
+                winBg: "bg-zinc-900/95", winBorder: "border-red-900/50", titleBar: "bg-red-950/10"
             } : {
-                bg: "bg-[#d6d2c4]", text: "text-[#4a3f35]", bar: "bg-[#c2beb0] border-[#8c867a]",
-                winBg: "bg-[#eceae0]", winBorder: "border-[#8c867a]", titleBar: "bg-[#b0ab99]"
+                bg: "bg-[#d6d2c4]", text: "text-[#4a3f35]", bar: "bg-[#c2beb0]/80 border-[#8c867a]",
+                winBg: "bg-[#eceae0]/95", winBorder: "border-[#8c867a]/50", titleBar: "bg-[#b0ab99]/20"
             };
 
             useEffect(() => {
@@ -78,31 +88,26 @@
             };
 
             const toggleApp = (app) => {
-                if (!openApps[app]) {
-                    setOpenApps(prev => ({ ...prev, [app]: true }));
-                }
+                if (!openApps[app]) setOpenApps(prev => ({ ...prev, [app]: true }));
                 bringToFront(app);
             };
 
-            const closeApp = (app) => {
-                setOpenApps(prev => ({ ...prev, [app]: false }));
-            };
-
             return (
-                <div className={`h-screen w-full relative transition-colors duration-500 ${theme.bg} ${theme.text}`} onClick={() => audioRef.current?.play()}>
+                <div className={`h-screen w-full relative transition-colors duration-500 overflow-hidden ${isDark ? 'dark' : ''} ${theme.bg} ${theme.text}`} onClick={() => audioRef.current?.play()}>
                     <audio ref={audioRef} loop src="https://grocerybag.tv/media/SNOW3.mp3" muted={isMuted} />
                     
                     <div className="video-background">
                         <iframe src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&loop=1&playlist=8uy6OhNEg1w&controls=0&showinfo=0" frameBorder="0"></iframe>
                     </div>
 
-                    <div className={`h-8 w-full border-b flex justify-between items-center px-4 fixed top-0 z-[1000] ${theme.bar}`}>
+                    {/* Top Menu Bar */}
+                    <div className={`h-7 w-full border-b flex justify-between items-center px-4 fixed top-0 z-[1000] backdrop-blur-md ${theme.bar}`}>
                         <div className="text-[10px] font-bold tracking-widest uppercase">
                             ✶ Angels Of SICMR — {Math.floor(timer/60)}:{String(timer%60).padStart(2,'0')}
                         </div>
                         <div className="flex gap-4 items-center">
-                            <button className="text-[9px] border px-2 py-0.5 rounded border-current" onClick={() => setIsDark(!isDark)}>
-                                {isDark ? 'LIGHT MODE' : 'DARK MODE'}
+                            <button className="text-[9px] border px-2 py-0.5 rounded-full border-current" onClick={() => setIsDark(!isDark)}>
+                                {isDark ? 'LIGHT' : 'DARK'}
                             </button>
                             <button className="text-[9px] font-bold" onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}>
                                 {isMuted ? 'UNMUTE' : 'MUTE'}
@@ -110,23 +115,23 @@
                         </div>
                     </div>
 
-                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-30 pointer-events-none">
-                        <h1 className="text-6xl mb-4 font-serif italic text-center">ANGELS OF SICMR</h1>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
+                        <h1 className="text-7xl font-serif italic text-center">ANGELS OF SICMR</h1>
                     </div>
 
                     <AnimatePresence>
                         {openApps.VIDEOS && (
                             <Window title="ARCHIVE_LIBRARY" theme={theme} 
-                                onClose={() => closeApp('VIDEOS')} 
+                                onClose={() => setOpenApps(p => ({...p, VIDEOS: false}))} 
                                 onFocus={() => bringToFront('VIDEOS')}
                                 zIndex={zIndices.VIDEOS}
-                                pos="left-[5%] top-20"
+                                pos="left-[8%] top-20"
                             >
                                 <div className="p-4 space-y-8">
                                     {videoLinks.map((url, i) => (
-                                        <div key={i} className="border border-current p-2 bg-black/50">
+                                        <div key={i} className="border border-current p-2 bg-black/30 rounded-lg">
                                             <p className="text-[8px] mb-2">ENTRY_FILE_{i+1}</p>
-                                            <iframe src={url} className="w-full aspect-video" frameBorder="0" allowFullScreen></iframe>
+                                            <iframe src={url} className="w-full aspect-video rounded" frameBorder="0" allowFullScreen></iframe>
                                         </div>
                                     ))}
                                 </div>
@@ -135,14 +140,14 @@
 
                         {openApps.PHOTOS && (
                             <Window title="IMAGE_ARCHIVE" theme={theme} 
-                                onClose={() => closeApp('PHOTOS')} 
+                                onClose={() => setOpenApps(p => ({...p, PHOTOS: false}))} 
                                 onFocus={() => bringToFront('PHOTOS')}
                                 zIndex={zIndices.PHOTOS}
                                 pos="left-1/2 -translate-x-1/2 top-32"
                             >
                                 <div className="grid grid-cols-1 gap-6 p-4">
                                     {photoLinks.map((url, i) => (
-                                        <img key={i} src={url} className="w-full border-2 border-current shadow-lg" />
+                                        <img key={i} src={url} className="w-full border border-current shadow-lg rounded-xl" />
                                     ))}
                                 </div>
                             </Window>
@@ -150,26 +155,27 @@
 
                         {openApps.WINSTON && (
                             <Window title="WINSTON" theme={theme} 
-                                onClose={() => closeApp('WINSTON')} 
+                                onClose={() => setOpenApps(p => ({...p, WINSTON: false}))} 
                                 onFocus={() => bringToFront('WINSTON')}
                                 zIndex={zIndices.WINSTON}
-                                pos="right-[5%] top-24" 
+                                pos="right-[8%] top-24" 
                                 isWinston
                             >
                                 <div className="winston-content p-10 h-full flex flex-col items-center text-center space-y-8">
                                     <h2 className="text-3xl font-bold tracking-tighter">WINSTON FAN CLUB</h2>
-                                    <img src="media/winston.JPG" className="w-56 h-56 rounded-xl border-4 border-red-900 shadow-2xl object-cover" />
-                                    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="discord-btn">JOIN THE DISCORD</a>
+                                    <img src="media/winston.JPG" className="w-56 h-56 rounded-3xl border-4 border-red-900 shadow-2xl object-cover" />
+                                    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="discord-btn">JOIN DISCORD</a>
                                 </div>
                             </Window>
                         )}
                     </AnimatePresence>
 
-                    <div className="fixed bottom-8 w-full flex justify-center z-[1000]">
-                        <div className={`${theme.bar} border-2 flex gap-10 p-3 px-12 rounded-full shadow-2xl backdrop-blur-md`}>
-                            <button onClick={() => toggleApp('VIDEOS')} className="text-2xl hover:scale-125 transition-transform">📽️</button>
-                            <button onClick={() => toggleApp('PHOTOS')} className="text-2xl hover:scale-125 transition-transform">🖼️</button>
-                            <button onClick={() => toggleApp('WINSTON')} className="text-2xl hover:scale-125 transition-transform">🐶</button>
+                    {/* macOS Dock */}
+                    <div className="fixed bottom-6 w-full flex justify-center z-[1000]">
+                        <div className={`mac-dock p-3 px-8 rounded-[24px] flex gap-8 shadow-2xl items-center`}>
+                            <button onClick={() => toggleApp('VIDEOS')} className="text-3xl hover:scale-125 transition-all duration-200">📽️</button>
+                            <button onClick={() => toggleApp('PHOTOS')} className="text-3xl hover:scale-125 transition-all duration-200">🖼️</button>
+                            <button onClick={() => toggleApp('WINSTON')} className="text-3xl hover:scale-125 transition-all duration-200">🐶</button>
                         </div>
                     </div>
                 </div>
@@ -179,22 +185,22 @@
         function Window({ title, children, onClose, onFocus, theme, isWinston, pos, zIndex }) {
             return (
                 <motion.div 
-                    initial={{ scale: 0.95, opacity: 0 }} 
+                    initial={{ scale: 0.9, opacity: 0 }} 
                     animate={{ scale: 1, opacity: 1 }} 
-                    exit={{ scale: 0.95, opacity: 0 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
                     onMouseDown={onFocus}
                     style={{ zIndex: zIndex }}
-                    className={`absolute ${pos} w-[90%] md:w-[480px] h-[520px] border-2 shadow-2xl flex flex-col ${theme.winBg} ${theme.winBorder}`}
+                    className={`absolute ${pos} w-[90%] md:w-[500px] h-[540px] border shadow-2xl flex flex-col rounded-[18px] overflow-hidden backdrop-blur-xl ${theme.winBg} ${theme.winBorder}`}
                 >
-                    <div className={`${theme.titleBar} border-b ${theme.winBorder} p-2 px-4 flex items-center gap-2 cursor-move`}>
-                        <div className="flex gap-2 mr-4">
+                    <div className={`${theme.titleBar} border-b ${theme.winBorder} p-3 px-4 flex items-center relative cursor-move`}>
+                        <div className="flex gap-2 absolute left-4">
                             <div onClick={(e) => { e.stopPropagation(); onClose(); }} className="traffic-light close-btn"></div>
                             <div className="traffic-light minimize-btn"></div>
                             <div className="traffic-light expand-btn"></div>
                         </div>
-                        <span className="text-[10px] font-bold tracking-widest uppercase flex-1 text-center pr-12">{title}</span>
+                        <span className="text-[10px] font-bold tracking-widest uppercase w-full text-center opacity-70">{title}</span>
                     </div>
-                    <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white' : ''}`}>
+                    <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white rounded-b-[18px]' : ''}`}>
                         {children}
                     </div>
                 </motion.div>
