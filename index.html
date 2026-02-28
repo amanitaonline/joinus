@@ -3,21 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ANGELS OF SICMR</title>
+    <title>✶ ANGELS OF SICMR ✶</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Courier New', monospace; background: black; }
-        .win-btn { border: 2px solid #990000; padding: 5px 15px; cursor: pointer; transition: 0.2s; }
-        .win-btn:hover { background: #990000; color: white; }
-        ::-webkit-scrollbar { width: 8px; }
+        body { background: black; overflow: hidden; font-family: 'Courier New', monospace; }
+        .window-shadow { shadow-2xl; }
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #990000; }
-        
-        /* Winston Layout - Original Style */
-        .winston-window { background: white !important; color: black !important; font-family: 'Times New Roman', Times, serif; }
-        .discord-blue { background-color: #7289da; color: white !important; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: bold; border: 2px solid #990000; display: inline-block; }
     </style>
 </head>
 <body>
@@ -25,109 +21,172 @@
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
+        const { motion, AnimatePresence } = window.Motion;
 
-        const VIDEOS = [
-            'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview', 'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview', 'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview', 'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview', 'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview', 'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview', 'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview', 'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview', 'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview', 'https://drive.google.com/file/d/1Zr5qBZGjPPKlYFJi6pMNpZrdq7hqV9UU/preview', 'https://drive.google.com/file/d/1Wl8qMjUGRSkrsVe_r9cAV8guWpcZSs1Z/preview', 'https://web.archive.org/web/20120226011651oe_/http://v1.cache1.c.youtube.com/videoplayback?sparams=id%2Cexpire%2Cip%2Cipbits%2Citag%2Csource%2Cratebypass%2Ccp&fexp=914023%2C906500%2C914102&itag=45&ip=207.0.0.0&signature=0462702E6899831AA8F11D392929B9579639F2D2.98B611320866F2C521B2200D0BA40D9792E90974&sver=3&ratebypass=yes&source=youtube&expire=1330244443&key=yt1&ipbits=8&cp=U0hSRVJPUl9JTUNOMl9KSVZFOl9icENCYjJyYWly&id=bca4844902a58242&redirect_counter=1', 'https://drive.google.com/file/d/14LNJHStYFzFlJdUFv3EoWww8DUImhjfT/preview', 'https://drive.google.com/file/d/1pVLNodC8gqYIv-9MI6Hg9m4TFxEwRm1j/preview', 'https://drive.google.com/file/d/1vXpkO2fSfLgy70i-zIHrfrveoEyCySyU/preview', 'https://drive.google.com/file/d/1tgJRuhXNjDUqmnGaYmgGxGwZ6T229zWI/preview', 'https://drive.google.com/file/d/1F7XMY7yHovr-j-kbxe1bZPmWMsyTNzIk/preview', 'https://drive.google.com/file/d/1GYdIwNcPO5kmeZMHl_3NbMI9UidL6-K9/preview', 'https://drive.google.com/file/d/1i-CwzuInjqY4RvYwgBBeVRrucBXWrikz/preview', 'https://drive.google.com/file/d/1V897Rk40PX6Xt8rOix6PsArhyQtimoKo/preview', 'https://drive.google.com/file/d/14o4XlH1o_oL_c1qJwg5_vUIE6ZyNsyXu/preview', 'https://drive.google.com/file/d/1GB7ConILrKSIMRW2RPZUJedZHiLcov8p/preview', 'https://drive.google.com/file/d/1AcnFKhWOSYBPiKjUjbYhY2zDQTMC798i/preview', 'https://drive.google.com/file/d/1teOsyrRDUMXy80l3QsMqByqDiil9iQ8o/preview', 'https://web.archive.org/web/20120622071749oe_/http://o-o.preferred.nuq04s10.v21.lscache3.c.youtube.com/videoplayback?upn=MQ0QxqjzUwc&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=905604%2C906335%2C905600%2C923002%2C902517%2C907217%2C907335%2C921602%2C919306%2C922600%2C919316%2C920704%2C912804%2C913542%2C919324%2C907344%2C912706&ms=au&itag=45&ip=207.0.0.0&signature=0B550FE7FCC9A4456F05DD3F78238028441DD5DB.31E144A94770C2414DE6539BEF5A568DCC32AEF0&sver=3&mt=1340349013&ratebypass=yes&source=youtube&expire=1340372997&key=yt1&ipbits=8&cp=U0hSRVNSUF9OUUNOM19LTFRKOnRGNmt4Z0dWTXhq&id=1f0a898373a952ab', 'https://web.archive.org/web/20121210025752oe_/http://r4---sn-a5m7zu7s.c.youtube.com/videoplayback?upn=Pbc5Q_wBh3Y&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=901803%2C918106%2C910013%2C914086%2C916611%2C922401%2C920704%2C912806%2C925703%2C925706%2C928001%2C922403%2C922405%2C929901%2C913605%2C913546%2C913556%2C920201%2C913302%2C911116%2C901451%2C902556&key=yt1&expire=1355129371&itag=22&ipbits=8&sver=3&ratebypass=yes&mt=1355108222&ip=207.241.237.138&mv=m&source=youtube&ms=tsu&cp=U0hUSlFNV19MS0NONF9JR0FEOkNQa3pzUEdvODRC&id=8a7b6e64b7a17e0a&signature=33EF7B450A041FFC756A231E36686C6D2477EB53.2CD494C79ECD687DD08657C1E2422BF552FA99C7&redirect_counter=1', 'https://drive.google.com/file/d/1BUh2Oi2zoT1Y8FBp94MLB9lIDMpbe9fK/preview', 'https://drive.google.com/file/d/1Zu1yZ_8v1V1Al3OyG5l2rCbVw9ES2iL9/preview', 'https://drive.google.com/file/d/1G6PpfeQqKnkgdBN63YZk2058ksx6PcUi/preview', 'https://drive.google.com/file/d/1ehqGDqlLREUwR6ihmO3KurEEbtt7gxO5/preview', 'https://drive.google.com/file/d/1orIhGHZzCkHXTcEPyeQTUD9dHKATCpSg/preview', 'https://drive.google.com/file/d/1WzB2I3ojjPt2ZqgorW3Bxyqu3dt0zmSh/preview', 'https://drive.google.com/file/d/1wwCLwE03wY9ogZmCLspq_CDjvjJJY4pW/preview'
-        ];
+        const videoLinks = [
+            'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview',
+            'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview',
+            'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview',
+            'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview',
+            'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview',
+            'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview',
+            'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview',
+            'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview',
+            'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview',
+            'https://drive.google.com/file/d/1Zr5qBZGjPPKlYFJi6pMNpZrdq7hqV9UU/preview',
+            'https://drive.google.com/file/d/1Wl8qMjUGRSkrsVe_r9cAV8guWpcZSs1Z/preview',
+            'https://web.archive.org/web/20120226011651oe_/http://v1.cache1.c.youtube.com/videoplayback?sparams=id%2Cexpire%2Cip%2Cipbits%2Citag%2Csource%2Cratebypass%2Ccp&fexp=914023%2C906500%2C914102&itag=45&ip=207.0.0.0&signature=0462702E6899831AA8F11D392929B9579639F2D2.98B611320866F2C521B2200D0BA40D9792E90974&sver=3&ratebypass=yes&source=youtube&expire=1330244443&key=yt1&ipbits=8&cp=U0hSRVJPUl9JTUNOMl9KSVZFOl9icENCYjJyYWly&id=bca4844902a58242&redirect_counter=1',
+            'https://drive.google.com/file/d/14LNJHStYFzFlJdUFv3EoWww8DUImhjfT/preview',
+            'https://drive.google.com/file/d/1pVLNodC8gqYIv-9MI6Hg9m4TFxEwRm1j/preview',
+            'https://drive.google.com/file/d/1vXpkO2fSfLgy70i-zIHrfrveoEyCySyU/preview',
+            'https://drive.google.com/file/d/1tgJRuhXNjDUqmnGaYmgGxGwZ6T229zWI/preview',
+            'https://drive.google.com/file/d/1F7XMY7yHovr-j-kbxe1bZPmWMsyTNzIk/preview',
+            'https://drive.google.com/file/d/1GYdIwNcPO5kmeZMHl_3NbMI9UidL6-K9/preview',
+            'https://drive.google.com/file/d/1i-CwzuInjqY4RvYwgBBeVRrucBXWrikz/preview',
+            'https://drive.google.com/file/d/1V897Rk40PX6Xt8rOix6PsArhyQtimoKo/preview',
+            'https://drive.google.com/file/d/14o4XlH1o_oL_c1qJwg5_vUIE6ZyNsyXu/preview',
+            'https://drive.google.com/file/d/1GB7ConILrKSIMRW2RPZUJedZHiLcov8p/preview',
+            'https://drive.google.com/file/d/1AcnFKhWOSYBPiKjUjbYhY2zDQTMC798i/preview',
+            'https://drive.google.com/file/d/1teOsyrRDUMXy80l3QsMqByqDiil9iQ8o/preview',
+            'https://web.archive.org/web/20120622071749oe_/http://o-o.preferred.nuq04s10.v21.lscache3.c.youtube.com/videoplayback?upn=MQ0QxqjzUwc&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=905604%2C906335%2C905600%2C923002%2C902517%2C907217%2C907335%2C921602%2C919306%2C922600%2C919316%2C920704%2C912804%2C913542%2C919324%2C907344%2C912706&ms=au&itag=45&ip=207.0.0.0&signature=0B550FE7FCC9A4456F05DD3F78238028441DD5DB.31E144A94770C2414DE6539BEF5A568DCC32AEF0&sver=3&mt=1340349013&ratebypass=yes&source=youtube&expire=1340372997&key=yt1&ipbits=8&cp=U0hSRVNSUF9OUUNOM19LTFRKOnRGNmt4Z0dWTXhq&id=1f0a898373a952ab',
+            'https://web.archive.org/web/20121210025752oe_/http://r4---sn-a5m7zu7s.c.youtube.com/videoplayback?upn=Pbc5Q_wBh3Y&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=901803%2C918106%2C910013%2C914086%2C916611%2C922401%2C920704%2C912806%2C925703%2C925706%2C928001%2C922403%2C922405%2C929901%2C913605%2C913546%2C913556%2C920201%2C913302%2C911116%2C901451%2C902556&key=yt1&expire=1355129371&itag=22&ipbits=8&sver=3&ratebypass=yes&mt=1355108222&ip=207.241.237.138&mv=m&source=youtube&ms=tsu&cp=U0hUSlFNV19MS0NONF9JR0FEOkNQa3pzUEdvODRC&id=8a7b6e64b7a17e0a&signature=33EF7B450A041FFC756A231E36686C6D2477EB53.2CD494C79ECD687DD08657C1E2422BF552FA99C7&redirect_counter=1',
+            'https://drive.google.com/file/d/1BUh2Oi2zoT1Y8FBp94MLB9lIDMpbe9fK/preview',
+            'https://drive.google.com/file/d/1Zu1yZ_8v1V1Al3OyG5l2rCbVw9ES2iL9/preview',
+            'https://drive.google.com/file/d/1G6PpfeQqKnkgdBN63YZk2058ksx6PcUi/preview',
+            'https://drive.google.com/file/d/1ehqGDqlLREUwR6ihmO3KurEEbtt7gxO5/preview',
+            'https://drive.google.com/file/d/1orIhGHZzCkHXTcEPyeQTUD9dHKATCpSg/preview',
+            'https://drive.google.com/file/d/1WzB2I3ojjPt2ZqgorW3Bxyqu3dt0zmSh/preview',
+            'https://drive.google.com/file/d/1wwCLwE03wY9ogZmCLspq_CDjvjJJY4pW/preview'
+        ]; // All 33 videos restored
 
-        const PHOTOS = [
-            'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg/revision/latest?cb=20220524185305', 'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg/revision/latest?cb=20240406232229', 'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg/revision/latest?cb=20200524140831', 'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg/revision/latest?cb=20240406231758', 'https://static.wikia.nocookie.net/marsargo/images/b/ba/70ba1c59a8024d8eae890a643c969b48.jpeg/revision/latest?cb=20220511193735', 'https://static.wikia.nocookie.net/marsargo/images/8/86/KewlOuttake.jpg/revision/latest?cb=20211227044755', 'https://static.wikia.nocookie.net/marsargo/images/8/89/2015-10-11_11.10.39_1093537410520121192_362742494.jpg/revision/latest?cb=20170831231034', 'https://static.wikia.nocookie.net/marsargo/images/c/c4/Tumblr_osigop18Bt1uftv1so2_1280.jpg/revision/latest?cb=20170831213314', 'https://static.wikia.nocookie.net/marsargo/images/3/34/Tumblr_osigop18Bt1uftv1so1_1280.jpg/revision/latest?cb=20170831213313', 'https://static.wikia.nocookie.net/marsargo/images/5/5b/WRIFURHE.jpg/revision/latest?cb=20240903201454', 'https://static.wikia.nocookie.net/marsargo/images/5/53/Marsargo2015.jpg/revision/latest?cb=20240903195933'
-        ];
+        const photoLinks = [
+            'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg/revision/latest?cb=20220524185305',
+            'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg/revision/latest?cb=20240406232229',
+            'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg/revision/latest?cb=20200524140831',
+            'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg/revision/latest?cb=20240406231758',
+            'https://static.wikia.nocookie.net/marsargo/images/b/ba/70ba1c59a8024d8eae890a643c969b48.jpeg/revision/latest?cb=20220511193735',
+            'https://static.wikia.nocookie.net/marsargo/images/8/86/KewlOuttake.jpg/revision/latest?cb=20211227044755',
+            'https://static.wikia.nocookie.net/marsargo/images/8/89/2015-10-11_11.10.39_1093537410520121192_362742494.jpg/revision/latest?cb=20170831231034',
+            'https://static.wikia.nocookie.net/marsargo/images/c/c4/Tumblr_osigop18Bt1uftv1so2_1280.jpg/revision/latest?cb=20170831213314',
+            'https://static.wikia.nocookie.net/marsargo/images/3/34/Tumblr_osigop18Bt1uftv1so1_1280.jpg/revision/latest?cb=20170831213313',
+            'https://static.wikia.nocookie.net/marsargo/images/5/5b/WRIFURHE.jpg/revision/latest?cb=20240903201454',
+            'https://static.wikia.nocookie.net/marsargo/images/5/53/Marsargo2015.jpg/revision/latest?cb=20240903195933'
+        ]; // All 11 photos restored
 
         function App() {
-            const [isDark, setIsDark] = useState(true);
-            const [timer, setTimer] = useState(216);
+            const [openApp, setOpenApp] = useState(null);
+            const [timer, setTimer] = useState(216); // 03:36
             const [isMuted, setIsMuted] = useState(false);
-            const [openApps, setOpenApps] = useState({ VIDEOS: true, PHOTOS: false, WINSTON: false });
             const audioRef = useRef(null);
 
-            const theme = isDark ? {
-                bg: "bg-black", text: "text-red-600", bar: "bg-zinc-900 border-red-900",
-                winBg: "bg-zinc-900", winBorder: "border-red-900", handle: "bg-red-950 text-red-500"
-            } : {
-                bg: "bg-[#d6d2c4]", text: "text-[#4a3f35]", bar: "bg-[#c2beb0] border-[#8c867a]",
-                winBg: "bg-[#eceae0]", winBorder: "border-[#8c867a]", handle: "bg-[#b0ab99] text-[#4a3f35]"
-            };
-
             useEffect(() => {
-                const clock = setInterval(() => setTimer(t => t > 0 ? t - 1 : 0), 1000);
-                return () => clearInterval(clock);
+                const countdown = setInterval(() => {
+                    setTimer(t => t > 0 ? t - 1 : 0);
+                }, 1000);
+                return () => clearInterval(countdown);
             }, []);
 
-            const toggle = (app) => setOpenApps(prev => ({ ...prev, [app]: !prev[app] }));
+            const playAudio = () => {
+                if (audioRef.current) audioRef.current.play().catch(() => {});
+            };
+
+            const formatTime = (s) => {
+                if (s === 0) return "TIME IS UP";
+                const m = Math.floor(s / 60);
+                const rs = s % 60;
+                return `${m}:${rs < 10 ? '0' : ''}${rs}`;
+            };
 
             return (
-                <div className={`h-screen w-full relative ${theme.bg} ${theme.text}`} onClick={() => audioRef.current?.play()}>
+                <div className="h-screen w-full relative bg-black text-red-600 overflow-hidden" onClick={playAudio}>
                     <audio ref={audioRef} loop src="https://grocerybag.tv/media/SNOW3.mp3" muted={isMuted} />
 
-                    {/* Header */}
-                    <div className={`h-8 w-full border-b flex justify-between items-center px-4 fixed top-0 z-[100] ${theme.bar}`}>
-                        <div className="text-[10px] font-bold tracking-widest">✶ ANGELS OF SICMR — {Math.floor(timer/60)}:{String(timer%60).padStart(2,'0')}</div>
-                        <div className="flex gap-4 items-center">
-                            <button className="text-[9px] win-btn" onClick={() => setIsDark(!isDark)}>THEME</button>
-                            <button className="text-[9px] font-bold" onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}>
-                                {isMuted ? 'UNMUTE' : 'MUTE'}
-                            </button>
+                    {/* Top Bar */}
+                    <div className="h-8 w-full border-b border-red-900 bg-zinc-900 flex justify-between items-center px-4 fixed top-0 z-50">
+                        <div className="text-[10px] font-bold tracking-widest uppercase">
+                            ✶ Angels Of SICMR — {formatTime(timer)}
+                        </div>
+                        <div className="flex gap-4 text-[10px] uppercase opacity-70">
+                            <button onClick={() => setIsMuted(!isMuted)}>{isMuted ? 'UNMUTE' : 'MUTE'}</button>
+                            <span>grocerybag.tv</span>
                         </div>
                     </div>
 
-                    {/* Desktop Graphics */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-10 pointer-events-none">
-                        <h1 className="text-8xl font-serif italic">PRINCIPLES</h1>
+                    {/* Desktop Content (Principles Table) */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-20 pointer-events-none">
+                        <h1 className="text-4xl mb-4 font-serif">PRINCIPLES</h1>
+                        <div className="text-center text-[10px] space-y-1">
+                            <p>LOYALTY GAINS ACCESS</p>
+                            <p>ENTRY REQUIRES COMMITMENT</p>
+                            <p>DOUBT IS NOISE</p>
+                            <p>OBSERVATION BECOMES PARTICIPATION</p>
+                        </div>
                     </div>
 
-                    {/* Fixed Windows Container (Stable Layers) */}
-                    <div className="absolute inset-0 pt-12 pb-24 overflow-hidden flex justify-center items-start">
+                    {/* App Windows */}
+                    <AnimatePresence>
+                        {openApp === 'VIDEOS' && (
+                            <Window title="ARCHIVE_LIBRARY" onClose={() => setOpenApp(null)}>
+                                <div className="p-4 space-y-6">
+                                    {videoLinks.map((url, i) => (
+                                        <div key={i} className="border border-red-900/40 p-2">
+                                            <p className="text-[8px] mb-1">ENTRY_{i+1}</p>
+                                            <iframe src={url} className="w-full aspect-video" frameBorder="0" allowFullScreen></iframe>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Window>
+                        )}
+
+                        {openApp === 'PHOTOS' && (
+                            <Window title="IMAGE_ARCHIVE" onClose={() => setOpenApp(null)}>
+                                <div className="grid grid-cols-2 gap-2 p-2">
+                                    {photoLinks.map((url, i) => (
+                                        <img key={i} src={url} className="w-full border border-red-900 grayscale hover:grayscale-0 transition-all cursor-crosshair" />
+                                    ))}
+                                </div>
+                            </Window>
+                        )}
                         
-                        {openApps.VIDEOS && (
-                            <div className={`w-[90%] md:w-[700px] h-[500px] border-2 shadow-2xl flex flex-col ${theme.winBg} ${theme.winBorder} absolute z-10`}>
-                                <div className={`p-2 border-b flex justify-between items-center ${theme.handle} ${theme.winBorder}`}>
-                                    <span className="text-[10px] font-bold">ARCHIVE_LIBRARY</span>
-                                    <button onClick={() => toggle('VIDEOS')}>✕</button>
+                        {openApp === 'WINSTON' && (
+                            <Window title="WINSTON" onClose={() => setOpenApp(null)}>
+                                <div className="flex flex-col items-center p-8 text-center space-y-4">
+                                    <img src="media/winston.JPG" className="w-32 h-32 rounded-full border-2 border-red-900 grayscale" />
+                                    <p className="text-[10px]">LOYALTY IS EXPECTED, NOT REQUESTED.</p>
+                                    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="border border-red-900 px-4 py-1 text-[10px] hover:bg-red-900 hover:text-white">JOIN DISCORD</a>
                                 </div>
-                                <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                                    {VIDEOS.map((v, i) => <iframe key={i} src={v} className="w-full aspect-video border border-red-900" frameBorder="0" allowFullScreen />)}
-                                </div>
-                            </div>
+                            </Window>
                         )}
+                    </AnimatePresence>
 
-                        {openApps.PHOTOS && (
-                            <div className={`w-[85%] md:w-[600px] h-[450px] border-2 shadow-2xl flex flex-col ${theme.winBg} ${theme.winBorder} absolute z-20 mt-10`}>
-                                <div className={`p-2 border-b flex justify-between items-center ${theme.handle} ${theme.winBorder}`}>
-                                    <span className="text-[10px] font-bold">IMAGE_ARCHIVE</span>
-                                    <button onClick={() => toggle('PHOTOS')}>✕</button>
-                                </div>
-                                <div className="flex-1 overflow-y-auto p-4 grid grid-cols-1 gap-6">
-                                    {PHOTOS.map((p, i) => <img key={i} src={p} className="w-full border-2 border-red-900" />)}
-                                </div>
-                            </div>
-                        )}
-
-                        {openApps.WINSTON && (
-                            <div className={`w-[80%] md:w-[500px] h-[550px] border-2 shadow-2xl flex flex-col winston-window ${theme.winBorder} absolute z-30 mt-20`}>
-                                <div className={`p-2 border-b flex justify-between items-center bg-[#990000] text-white ${theme.winBorder}`}>
-                                    <span className="text-[10px] font-bold uppercase">Winston Fan Club</span>
-                                    <button onClick={() => toggle('WINSTON')}>✕</button>
-                                </div>
-                                <div className="flex-1 overflow-y-auto p-10 flex flex-col items-center text-center space-y-8">
-                                    <h2 className="text-3xl font-bold">WINSTON</h2>
-                                    <img src="media/winston.JPG" className="w-64 border-2 border-[#990000] rounded" />
-                                    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="discord-blue">JOIN THE DISCORD!</a>
-                                    <p className="italic text-gray-400">Loyalty Gains Access.</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Bottom Dock */}
-                    <div className="fixed bottom-6 w-full flex justify-center z-[100]">
-                        <div className={`${theme.bar} border-2 flex gap-10 p-3 px-10 rounded-full shadow-2xl backdrop-blur-md`}>
-                            <button onClick={() => toggle('VIDEOS')} className="text-2xl hover:scale-125 transition-all">📽️</button>
-                            <button onClick={() => toggle('PHOTOS')} className="text-2xl hover:scale-125 transition-all">🖼️</button>
-                            <button onClick={() => toggle('WINSTON')} className="text-2xl hover:scale-125 transition-all">🐶</button>
+                    {/* Dock */}
+                    <div className="fixed bottom-6 w-full flex justify-center z-50">
+                        <div className="bg-zinc-900 border border-red-900 flex gap-6 p-2 px-8 rounded-full">
+                            <button onClick={() => setOpenApp('VIDEOS')} className="hover:scale-110 transition-transform">📽️</button>
+                            <button onClick={() => setOpenApp('PHOTOS')} className="hover:scale-110 transition-transform">🖼️</button>
+                            <button onClick={() => setOpenApp('WINSTON')} className="hover:scale-110 transition-transform">🐶</button>
                         </div>
                     </div>
                 </div>
+            );
+        }
+
+        function Window({ title, children, onClose }) {
+            return (
+                <motion.div 
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
+                    className="absolute top-20 left-10 md:left-1/4 w-[90%] md:w-[600px] h-[500px] bg-zinc-900 border border-red-900 flex flex-col z-40"
+                >
+                    <div className="bg-red-950/20 border-b border-red-900 p-2 flex justify-between items-center">
+                        <span className="text-[9px] font-bold tracking-widest">{title}</span>
+                        <button onClick={onClose} className="text-xs hover:text-white px-2">✕</button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto">
+                        {children}
+                    </div>
+                </motion.div>
             );
         }
 
