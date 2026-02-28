@@ -1,308 +1,169 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>ANGELS OF SICMR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { background-color: #000000; color: #ffffff; font-family: 'Courier New', monospace; }
-    a { color: #ff6666; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .tab { cursor: pointer; padding: 10px 20px; border: 2px solid #990000; display: inline-block; margin-right: 5px; font-family: 'Courier New', monospace; }
-    .tab.active { background-color: #990000; color: #000; }
-    .tab-content { display: none; margin-top: 20px; font-family: 'Times New Roman', Times, serif; }
-    .tab-content.active { display: block; }
-    #chatLog { width: 70%; height: 150px; border:2px solid #990000; background:#000; overflow-y:scroll; padding:10px; margin:auto; font-family: 'Courier New', monospace; }
-    #chatInput { width:70%; padding:10px; margin-top:10px; background:#000; color:#fff; border:2px solid #990000; font-family: 'Courier New', monospace; }
-    #chatButton { padding:10px 20px; margin-top:5px; background:#000; color:#fff; border:2px solid #990000; font-family: 'Courier New', monospace; cursor:pointer; }
-    .video-item { margin-bottom: 15px; }
-    .video-item iframe { max-width: 100%; }
-    #pagination { margin-top: 20px; }
-    #pagination button { padding: 5px 10px; margin: 0 5px; background: #000; color:#fff; border:2px solid #990000; font-family: 'Courier New', monospace; cursor:pointer; }
-    .centered { display:flex; flex-direction:column; align-items:center; gap:20px; }
-    .discord-link { font-size:1.2rem; background-color:#7289da; color:#fff; padding:10px 20px; border-radius:10px; text-decoration:none; font-weight:bold; border:2px solid #990000; }
-    .mute-button { font-size:1rem; background-color:#000; color:#fff; padding:10px 20px; border-radius:10px; font-weight:bold; border:2px solid #990000; cursor:pointer; }
-  </style>
-</head>
+import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import Draggable from "react-draggable";
+import { Resizable } from "re-resizable";
+import { Button } from "@/components/ui/button";
+import { Sun, Moon, Video, Image, MessageSquare, Dog, Volume2, VolumeX } from "lucide-react";
 
-<body>
-<center>
-<font size="-1" color="#990000" face="Courier New, monospace">welcome to grocerybag.tv</font>
-<br><br>
-<font size="+4" face="Times New Roman, Times, serif"><b>✶ ANGELS OF SICMR ✶</b></font>
-<br><br>
-<font size="+1" face="Courier New, monospace"><i>"answer to your fucking questions"</i></font>
-<br><br><br>
-
-<font size="+2" color="#990000" face="Courier New, monospace"><span id="timer">03:36</span></font>
-<br><br>
-
-<div>
-  <div class="tab active" onclick="openTab('main')">MAIN</div>
-  <div class="tab" onclick="openTab('chat')">CHAT</div>
-  <div class="tab" onclick="openTab('videos')">VIDEOS</div>
-  <div class="tab" onclick="openTab('winston')">WINSTON</div>
-  <div class="tab" onclick="openTab('photos')">PHOTOS</div>
-</div>
-
-<!-- MAIN TAB -->
-<div id="main" class="tab-content active">
-  <table width="70%" border="1" cellpadding="20" cellspacing="0" bordercolor="#990000">
-    <tr><td bgcolor="#000" align="center">
-      <iframe width="560" height="315" src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&controls=0&rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    </td></tr>
-  </table>
-  <br><br>
-
-  <table width="70%" border="1" cellpadding="20" cellspacing="0" bordercolor="#990000">
-    <tr><td bgcolor="#000">
-      <font size="+1" face="Times New Roman, Times, serif">
-        You found this page.<br>
-        Not by chance.<br>
-        Not by accident.<br><br>
-        This is private.<br>
-        You see. You speak. You act.<br><br>
-        The pressure is real.<br>
-        Time isn’t right.<br><br>
-        Leave if it scares you.<br>
-        Stay if you get it.
-      </font>
-    </td></tr>
-  </table>
-
-  <br><br>
-  <font size="+1" face="Courier New, monospace"><b>PRINCIPLES</b></font>
-  <br><br>
-  <table width="60%" border="0" cellpadding="10" cellspacing="0">
-    <tr><td>
-      <font size="-1" face="Courier New, monospace">
-        • LOYALTY GAINS ACCESS<br>
-        • GET EXCLUSIVE VIDEOS<br>
-        • JOINING MEANS ARCHIVAL MATERIAL IS UNLOCKED<br>
-        • DIRECT DISCUSSION WITH PEOPLE WHO ACTUALLY KNOW HER WORK<br>
-        • EVERYTHING UPCOMING!<br><br>
-        • ENTRY REQUIRES COMMITMENT<br>
-        • LOYALTY IS EXPECTED, NOT REQUESTED<br>
-        • DOUBT IS NOISE<br>
-        • OBSERVATION BECOMES PARTICIPATION
-      </font>
-    </td></tr>
-  </table>
-
-  <br><br>
-  <a href="https://discord.gg/UE8SXH7RTf" style="display:inline-block;padding:15px 35px;margin-top:20px;background-color:#000;color:#fff;font-family:'Courier New', monospace;font-size:16px;text-decoration:none;border:2px solid #990000;" id="joinButton">JOIN NOW</a>
-  <br><br>
-  <font size="-1" id="joinText" face="Courier New, monospace">join before she drowns</font>
-</div>
-
-<!-- CHAT TAB -->
-<div id="chat" class="tab-content">
-  <font size="-1" color="#ff6666"><b>COMMUNITY CHAT</b></font>
-  <br><i>chat to yourself. maybe someone will respond.</i>
-  <div id="chatLog"></div>
-  <input type="text" id="chatInput" placeholder="type your message here" disabled>
-  <button id="chatButton" onclick="sendMessage()" disabled>SEND</button>
-</div>
-
-<!-- VIDEOS TAB -->
-<div id="videos" class="tab-content">
-  <font size="-1" color="#ff6666"><b>ARCHIVAL VIDEOS</b></font>
-  <div id="videoList"></div>
-  <div id="pagination">
-    <button onclick="prevPage()">Previous</button>
-    <button onclick="nextPage()">Next</button>
-  </div>
-</div>
-
-<!-- WINSTON TAB -->
-<div id="winston" class="tab-content">
-  <font size="-1" color="#ff6666"><b>WINSTON FAN CLUB</b></font>
-  <div class="centered">
-    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" class="discord-link">join the discord!</a>
-    <img src="media/winston.JPG" alt="Winston" style="max-width:80%; max-height:60vh; border:2px solid #990000; border-radius:10px;">
-    <button id="muteBtn" class="mute-button">mute</button>
-    <audio id="backgroundAudio" loop>
-      <source src="https://grocerybag.tv/media/SNOW3.mp3" type="audio/mpeg">
-    </audio>
-  </div>
-</div>
-
-  <!-- PHOTOS TAB -->
-<div id="photos" class="tab-content">
-  <font size="-1" color="#ff6666"><b>PHOTO ARCHIVE</b></font>
-  <div id="photoList" class="centered"></div>
-  <div id="photoPagination">
-    <button onclick="prevPhotoPage()">Previous</button>
-    <button onclick="nextPhotoPage()">Next</button>
-  </div>
-</div>
-
-
-<hr width="40%" color="#990000">
-<font size="-2">ANGELS OF SICMR<br>a webpage (not a cult) run by guppy</font>
-
-<script>
-// TIMER
-var time = 216;
-var timerElement = document.getElementById("timer");
-function updateTimer() {
-  if(document.getElementById("main").classList.contains("active")) {
-    var minutes = Math.floor(time / 60);
-    var seconds = time % 60;
-    if(seconds<10) seconds="0"+seconds;
-    if(time>0) timerElement.innerHTML = minutes+":"+seconds;
-    else timerElement.innerHTML="awh poor Brittany. Nobody cared. You're dead.";
-    time--;
-  } else { timerElement.innerHTML=""; }
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
 }
-setInterval(updateTimer,1000);
 
-// TABS
-var username = '';
-function openTab(tabName){
-  var tabs = document.getElementsByClassName('tab-content');
-  for(var i=0;i<tabs.length;i++){ tabs[i].classList.remove('active'); }
-  document.getElementById(tabName).classList.add('active');
-  
-  var tabButtons = document.getElementsByClassName('tab');
-  for(var i=0;i<tabButtons.length;i++){ tabButtons[i].classList.remove('active'); }
-  document.querySelector('.tab[onclick*="'+tabName+'"]').classList.add('active');
+export default function AngelsOfSicmr() {
+  const [dark, setDark] = useState(true);
+  const [openApp, setOpenApp] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [username, setUsername] = useState("");
+  const [text, setText] = useState("");
+  const [timer, setTimer] = useState(216); // 03:36 initial time
+  const [isMuted, setIsMuted] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const audioRef = useRef(null);
 
-  // CHAT username prompt only when opening CHAT
-  if(tabName==='chat' && username===''){
-    username = prompt('Choose a username before chatting:');
-    if(username && username.trim()!==''){
-      document.getElementById('chatInput').removeAttribute('disabled');
-      document.getElementById('chatButton').removeAttribute('disabled');
+  // FULL ARCHIVE MERGED FROM index-2.html
+  const videoArchive = [
+    'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview',
+    'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview',
+    'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview',
+    'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview',
+    'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview',
+    'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview',
+    'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview',
+    'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview',
+    'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview',
+    'https://drive.google.com/file/d/1Zr5qBZGjPPKlYFJi6pMNpZrdq7hqV9UU/preview',
+    'https://drive.google.com/file/d/1Wl8qMjUGRSkrsVe_r9cAV8guWpcZSs1Z/preview',
+    'https://web.archive.org/web/20120226011651oe_/http://v1.cache1.c.youtube.com/videoplayback?sparams=id%2Cexpire%2Cip%2Cipbits%2Citag%2Csource%2Cratebypass%2Ccp&fexp=914023%2C906500%2C914102&itag=45&ip=207.0.0.0&signature=0462702E6899831AA8F11D392929B9579639F2D2.98B611320866F2C521B2200D0BA40D9792E90974&sver=3&ratebypass=yes&source=youtube&expire=1330244443&key=yt1&ipbits=8&cp=U0hSRVJPUl9JTUNOMl9KSVZFOl9icENCYjJyYWly&id=bca4844902a58242&redirect_counter=1',
+    'https://drive.google.com/file/d/14LNJHStYFzFlJdUFv3EoWww8DUImhjfT/preview',
+    'https://drive.google.com/file/d/1pVLNodC8gqYIv-9MI6Hg9m4TFxEwRm1j/preview',
+    'https://drive.google.com/file/d/1vXpkO2fSfLgy70i-zIHrfrveoEyCySyU/preview',
+    'https://drive.google.com/file/d/1tgJRuhXNjDUqmnGaYmgGxGwZ6T229zWI/preview',
+    'https://drive.google.com/file/d/1F7XMY7yHovr-j-kbxe1bZPmWMsyTNzIk/preview',
+    'https://drive.google.com/file/d/1GYdIwNcPO5kmeZMHl_3NbMI9UidL6-K9/preview',
+    'https://drive.google.com/file/d/1i-CwzuInjqY4RvYwgBBeVRrucBXWrikz/preview',
+    'https://drive.google.com/file/d/1V897Rk40PX6Xt8rOix6PsArhyQtimoKo/preview',
+    'https://drive.google.com/file/d/14o4XlH1o_oL_c1qJwg5_vUIE6ZyNsyXu/preview',
+    'https://drive.google.com/file/d/1GB7ConILrKSIMRW2RPZUJedZHiLcov8p/preview',
+    'https://drive.google.com/file/d/1AcnFKhWOSYBPiKjUjbYhY2zDQTMC798i/preview',
+    'https://drive.google.com/file/d/1teOsyrRDUMXy80l3QsMqByqDiil9iQ8o/preview',
+    'https://web.archive.org/web/20120622071749oe_/http://o-o.preferred.nuq04s10.v21.lscache3.c.youtube.com/videoplayback?upn=MQ0QxqjzUwc&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=905604%2C906335%2C905600%2C923002%2C902517%2C907217%2C907335%2C921602%2C919306%2C922600%2C919316%2C920704%2C912804%2C913542%2C919324%2C907344%2C912706&ms=au&itag=45&ip=207.0.0.0&signature=0B550FE7FCC9A4456F05DD3F78238028441DD5DB.31E144A94770C2414DE6539BEF5A568DCC32AEF0&sver=3&mt=1340349013&ratebypass=yes&source=youtube&expire=1340372997&key=yt1&ipbits=8&cp=U0hSRVNSUF9OUUNOM19LTFRKOnRGNmt4Z0dWTXhq&id=1f0a898373a952ab',
+    'https://web.archive.org/web/20121210025752oe_/http://r4---sn-a5m7zu7s.c.youtube.com/videoplayback?upn=Pbc5Q_wBh3Y&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=901803%2C918106%2C910013%2C914086%2C916611%2C922401%2C920704%2C912806%2C925703%2C925706%2C928001%2C922403%2C922405%2C929901%2C913605%2C913546%2C913556%2C920201%2C913302%2C911116%2C901451%2C902556&key=yt1&expire=1355129371&itag=22&ipbits=8&sver=3&ratebypass=yes&mt=1355108222&ip=207.241.237.138&mv=m&source=youtube&ms=tsu&cp=U0hUSlFNV19MS0NONF9JR0FEOkNQa3pzUEdvODRC&id=8a7b6e64b7a17e0a&signature=33EF7B450A041FFC756A231E36686C6D2477EB53.2CD494C79ECD687DD08657C1E2422BF552FA99C7&redirect_counter=1',
+    'https://drive.google.com/file/d/1BUh2Oi2zoT1Y8FBp94MLB9lIDMpbe9fK/preview',
+    'https://drive.google.com/file/d/1Zu1yZ_8v1V1Al3OyG5l2rCbVw9ES2iL9/preview',
+    'https://drive.google.com/file/d/1G6PpfeQqKnkgdBN63YZk2058ksx6PcUi/preview',
+    'https://drive.google.com/file/d/1ehqGDqlLREUwR6ihmO3KurEEbtt7gxO5/preview',
+    'https://drive.google.com/file/d/1orIhGHZzCkHXTcEPyeQTUD9dHKATCpSg/preview',
+    'https://drive.google.com/file/d/1WzB2I3ojjPt2ZqgorW3Bxyqu3dt0zmSh/preview',
+    'https://drive.google.com/file/d/1wwCLwE03wY9ogZmCLspq_CDjvjJJY4pW/preview'
+  ];
+
+  const theme = dark
+    ? { bg: "bg-black", window: "bg-zinc-900", text: "text-red-600", border: "border-red-900", accent: "bg-red-950" }
+    : { bg: "bg-[#f4efe6]", window: "bg-[#e8dfcf]", text: "text-[#3a2f2a]", border: "border-[#d6c7b2]", accent: "bg-[#d9cbb5]" };
+
+  // Audio Logic (Snow3.mp3)
+  useEffect(() => {
+    if (hasInteracted && audioRef.current) {
+      audioRef.current.play().catch(e => console.log("Audio play blocked"));
     }
-  }
+  }, [hasInteracted]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimer(t => t > 0 ? t - 1 : 0);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleInteraction = () => { if (!hasInteracted) setHasInteracted(true); };
+
+  return (
+    <div className={classNames(theme.bg, theme.text, "min-h-screen font-mono relative overflow-hidden select-none")} onClick={handleInteraction}>
+      <audio ref={audioRef} loop src="https://grocerybag.tv/media/SNOW3.mp3" muted={isMuted} />
+      
+      {/* Top Menu Bar */}
+      <div className={classNames("flex justify-between items-center px-4 h-8 fixed top-0 w-full z-50 border-b", theme.window, theme.border)}>
+        <div className="text-[10px] font-bold tracking-widest uppercase">
+          ✶ Angels Of SICMR — {timer > 0 ? `${Math.floor(timer/60)}:${String(timer%60).padStart(2,'0')}` : "TIME ELAPSED"}
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" onClick={() => setIsMuted(!isMuted)} className="h-6 w-6 p-0 hover:bg-white/10">
+            {isMuted ? <VolumeX size={14}/> : <Volume2 size={14}/>}
+          </Button>
+          <Button variant="ghost" onClick={() => setDark(!dark)} className="h-6 w-6 p-0 hover:bg-white/10">
+            {dark ? <Sun size={14}/> : <Moon size={14}/>}
+          </Button>
+        </div>
+      </div>
+
+      {/* Desktop Workspace */}
+      <div className="pt-10 h-screen w-full relative">
+        
+        {/* VIDEO ARCHIVE APP - Now featuring all 33 videos */}
+        {openApp === 'VIDEOS' && (
+          <AppWindow title="ARCHIVAL_ENTRIES" theme={theme} onClose={() => setOpenApp(null)} size={{width: 600, height: 450}}>
+            <div className="flex flex-col h-full bg-black">
+              <div className="flex-1 overflow-y-scroll p-4 space-y-8 scrollbar-hide">
+                <div className="text-[10px] opacity-50 mb-4 border-b border-red-900 pb-2 italic text-center">
+                  -- {videoArchive.length} FILES RECOVERED --
+                </div>
+                {videoArchive.map((url, idx) => (
+                  <div key={idx} className="space-y-2">
+                    <div className="text-[9px] uppercase tracking-tighter opacity-70">Entry_{idx + 1}</div>
+                    <iframe src={url} className="w-full aspect-video border border-red-900/40" frameBorder="0" allowFullScreen></iframe>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </AppWindow>
+        )}
+
+        {/* WINSTON APP */}
+        {openApp === 'WINSTON' && (
+          <AppWindow title="WINSTON" theme={theme} onClose={() => setOpenApp(null)} defaultPos={{x: 200, y: 150}} size={{width: 280, height: 350}}>
+            <div className="flex flex-col items-center gap-4 py-6 text-center">
+              <img src="media/winston.JPG" className="w-32 h-32 rounded-full border-2 border-red-600 grayscale hover:grayscale-0 transition-all"/>
+              <p className="text-[10px] px-6 leading-relaxed uppercase">Loyalty is expected, not requested.</p>
+              <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="text-[10px] border border-red-600 px-4 py-1 hover:bg-red-900 hover:text-white transition-all">VISIT DISCORD</a>
+            </div>
+          </AppWindow>
+        )}
+
+        {/* Bottom OS Dock */}
+        <div className="absolute bottom-6 w-full flex justify-center z-50">
+          <div className={classNames("flex gap-8 p-3 px-10 rounded-full shadow-2xl border backdrop-blur-xl", theme.window, theme.border)}>
+             <DockIcon icon={<Video size={20}/>} label="ARCHIVE" onClick={() => setOpenApp('VIDEOS')} />
+             <DockIcon icon={<Dog size={20}/>} label="WINSTON" onClick={() => setOpenApp('WINSTON')} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-// CHAT
-function sendMessage(){
-  var input=document.getElementById('chatInput');
-  var log=document.getElementById('chatLog');
-  if(input.value.trim()!==''){
-    log.innerHTML+='<div>'+username+': '+input.value+'</div>';
-    log.scrollTop = log.scrollHeight;
-    input.value='';
-  }
-}
-// PHOTOS
-var photos = [
-  'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg/revision/latest?cb=20220524185305',
-  'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg/revision/latest?cb=20240406232229',
-  'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg/revision/latest?cb=20200524140831',
-  'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg/revision/latest?cb=20240406231758',
-  'https://static.wikia.nocookie.net/marsargo/images/b/ba/70ba1c59a8024d8eae890a643c969b48.jpeg/revision/latest?cb=20220511193735',
-  'https://static.wikia.nocookie.net/marsargo/images/8/86/KewlOuttake.jpg/revision/latest?cb=20211227044755',
-  'https://static.wikia.nocookie.net/marsargo/images/8/89/2015-10-11_11.10.39_1093537410520121192_362742494.jpg/revision/latest?cb=20170831231034',
-  'https://static.wikia.nocookie.net/marsargo/images/c/c4/Tumblr_osigop18Bt1uftv1so2_1280.jpg/revision/latest?cb=20170831213314',
-  'https://static.wikia.nocookie.net/marsargo/images/3/34/Tumblr_osigop18Bt1uftv1so1_1280.jpg/revision/latest?cb=20170831213313',
-  'https://static.wikia.nocookie.net/marsargo/images/5/5b/WRIFURHE.jpg/revision/latest?cb=20240903201454',
-  'https://static.wikia.nocookie.net/marsargo/images/5/53/Marsargo2015.jpg/revision/latest?cb=20240903195933'
-];
-
-// PHOTOS PAGINATION
-var currentPhotoPage = 0;
-var photosPerPage = 6;
-
-function loadPhotos() {
-  var list = document.getElementById('photoList');
-  list.innerHTML = '';
-  var start = currentPhotoPage * photosPerPage;
-  var end = Math.min(start + photosPerPage, photos.length);
-  for(var i=start;i<end;i++){
-    list.innerHTML += '<img src="'+photos[i]+'" style="max-width:90%; border:2px solid #990000; border-radius:10px; margin-bottom:15px;">';
-  }
+function DockIcon({ icon, label, onClick }) {
+  return (
+    <motion.div whileHover={{ y: -10, scale: 1.2 }} className="flex flex-col items-center cursor-pointer group" onClick={onClick}>
+      <div className="p-2.5 rounded-xl bg-red-600/5 group-hover:bg-red-600/20 border border-transparent group-hover:border-red-600/30 transition-all">{icon}</div>
+      <span className="text-[8px] mt-1 font-black tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">{label}</span>
+    </motion.div>
+  );
 }
 
-function nextPhotoPage(){
-  if((currentPhotoPage+1)*photosPerPage < photos.length){
-    currentPhotoPage++;
-    loadPhotos();
-  }
+function AppWindow({ title, theme, children, onClose, defaultPos = {x: 100, y: 100}, size = {width: 400, height: 300} }) {
+  return (
+    <Draggable handle=".handle" bounds="parent" defaultPosition={defaultPos}>
+      <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="absolute z-20">
+        <Resizable minWidth={250} minHeight={200} defaultSize={size}>
+          <div className={classNames("w-full h-full flex flex-col rounded shadow-2xl border overflow-hidden backdrop-blur-lg", theme.window, theme.border)}>
+            <div className={classNames("handle p-2 px-4 border-b flex justify-between items-center cursor-grab active:cursor-grabbing", theme.accent, theme.border)}>
+              <span className="text-[9px] font-bold tracking-[0.2em] uppercase">{title}</span>
+              {onClose && <button onClick={onClose} className="text-sm hover:text-white opacity-40 hover:opacity-100 transition-opacity">✕</button>}
+            </div>
+            <div className="flex-1 overflow-auto">{children}</div>
+          </div>
+        </Resizable>
+      </motion.div>
+    </Draggable>
+  );
 }
-
-function prevPhotoPage(){
-  if(currentPhotoPage > 0){
-    currentPhotoPage--;
-    loadPhotos();
-  }
-}
-
-// INITIAL LOAD
-window.onload = function(){
-  loadVideos();
-  loadPhotos(); // load photos initially
-};
-
-// VIDEOS
-  var videos = [
-  'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview',
-  'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview',
-  'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview',
-  'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview',
-  'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview',
-  'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview',
-  'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview',
-  'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview',
-  'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview',
-  'https://drive.google.com/file/d/1Zr5qBZGjPPKlYFJi6pMNpZrdq7hqV9UU/preview',
-  'https://drive.google.com/file/d/1Wl8qMjUGRSkrsVe_r9cAV8guWpcZSs1Z/preview',
-  'https://web.archive.org/web/20120226011651oe_/http://v1.cache1.c.youtube.com/videoplayback?sparams=id%2Cexpire%2Cip%2Cipbits%2Citag%2Csource%2Cratebypass%2Ccp&fexp=914023%2C906500%2C914102&itag=45&ip=207.0.0.0&signature=0462702E6899831AA8F11D392929B9579639F2D2.98B611320866F2C521B2200D0BA40D9792E90974&sver=3&ratebypass=yes&source=youtube&expire=1330244443&key=yt1&ipbits=8&cp=U0hSRVJPUl9JTUNOMl9KSVZFOl9icENCYjJyYWly&id=bca4844902a58242&redirect_counter=1',
-  'https://drive.google.com/file/d/14LNJHStYFzFlJdUFv3EoWww8DUImhjfT/preview',
-  'https://drive.google.com/file/d/1pVLNodC8gqYIv-9MI6Hg9m4TFxEwRm1j/preview',
-  'https://drive.google.com/file/d/1vXpkO2fSfLgy70i-zIHrfrveoEyCySyU/preview',
-  'https://drive.google.com/file/d/1tgJRuhXNjDUqmnGaYmgGxGwZ6T229zWI/preview',
-  'https://drive.google.com/file/d/1F7XMY7yHovr-j-kbxe1bZPmWMsyTNzIk/preview',
-  'https://drive.google.com/file/d/1GYdIwNcPO5kmeZMHl_3NbMI9UidL6-K9/preview',
-  'https://drive.google.com/file/d/1i-CwzuInjqY4RvYwgBBeVRrucBXWrikz/preview',
-  'https://drive.google.com/file/d/1V897Rk40PX6Xt8rOix6PsArhyQtimoKo/preview',
-  'https://drive.google.com/file/d/14o4XlH1o_oL_c1qJwg5_vUIE6ZyNsyXu/preview',
-  'https://drive.google.com/file/d/1GB7ConILrKSIMRW2RPZUJedZHiLcov8p/preview',
-  'https://drive.google.com/file/d/1AcnFKhWOSYBPiKjUjbYhY2zDQTMC798i/preview',
-  'https://drive.google.com/file/d/1teOsyrRDUMXy80l3QsMqByqDiil9iQ8o/preview',
-  'https://web.archive.org/web/20120622071749oe_/http://o-o.preferred.nuq04s10.v21.lscache3.c.youtube.com/videoplayback?upn=MQ0QxqjzUwc&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=905604%2C906335%2C905600%2C923002%2C902517%2C907217%2C907335%2C921602%2C919306%2C922600%2C919316%2C920704%2C912804%2C913542%2C919324%2C907344%2C912706&ms=au&itag=45&ip=207.0.0.0&signature=0B550FE7FCC9A4456F05DD3F78238028441DD5DB.31E144A94770C2414DE6539BEF5A568DCC32AEF0&sver=3&mt=1340349013&ratebypass=yes&source=youtube&expire=1340372997&key=yt1&ipbits=8&cp=U0hTRVNSUF9OUUNOM19LTFRKOnRGNmt4Z0dWTXhq&id=1f0a898373a952ab',
-  'https://web.archive.org/web/20121210025752oe_/http://r4---sn-a5m7zu7s.c.youtube.com/videoplayback?upn=Pbc5Q_wBh3Y&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=901803%2C918106%2C910013%2C914086%2C916611%2C922401%2C920704%2C912806%2C925703%2C925706%2C928001%2C922403%2C922405%2C929901%2C913605%2C913546%2C913556%2C920201%2C913302%2C911116%2C901451%2C902556&key=yt1&expire=1355129371&itag=22&ipbits=8&sver=3&ratebypass=yes&mt=1355108222&ip=207.241.237.138&mv=m&source=youtube&ms=tsu&cp=U0hUSlFNV19MS0NONF9JR0FEOkNQa3pzUEdvODRC&id=8a7b6e64b7a17e0a&signature=33EF7B450A041FFC756A231E36686C6D2477EB53.2CD494C79ECD687DD08657C1E2422BF552FA99C7&redirect_counter=1',
-  'https://drive.google.com/file/d/1BUh2Oi2zoT1Y8FBp94MLB9lIDMpbe9fK/preview',
-  'https://drive.google.com/file/d/1Zu1yZ_8v1V1Al3OyG5l2rCbVw9ES2iL9/preview',
-  'https://drive.google.com/file/d/1G6PpfeQqKnkgdBN63YZk2058ksx6PcUi/preview',
-  'https://drive.google.com/file/d/1ehqGDqlLREUwR6ihmO3KurEEbtt7gxO5/preview',
-  'https://drive.google.com/file/d/1orIhGHZzCkHXTcEPyeQTUD9dHKATCpSg/preview',
-  'https://drive.google.com/file/d/1WzB2I3ojjPt2ZqgorW3Bxyqu3dt0zmSh/preview',
-  'https://drive.google.com/file/d/1wwCLwE03wY9ogZmCLspq_CDjvjJJY4pW/preview'
-];
-
-// Pagination
-var currentPage = 0;
-var perPage = 10;
-
-function loadVideos(){
-  var list = document.getElementById('videoList');
-  list.innerHTML = '';
-  var start = currentPage * perPage;
-  var end = Math.min(start + perPage, videos.length);
-  for(var i=start;i<end;i++){
-    list.innerHTML += '<div class="video-item"><iframe src="'+videos[i]+'" width="560" height="315" allowfullscreen></iframe></div>';
-  }
-}
-function nextPage(){ if((currentPage+1)*perPage<videos.length){ currentPage++; loadVideos(); } }
-function prevPage(){ if(currentPage>0){ currentPage--; loadVideos(); } }
-
-// WINSTON AUDIO
-const audio = document.getElementById('backgroundAudio');
-const btn = document.getElementById('muteBtn');
-btn.textContent='mute';
-btn.addEventListener('click',()=>{
-  if(audio.paused){ audio.play(); btn.textContent='mute'; }
-  else{ audio.muted=!audio.muted; btn.textContent=audio.muted?'unmute':'mute'; }
-});
-
-// INITIAL LOAD
-window.onload = function(){ loadVideos(); };
-</script>
-
-</center>
-</body>
-</html>
