@@ -41,6 +41,16 @@
             display: inline-block;
         }
 
+        /* Glowing Triangle Animation */
+        .glow-triangle {
+            filter: drop-shadow(0 0 8px currentColor);
+            animation: pulse-glow 2s infinite alternate ease-in-out;
+        }
+        @keyframes pulse-glow {
+            0% { filter: drop-shadow(0 0 4px currentColor); }
+            100% { filter: drop-shadow(0 0 12px currentColor) drop-shadow(0 0 20px currentColor); }
+        }
+
         .traffic-light { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
         .close-btn { background: #ff5f56; }
         .minimize-btn { background: #ffbd2e; }
@@ -65,15 +75,35 @@
             'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg/revision/latest?cb=20220524185305', 'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg/revision/latest?cb=20240406232229', 'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg/revision/latest?cb=20200524140831', 'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg/revision/latest?cb=20240406231758', 'https://static.wikia.nocookie.net/marsargo/images/b/ba/70ba1c59a8024d8eae890a643c969b48.jpeg/revision/latest?cb=20220511193735'
         ];
 
+        // Helper to format chat URLs into clickable links
+        const formatChatText = (text) => {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.split(urlRegex).map((part, i) => {
+                if (part.match(urlRegex)) {
+                    return <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-400 underline">{part}</a>;
+                }
+                return part;
+            });
+        };
+
         function App() {
             const [isBooting, setIsBooting] = useState(true);
             const [isLoggedIn, setIsLoggedIn] = useState(false);
             const [username, setUsername] = useState("");
             const [isDark, setIsDark] = useState(true);
             const [isMuted, setIsMuted] = useState(false);
+            
             const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false });
             const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10 });
             const [topZ, setTopZ] = useState(20);
+
+            // App Position State (Remembers positions when closed)
+            const [positions, setPositions] = useState({
+                VIDEOS: { x: 60, y: 80 },
+                PHOTOS: { x: 150, y: 150 },
+                CHAT: { x: typeof window !== 'undefined' ? window.innerWidth - 460 : 500, y: 100 },
+                WINSTON: { x: typeof window !== 'undefined' ? window.innerWidth / 2 - 200 : 300, y: 180 }
+            });
             
             const [chatMessages, setChatMessages] = useState([
                 { user: "SYSTEM", text: "Welcome to the network." },
@@ -167,7 +197,7 @@
                     <div className="fixed top-4 w-full flex justify-center z-[5000] px-6">
                         <div className={`glass-panel h-11 w-full max-w-6xl rounded-full flex justify-between items-center px-6 shadow-2xl`}>
                             <div className="flex items-center text-[10px] font-bold tracking-widest uppercase">
-                                <div className="illuminati-logo mr-3"></div>
+                                <div className="illuminati-logo glow-triangle mr-3"></div>
                                 Angels Of SICMR — {username}
                             </div>
                             <div className="flex gap-4 items-center">
@@ -213,7 +243,13 @@
 
                     <AnimatePresence>
                         {openApps.VIDEOS && (
-                            <Window title="ARCHIVE_LIBRARY" theme={theme} onClose={() => setOpenApps(p => ({...p, VIDEOS: false}))} onFocus={() => bringToFront('VIDEOS')} zIndex={zIndices.VIDEOS} initialX={60} initialY={80}>
+                            <Window title="ARCHIVE_LIBRARY" theme={theme} 
+                                onClose={() => setOpenApps(p => ({...p, VIDEOS: false}))} 
+                                onFocus={() => bringToFront('VIDEOS')} 
+                                zIndex={zIndices.VIDEOS} 
+                                initialX={positions.VIDEOS.x} initialY={positions.VIDEOS.y}
+                                onDragEnd={(pos) => setPositions(p => ({...p, VIDEOS: pos}))}
+                            >
                                 <div className="p-4 space-y-6">
                                     {videoLinks.map((url, i) => (
                                         <div key={i} className="border border-current/20 p-1 bg-black/40 rounded-xl overflow-hidden">
@@ -225,7 +261,13 @@
                         )}
 
                         {openApps.PHOTOS && (
-                            <Window title="IMAGE_ARCHIVE" theme={theme} onClose={() => setOpenApps(p => ({...p, PHOTOS: false}))} onFocus={() => bringToFront('PHOTOS')} zIndex={zIndices.PHOTOS} initialX={150} initialY={150}>
+                            <Window title="IMAGE_ARCHIVE" theme={theme} 
+                                onClose={() => setOpenApps(p => ({...p, PHOTOS: false}))} 
+                                onFocus={() => bringToFront('PHOTOS')} 
+                                zIndex={zIndices.PHOTOS} 
+                                initialX={positions.PHOTOS.x} initialY={positions.PHOTOS.y}
+                                onDragEnd={(pos) => setPositions(p => ({...p, PHOTOS: pos}))}
+                            >
                                 <div className="p-4 space-y-6">
                                     {photoLinks.map((url, i) => (
                                         <img key={i} src={url} className="w-full border border-current/30 shadow-xl rounded-2xl" />
@@ -235,12 +277,18 @@
                         )}
 
                         {openApps.CHAT && (
-                            <Window title="ENCRYPTED_CHAT" theme={theme} onClose={() => setOpenApps(p => ({...p, CHAT: false}))} onFocus={() => bringToFront('CHAT')} zIndex={zIndices.CHAT} initialX={window.innerWidth - 460} initialY={100}>
+                            <Window title="ENCRYPTED_CHAT" theme={theme} 
+                                onClose={() => setOpenApps(p => ({...p, CHAT: false}))} 
+                                onFocus={() => bringToFront('CHAT')} 
+                                zIndex={zIndices.CHAT} 
+                                initialX={positions.CHAT.x} initialY={positions.CHAT.y}
+                                onDragEnd={(pos) => setPositions(p => ({...p, CHAT: pos}))}
+                            >
                                 <div className="flex flex-col h-full">
                                     <div className="flex-1 p-4 overflow-y-auto space-y-3 text-[11px]">
                                         {chatMessages.map((m, i) => (
                                             <div key={i} className="border-l border-current/40 pl-3">
-                                                <span className="font-bold opacity-40">[{m.user}]</span><br/>{m.text}
+                                                <span className="font-bold opacity-40">[{m.user}]</span><br/>{formatChatText(m.text)}
                                             </div>
                                         ))}
                                     </div>
@@ -261,7 +309,14 @@
                         )}
 
                         {openApps.WINSTON && (
-                            <Window title="WINSTON" theme={theme} onClose={() => setOpenApps(p => ({...p, WINSTON: false}))} onFocus={() => bringToFront('WINSTON')} zIndex={zIndices.WINSTON} initialX={window.innerWidth/2 - 200} initialY={180} isWinston>
+                            <Window title="WINSTON" theme={theme} 
+                                onClose={() => setOpenApps(p => ({...p, WINSTON: false}))} 
+                                onFocus={() => bringToFront('WINSTON')} 
+                                zIndex={zIndices.WINSTON} 
+                                initialX={positions.WINSTON.x} initialY={positions.WINSTON.y}
+                                onDragEnd={(pos) => setPositions(p => ({...p, WINSTON: pos}))}
+                                isWinston
+                            >
                                 <div className="p-8 text-center flex flex-col items-center bg-white text-black h-full">
                                     <h2 className="text-3xl font-black tracking-tighter mb-6">WINSTON FAN CLUB</h2>
                                     <img src="https://grocerybag.tv/media/winston.JPG" className="winston-img mb-8 shadow-2xl" />
@@ -284,15 +339,24 @@
             );
         }
 
-        function Window({ title, children, onClose, onFocus, theme, isWinston, zIndex, initialX, initialY }) {
+        function Window({ title, children, onClose, onFocus, theme, isWinston, zIndex, initialX, initialY, onDragEnd }) {
             return (
                 <motion.div 
-                    drag dragMomentum={false} onDragStart={onFocus}
+                    drag dragMomentum={false} 
+                    onDragStart={onFocus}
+                    onDragEnd={(e) => {
+                        // Capture the new position relative to the viewport when dragging stops
+                        const el = e.target.closest('.window-container');
+                        if (el) {
+                            const rect = el.getBoundingClientRect();
+                            if (onDragEnd) onDragEnd({ x: rect.left, y: rect.top });
+                        }
+                    }}
                     initial={{ opacity: 0, scale: 0.9, x: initialX, y: initialY }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     style={{ zIndex: zIndex, position: 'absolute' }}
-                    className={`w-[420px] h-[500px] border shadow-2xl flex flex-col rounded-[24px] overflow-hidden backdrop-blur-2xl ${theme.winBg} ${theme.winBorder}`}
+                    className={`window-container w-[420px] h-[500px] border shadow-2xl flex flex-col rounded-[24px] overflow-hidden backdrop-blur-2xl ${theme.winBg} ${theme.winBorder}`}
                 >
                     <div className={`${theme.titleBar} p-4 flex items-center relative cursor-grab active:cursor-grabbing`}>
                         <div className="flex gap-2 absolute left-4">
