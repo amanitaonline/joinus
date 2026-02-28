@@ -9,20 +9,13 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-draggable/4.4.6/react-draggable.min.js"></script>
     <style>
-        body { background: black; overflow: hidden; font-family: 'Courier New', monospace; }
+        body { overflow: hidden; font-family: 'Courier New', monospace; transition: background 0.3s ease; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #990000; }
-        .original-winston { 
-            font-family: 'Times New Roman', Times, serif; 
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
+        .winston-content { background: white !important; color: black !important; }
         .discord-link { font-size:1.2rem; background-color:#7289da; color:#fff; padding:10px 20px; border-radius:10px; text-decoration:none; font-weight:bold; border:2px solid #990000; }
-        .mute-button { font-size:1rem; background-color:#000; color:#fff; padding:10px 20px; border-radius:10px; font-weight:bold; border:2px solid #990000; cursor:pointer; }
     </style>
 </head>
 <body>
@@ -31,185 +24,130 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
         const { motion, AnimatePresence } = window.Motion;
+        const Draggable = window.ReactDraggable;
 
         const videoLinks = [
-            'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview', 'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview',
-            'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview', 'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview',
-            'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview', 'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview',
-            'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview', 'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview',
-            'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview', 'https://drive.google.com/file/d/1Zr5qBZGjPPKlYFJi6pMNpZrdq7hqV9UU/preview',
-            'https://drive.google.com/file/d/1Wl8qMjUGRSkrsVe_r9cAV8guWpcZSs1Z/preview', 'https://web.archive.org/web/20120226011651oe_/http://v1.cache1.c.youtube.com/videoplayback?sparams=id%2Cexpire%2Cip%2Cipbits%2Citag%2Csource%2Cratebypass%2Ccp&fexp=914023%2C906500%2C914102&itag=45&ip=207.0.0.0&signature=0462702E6899831AA8F11D392929B9579639F2D2.98B611320866F2C521B2200D0BA40D9792E90974&sver=3&ratebypass=yes&source=youtube&expire=1330244443&key=yt1&ipbits=8&cp=U0hSRVJPUl9JTUNOMl9KSVZFOl9icENCYjJyYWly&id=bca4844902a58242&redirect_counter=1',
-            'https://drive.google.com/file/d/14LNJHStYFzFlJdUFv3EoWww8DUImhjfT/preview', 'https://drive.google.com/file/d/1pVLNodC8gqYIv-9MI6Hg9m4TFxEwRm1j/preview',
-            'https://drive.google.com/file/d/1vXpkO2fSfLgy70i-zIHrfrveoEyCySyU/preview', 'https://drive.google.com/file/d/1tgJRuhXNjDUqmnGaYmgGxGwZ6T229zWI/preview',
-            'https://drive.google.com/file/d/1F7XMY7yHovr-j-kbxe1bZPmWMsyTNzIk/preview', 'https://drive.google.com/file/d/1GYdIwNcPO5kmeZMHl_3NbMI9UidL6-K9/preview',
-            'https://drive.google.com/file/d/1i-CwzuInjqY4RvYwgBBeVRrucBXWrikz/preview', 'https://drive.google.com/file/d/1V897Rk40PX6Xt8rOix6PsArhyQtimoKo/preview',
-            'https://drive.google.com/file/d/14o4XlH1o_oL_c1qJwg5_vUIE6ZyNsyXu/preview', 'https://drive.google.com/file/d/1GB7ConILrKSIMRW2RPZUJedZHiLcov8p/preview',
-            'https://drive.google.com/file/d/1AcnFKhWOSYBPiKjUjbYhY2zDQTMC798i/preview', 'https://drive.google.com/file/d/1teOsyrRDUMXy80l3QsMqByqDiil9iQ8o/preview',
-            'https://web.archive.org/web/20120622071749oe_/http://o-o.preferred.nuq04s10.v21.lscache3.c.youtube.com/videoplayback?upn=MQ0QxqjzUwc&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=905604%2C906335%2C905600%2C923002%2C902517%2C907217%2C907335%2C921602%2C919306%2C922600%2C919316%2C920704%2C912804%2C913542%2C919324%2C907344%2C912706&ms=au&itag=45&ip=207.0.0.0&signature=0B550FE7FCC9A4456F05DD3F78238028441DD5DB.31E144A94770C2414DE6539BEF5A568DCC32AEF0&sver=3&mt=1340349013&ratebypass=yes&source=youtube&expire=1340372997&key=yt1&ipbits=8&cp=U0hSRVNSUF9OUUNOM19LTFRKOnRGNmt4Z0dWTXhq&id=1f0a898373a952ab',
-            'https://web.archive.org/web/20121210025752oe_/http://r4---sn-a5m7zu7s.c.youtube.com/videoplayback?upn=Pbc5Q_wBh3Y&sparams=cp%2Cid%2Cip%2Cipbits%2Citag%2Cratebypass%2Csource%2Cupn%2Cexpire&fexp=901803%2C918106%2C910013%2C914086%2C916611%2C922401%2C920704%2C912806%2C925703%2C925706%2C928001%2C922403%2C922405%2C929901%2C913605%2C913546%2C913556%2C920201%2C913302%2C911116%2C901451%2C902556&key=yt1&expire=1355129371&itag=22&ipbits=8&sver=3&ratebypass=yes&mt=1355108222&ip=207.241.237.138&mv=m&source=youtube&ms=tsu&cp=U0hUSlFNV19MS0NONF9JR0FEOkNQa3pzUEdvODRC&id=8a7b6e64b7a17e0a&signature=33EF7B450A041FFC756A231E36686C6D2477EB53.2CD494C79ECD687DD08657C1E2422BF552FA99C7&redirect_counter=1',
-            'https://drive.google.com/file/d/1BUh2Oi2zoT1Y8FBp94MLB9lIDMpbe9fK/preview', 'https://drive.google.com/file/d/1Zu1yZ_8v1V1Al3OyG5l2rCbVw9ES2iL9/preview',
-            'https://drive.google.com/file/d/1G6PpfeQqKnkgdBN63YZk2058ksx6PcUi/preview', 'https://drive.google.com/file/d/1ehqGDqlLREUwR6ihmO3KurEEbtt7gxO5/preview',
-            'https://drive.google.com/file/d/1orIhGHZzCkHXTcEPyeQTUD9dHKATCpSg/preview', 'https://drive.google.com/file/d/1WzB2I3ojjPt2ZqgorW3Bxyqu3dt0zmSh/preview',
-            'https://drive.google.com/file/d/1wwCLwE03wY9ogZmCLspq_CDjvjJJY4pW/preview'
-        ];
-
-        const photoLinks = [
-            'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg/revision/latest?cb=20220524185305',
-            'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg/revision/latest?cb=20240406232229',
-            'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg/revision/latest?cb=20200524140831',
-            'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg/revision/latest?cb=20240406231758',
-            'https://static.wikia.nocookie.net/marsargo/images/b/ba/70ba1c59a8024d8eae890a643c969b48.jpeg/revision/latest?cb=20220511193735',
-            'https://static.wikia.nocookie.net/marsargo/images/8/86/KewlOuttake.jpg/revision/latest?cb=20211227044755',
-            'https://static.wikia.nocookie.net/marsargo/images/8/89/2015-10-11_11.10.39_1093537410520121192_362742494.jpg/revision/latest?cb=20170831231034',
-            'https://static.wikia.nocookie.net/marsargo/images/c/c4/Tumblr_osigop18Bt1uftv1so2_1280.jpg/revision/latest?cb=20170831213314',
-            'https://static.wikia.nocookie.net/marsargo/images/3/34/Tumblr_osigop18Bt1uftv1so1_1280.jpg/revision/latest?cb=20170831213313',
-            'https://static.wikia.nocookie.net/marsargo/images/5/5b/WRIFURHE.jpg/revision/latest?cb=20240903201454',
-            'https://static.wikia.nocookie.net/marsargo/images/5/53/Marsargo2015.jpg/revision/latest?cb=20240903195933'
+            'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview',
+            'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview',
+            'https://www.youtube.com/embed/8uy6OhNEg1w',
+            'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview'
         ];
 
         function App() {
-            const [openApp, setOpenApp] = useState(null);
+            const [isDark, setIsDark] = useState(true);
+            const [openApps, setOpenApps] = useState({ CHAT: false, VIDEOS: false, PHOTOS: false, WINSTON: false });
             const [timer, setTimer] = useState(216);
             const [isMuted, setIsMuted] = useState(false);
-            const [messages, setMessages] = useState([]);
-            const [chatInput, setChatInput] = useState("");
-            const [username, setUsername] = useState("");
             const audioRef = useRef(null);
 
+            // Theme Definitions
+            const theme = isDark ? {
+                bg: "bg-black",
+                text: "text-red-600",
+                bar: "bg-zinc-900 border-red-900",
+                winBg: "bg-zinc-900",
+                winBorder: "border-red-900",
+                handle: "bg-red-950 text-red-500"
+            } : {
+                bg: "bg-[#d6d2c4]", // Bone Grey
+                text: "text-[#4a3f35]", // Brownish
+                bar: "bg-[#c2beb0] border-[#8c867a]",
+                winBg: "bg-[#eceae0]",
+                winBorder: "border-[#8c867a]",
+                handle: "bg-[#b0ab99] text-[#4a3f35]"
+            };
+
             useEffect(() => {
-                const countdown = setInterval(() => {
-                    setTimer(t => t > 0 ? t - 1 : 0);
-                }, 1000);
+                const countdown = setInterval(() => setTimer(t => t > 0 ? t - 1 : 0), 1000);
                 return () => clearInterval(countdown);
             }, []);
 
-            const handleDockClick = (app) => {
-                if(app === 'CHAT' && !username) {
-                    const name = prompt('Choose a username before chatting:');
-                    if(name) setUsername(name);
-                    else return;
-                }
-                setOpenApp(app);
-            };
-
-            const sendMsg = () => {
-                if(!chatInput.trim()) return;
-                setMessages([...messages, { user: username, text: chatInput }]);
-                setChatInput("");
-            };
+            const toggleApp = (app) => setOpenApps(prev => ({ ...prev, [app]: !prev[app] }));
 
             return (
-                <div className="h-screen w-full relative bg-black text-[#990000] overflow-hidden" onClick={() => audioRef.current?.play()}>
+                <div className={`h-screen w-full relative transition-colors duration-500 ${theme.bg} ${theme.text}`} onClick={() => audioRef.current?.play()}>
                     <audio ref={audioRef} loop src="https://grocerybag.tv/media/SNOW3.mp3" muted={isMuted} />
 
                     {/* Top Bar */}
-                    <div className="h-8 w-full border-b border-[#990000] bg-zinc-900 flex justify-between items-center px-4 fixed top-0 z-50">
+                    <div className={`h-8 w-full border-b flex justify-between items-center px-4 fixed top-0 z-[100] ${theme.bar}`}>
                         <div className="text-[10px] font-bold tracking-widest uppercase">
-                            ✶ Angels Of SICMR — {timer > 0 ? `${Math.floor(timer/60)}:${String(timer%60).padStart(2,'0')}` : "dead."}
+                            ✶ SICMR_OS — {Math.floor(timer/60)}:{String(timer%60).padStart(2,'0')}
                         </div>
-                        <div className="flex gap-4 text-[10px] uppercase opacity-70">
-                            <button onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}>{isMuted ? 'UNMUTE' : 'MUTE'}</button>
-                            <span>grocerybag.tv</span>
-                        </div>
-                    </div>
-
-                    {/* Desktop Content */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-30 pointer-events-none p-12">
-                        <h1 className="text-4xl mb-4 font-serif italic">PRINCIPLES</h1>
-                        <div className="text-center text-[10px] space-y-1 uppercase tracking-widest">
-                            <p>LOYALTY GAINS ACCESS</p>
-                            <p>ENTRY REQUIRES COMMITMENT</p>
-                            <p>DOUBT IS NOISE</p>
-                            <p>OBSERVATION BECOMES PARTICIPATION</p>
+                        <div className="flex gap-4 items-center">
+                            <button className="text-[9px] border px-2 py-0.5 rounded hover:bg-white/10" onClick={() => setIsDark(!isDark)}>
+                                {isDark ? 'LIGHT MODE' : 'DARK MODE'}
+                            </button>
+                            <button className="text-[9px]" onClick={() => setIsMuted(!isMuted)}>{isMuted ? 'UNMUTE' : 'MUTE'}</button>
                         </div>
                     </div>
 
-                    {/* Windows */}
+                    {/* Desktop Workspace */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-10 pointer-events-none">
+                        <h1 className="text-6xl font-serif italic">PRINCIPLES</h1>
+                    </div>
+
+                    {/* Multi-Window Environment */}
                     <AnimatePresence>
-                        {openApp === 'VIDEOS' && (
-                            <Window title="ARCHIVE_LIBRARY" onClose={() => setOpenApp(null)}>
-                                <div className="p-4 space-y-8">
-                                    {videoLinks.map((url, i) => (
-                                        <div key={i} className="border border-[#990000] p-2 bg-black">
-                                            <p className="text-[9px] mb-2 uppercase">Entry_{i+1}</p>
-                                            <iframe src={url} className="w-full aspect-video" frameBorder="0" allowFullScreen></iframe>
-                                        </div>
-                                    ))}
+                        {openApps.VIDEOS && (
+                            <Window title="ARCHIVE" theme={theme} onClose={() => toggleApp('VIDEOS')} defaultPos={{x: 50, y: 100}}>
+                                <div className="p-4 space-y-4">
+                                    {videoLinks.map((url, i) => <iframe key={i} src={url} className="w-full aspect-video border border-current" frameBorder="0" allowFullScreen />)}
                                 </div>
                             </Window>
                         )}
 
-                        {openApp === 'PHOTOS' && (
-                            <Window title="IMAGE_ARCHIVE" onClose={() => setOpenApp(null)}>
-                                <div className="grid grid-cols-1 gap-4 p-4 items-center">
-                                    {photoLinks.map((url, i) => (
-                                        <img key={i} src={url} className="w-full border-2 border-[#990000] rounded-[10px]" />
-                                    ))}
-                                </div>
-                            </Window>
-                        )}
-                        
-                        {openApp === 'WINSTON' && (
-                            <Window title="WINSTON_TAB" onClose={() => setOpenApp(null)}>
-                                <div className="original-winston p-8 bg-black h-full">
-                                    <font size="-1" color="#ff6666"><b>WINSTON FAN CLUB</b></font>
-                                    <div className="flex flex-col items-center gap-5">
-                                        <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="discord-link">join the discord!</a>
-                                        <img src="media/winston.JPG" alt="Winston" style={{maxWidth:'80%', border:'2px solid #990000', borderRadius:'10px'}} />
-                                        <button className="mute-button" onClick={() => setIsMuted(!isMuted)}>{isMuted ? 'unmute' : 'mute'}</button>
-                                    </div>
+                        {openApps.WINSTON && (
+                            <Window title="WINSTON" theme={theme} onClose={() => toggleApp('WINSTON')} defaultPos={{x: 400, y: 150}} isWinston>
+                                <div className="winston-content p-8 h-full flex flex-col items-center text-center space-y-6">
+                                    <font face="Times New Roman" size="+2"><b>WINSTON FAN CLUB</b></font>
+                                    <img src="media/winston.JPG" className="w-48 border-4 border-red-600 rounded-lg shadow-xl" />
+                                    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="discord-link">JOIN THE DISCORD!</a>
+                                    <p className="text-black italic">Loyalty is expected.</p>
                                 </div>
                             </Window>
                         )}
 
-                        {openApp === 'CHAT' && (
-                            <Window title="COMMUNITY_CHAT" onClose={() => setOpenApp(null)}>
-                                <div className="p-4 flex flex-col h-full bg-black font-mono">
-                                    <div className="text-[10px] text-[#ff6666] mb-2 italic">chat to yourself. maybe someone will respond.</div>
-                                    <div className="flex-1 overflow-y-auto border-2 border-[#990000] p-2 mb-2 text-xs">
-                                        {messages.map((m, i) => <div key={i}><strong>{m.user}</strong>: {m.text}</div>)}
+                        {openApps.CHAT && (
+                            <Window title="CHAT" theme={theme} onClose={() => toggleApp('CHAT')} defaultPos={{x: 100, y: 300}}>
+                                <div className="p-4 h-full flex flex-col gap-2">
+                                    <div className="flex-1 border border-current p-2 text-xs overflow-y-auto min-h-[100px]">
+                                        SYSTEM: Encryption active...
                                     </div>
-                                    <div className="flex gap-2">
-                                        <input 
-                                            className="flex-1 bg-black border-2 border-[#990000] p-2 text-xs text-white outline-none" 
-                                            value={chatInput} 
-                                            onChange={(e) => setChatInput(e.target.value)}
-                                            onKeyDown={(e) => e.key === 'Enter' && sendMsg()}
-                                        />
-                                        <button className="border-2 border-[#990000] px-4 text-xs" onClick={sendMsg}>SEND</button>
-                                    </div>
+                                    <input className="bg-transparent border border-current p-1 text-xs outline-none" placeholder="Type here..." />
                                 </div>
                             </Window>
                         )}
                     </AnimatePresence>
 
                     {/* Dock */}
-                    <div className="fixed bottom-6 w-full flex justify-center z-50">
-                        <div className="bg-zinc-900/80 backdrop-blur-md border border-[#990000] flex gap-8 p-3 px-10 rounded-full shadow-[0_0_20px_rgba(153,0,0,0.3)]">
-                            <button onClick={() => handleDockClick('CHAT')} className="text-xl hover:scale-125 transition-transform">💬</button>
-                            <button onClick={() => handleDockClick('VIDEOS')} className="text-xl hover:scale-125 transition-transform">📽️</button>
-                            <button onClick={() => handleDockClick('PHOTOS')} className="text-xl hover:scale-125 transition-transform">🖼️</button>
-                            <button onClick={() => handleDockClick('WINSTON')} className="text-xl hover:scale-125 transition-transform">🐶</button>
+                    <div className="fixed bottom-6 w-full flex justify-center z-[100]">
+                        <div className={`${theme.bar} border flex gap-8 p-3 px-10 rounded-full shadow-2xl backdrop-blur-md`}>
+                            <button onClick={() => toggleApp('CHAT')} className="text-xl hover:scale-125 transition-transform">💬</button>
+                            <button onClick={() => toggleApp('VIDEOS')} className="text-xl hover:scale-125 transition-transform">📽️</button>
+                            <button onClick={() => toggleApp('WINSTON')} className="text-xl hover:scale-125 transition-transform">🐶</button>
                         </div>
                     </div>
                 </div>
             );
         }
 
-        function Window({ title, children, onClose }) {
+        function Window({ title, children, onClose, theme, defaultPos, isWinston }) {
             return (
-                <motion.div 
-                    initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
-                    className="absolute top-16 left-4 right-4 md:left-[20%] md:right-[20%] bottom-24 bg-zinc-900 border-2 border-[#990000] flex flex-col z-40 shadow-2xl"
-                >
-                    <div className="bg-[#990000] p-1 px-3 flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-black uppercase">{title}</span>
-                        <button onClick={onClose} className="text-black font-bold hover:text-white transition-colors px-1">✕</button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto">
-                        {children}
-                    </div>
-                </motion.div>
+                <Draggable handle=".handle" defaultPosition={defaultPos}>
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                        className={`absolute w-80 md:w-[450px] border-2 shadow-2xl z-20 overflow-hidden flex flex-col ${theme.winBg} ${theme.winBorder}`}
+                        style={{ minHeight: '200px' }}
+                    >
+                        <div className={`handle p-2 px-3 flex justify-between items-center cursor-grab active:cursor-grabbing border-b ${theme.handle} ${theme.winBorder}`}>
+                            <span className="text-[10px] font-bold tracking-widest uppercase">{title}</span>
+                            <button onClick={onClose} className="font-bold hover:scale-110">✕</button>
+                        </div>
+                        <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white' : ''}`}>
+                            {children}
+                        </div>
+                    </motion.div>
+                </Draggable>
             );
         }
 
