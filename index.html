@@ -9,45 +9,54 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Courier New', monospace; transition: background 0.5s ease; }
+        :root {
+            --bg-color: #000000;
+            --text-main: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            color: var(--text-main);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- BACKGROUND VIDEO --- */
         .video-background {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; pointer-events: none; opacity: 0.3; filter: grayscale(100%) contrast(110%);
         }
         .video-background iframe {
-            width: 100vw; height: 56.25vw;
-            min-height: 100vh; min-width: 177.77vh;
+            width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh;
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #990000; border-radius: 10px; }
-        
+
+        /* --- GLASS EFFECT --- */
         .glass-panel {
             backdrop-filter: blur(25px);
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .dark .glass-panel {
-            background: rgba(15, 15, 15, 0.75);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .illuminati-logo {
-            width: 0; height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-bottom: 14px solid currentColor;
-            display: inline-block;
+            -webkit-backdrop-filter: blur(25px);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
         }
 
+        /* --- WINDOW ELEMENTS --- */
         .traffic-light { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
         .close-btn { background: #ff5f56; }
         .minimize-btn { background: #ffbd2e; }
         .expand-btn { background: #27c93f; }
 
-        .winston-img { width: 220px; height: 220px; border-radius: 24px; object-fit: cover; border: 4px solid #990000; }
-        .discord-btn { background: #7289da; color: white !important; padding: 12px 24px; border-radius: 12px; font-weight: bold; display: inline-block; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        
+        /* Custom Winston Style */
+        .winston-img { width: 220px; height: 220px; border-radius: 24px; object-fit: cover; border: 4px solid #000; }
+        .discord-btn { background: #5865F2; color: white !important; padding: 12px 24px; border-radius: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -58,34 +67,30 @@
         const { motion, AnimatePresence } = window.Motion;
 
         const videoLinks = [
-            'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview', 'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview', 'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview', 'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview', 'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview', 'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview', 'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview', 'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview', 'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview'
+            'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview', 'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview', 'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview', 'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview'
         ];
 
         const photoLinks = [
-            'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg/revision/latest?cb=20220524185305', 'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg/revision/latest?cb=20240406232229', 'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg/revision/latest?cb=20200524140831', 'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg/revision/latest?cb=20240406231758', 'https://static.wikia.nocookie.net/marsargo/images/b/ba/70ba1c59a8024d8eae890a643c969b48.jpeg/revision/latest?cb=20220511193735'
+            'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg/revision/latest?cb=20220524185305', 'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg/revision/latest?cb=20240406232229'
         ];
 
         function App() {
-            const [isLoggedIn, setIsLoggedIn] = useState(false);
-            const [username, setUsername] = useState("");
-            const [isDark, setIsDark] = useState(true);
-            const [isMuted, setIsMuted] = useState(false);
+            const [bootState, setBootState] = useState('logo'); // logo, desktop
+            const [statusText, setStatusText] = useState('Secure Boot');
             const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false });
             const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10 });
             const [topZ, setTopZ] = useState(20);
-            
-            const [chatMessages, setChatMessages] = useState([
-                { user: "SYSTEM", text: "Welcome to the network." },
-                { user: "SYSTEM", text: "JOIN OUR SERVER: https://discord.gg/CRMjDFNBm7" }
-            ]);
 
-            const audioRef = useRef(null);
-
-            const theme = isDark ? {
-                bg: "bg-black", text: "text-red-600", winBg: "bg-zinc-900/95", winBorder: "border-red-900/40", titleBar: "bg-red-950/20"
-            } : {
-                bg: "bg-[#d6d2c4]", text: "text-[#4a3f35]", winBg: "bg-[#eceae0]/95", winBorder: "border-[#8c867a]/40", titleBar: "bg-[#b0ab99]/30"
-            };
+            // Handle Boot Sequence
+            useEffect(() => {
+                const phases = [
+                    { t: "Verifying integrity...", d: 1200 },
+                    { t: "Mounting SICMR_Core...", d: 2400 },
+                    { t: "System Active.", d: 3600 }
+                ];
+                phases.forEach(p => setTimeout(() => setStatusText(p.t), p.d));
+                setTimeout(() => setBootState('desktop'), 4500);
+            }, []);
 
             const bringToFront = (app) => {
                 const newZ = topZ + 1;
@@ -98,124 +103,94 @@
                 if (!openApps[app]) bringToFront(app);
             };
 
-            if (!isLoggedIn) {
-                return (
-                    <div className="h-screen w-full bg-black flex items-center justify-center text-red-600 p-4">
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-panel p-10 rounded-[32px] w-full max-w-sm text-center space-y-6">
-                            <div className="illuminati-logo scale-150 mb-2"></div>
-                            <h1 className="text-sm font-bold tracking-[0.3em] uppercase opacity-80">Login to SICMR</h1>
-                            <input 
-                                type="text" 
-                                placeholder="Username" 
-                                className="w-full bg-black/50 border border-red-900/30 p-3 rounded-xl text-center focus:outline-none focus:border-red-600 transition-all text-sm"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && username && setIsLoggedIn(true)}
-                            />
-                            <button onClick={() => username && setIsLoggedIn(true)} className="w-full bg-red-900/10 hover:bg-red-900/30 border border-red-900/40 py-3 rounded-xl text-xs font-bold tracking-widest transition-all">
-                                LOGIN
-                            </button>
-                        </motion.div>
-                    </div>
-                );
-            }
-
             return (
-                <div className={`h-screen w-full relative transition-colors duration-500 overflow-hidden ${isDark ? 'dark' : ''} ${theme.bg} ${theme.text}`}>
-                    <audio ref={audioRef} autoPlay loop src="https://grocerybag.tv/media/SNOW3.mp3" muted={isMuted} />
-                    
+                <div className="h-screen w-full relative">
+                    {/* BOOT SCREEN */}
+                    <AnimatePresence>
+                        {bootState === 'logo' && (
+                            <motion.div 
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 z-[9999] bg-black flex flex-col items-center justify-center"
+                            >
+                                <motion.div 
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 2 }}
+                                    className="w-48 h-48 mb-8"
+                                >
+                                    <svg viewBox="0 0 612 792" fill="white">
+                                        <path d="M260.892,160.112l13.453,21.637h0.094v-21.637h6.679v32.267h-7.055l-13.453-21.542h-0.094v21.542h-6.679v-32.267H260.892z"/>
+                                        <path d="M345.746,160.112v5.926h-17.027v6.868h15.616v5.55h-15.616v7.902h17.403v5.927h-24.459v-32.267h24.083V160.112z"/>
+                                        <path d="M357.976,160.112v26.246h15.71v5.927H350.92v-32.267h7.056V160.112z"/>
+                                        <path d="M383.093,184.477c0.376,0.752,0.94,1.317,1.601,1.788c0.657,0.47,1.41,0.846,2.258,1.035c0.847,0.188,1.787,0.376,2.728,0.376c0.658,0,1.317-0.094,2.069-0.188c0.753-0.094,1.411-0.282,2.07-0.564c0.657-0.282,1.129-0.752,1.599-1.223c0.377-0.564,0.659-1.223,0.659-1.976c0-0.847-0.282-1.6-0.848-2.164c-0.564-0.564-1.316-1.035-2.163-1.317c-0.94-0.376-1.882-0.659-3.104-0.941c-1.129-0.282-2.258-0.563-3.479-0.939c-1.224-0.282-2.353-0.659-3.48-1.129c-1.128-0.47-2.164-1.035-3.104-1.693c-0.939-0.658-1.6-1.599-2.163-2.634c-0.564-1.035-0.848-2.258-0.848-3.763c0-1.693,0.377-3.104,1.035-4.327c0.753-1.223,1.601-2.258,2.822-3.01c1.129-0.847,2.444-1.411,3.855-1.788s2.917-0.564,4.328-0.564c1.693,0,3.292,0.188,4.893,0.564c1.505,0.376,2.916,0.941,4.139,1.788c1.224,0.847,2.164,1.881,2.822,3.198c0.753,1.317,1.035,2.916,1.035,4.798h-6.867c-0.096-0.941-0.282-1.788-0.564-2.352c-0.376-0.659-0.847-1.129-1.411-1.505c-0.563-0.376-1.223-0.659-1.976-0.753c-0.753-0.188-1.505-0.188-2.446-0.188c-0.563,0-1.129,0.094-1.692,0.188c-0.564,0.094-1.13,0.376-1.6,0.659c-0.471,0.282-0.847,0.658-1.129,1.129c-0.282,0.47-0.471,1.035-0.471,1.693c0,0.658,0.094,1.129,0.376,1.505c0.282,0.376,0.753,0.753,1.411,1.129c0.753,0.376,1.692,0.659,2.917,1.035c1.223,0.376,2.916,0.752,4.892,1.223c0.564,0.094,1.411,0.376,2.54,0.659c1.129,0.283,2.163,0.847,3.198,1.505c1.035,0.659,1.976,1.6,2.729,2.822c0.752,1.129,1.129,2.634,1.129,4.421c0,1.505-0.281,2.822-0.847,4.139c-0.563,1.223-1.411,2.352-2.54,3.292c-1.129,0.941-2.54,1.6-4.233,2.164c-1.692,0.47-3.574,0.752-5.832,0.752c-1.787,0-3.48-0.188-5.175-0.659c-1.692-0.47-3.104-1.129-4.421-2.069c-1.316-0.941-2.258-2.164-3.011-3.575s-1.129-3.199-1.129-5.174h6.867C382.528,182.784,382.717,183.725,383.093,184.477z"/>
+                                        <rect x="295" y="210" width="22" height="2" fill="white"/>
+                                        <rect x="305" y="200" width="2" height="22" fill="white"/>
+                                    </svg>
+                                </motion.div>
+                                <span className="text-xs tracking-widest uppercase opacity-40 font-light">{statusText}</span>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* MAIN DESKTOP */}
                     <div className="video-background">
                         <iframe src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&loop=1&playlist=8uy6OhNEg1w&controls=0" frameBorder="0"></iframe>
                     </div>
 
-                    {/* Floating Top Nav */}
-                    <div className="fixed top-4 w-full flex justify-center z-[5000] px-6">
-                        <div className={`glass-panel h-11 w-full max-w-6xl rounded-full flex justify-between items-center px-6 shadow-2xl`}>
-                            <div className="flex items-center text-[10px] font-bold tracking-widest uppercase">
-                                <div className="illuminati-logo mr-3"></div>
-                                Angels Of SICMR — {username}
-                            </div>
-                            <div className="flex gap-4 items-center">
-                                <button className="text-[9px] border px-3 py-1 rounded-full border-current hover:bg-current hover:text-black transition-all" onClick={() => setIsDark(!isDark)}>
-                                    {isDark ? 'LIGHT' : 'DARK'}
-                                </button>
-                                <button className="text-[9px] font-bold uppercase opacity-70 hover:opacity-100" onClick={() => setIsMuted(!isMuted)}>
-                                    {isMuted ? 'Unmute' : 'Mute'}
-                                </button>
-                            </div>
-                        </div>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+                        <h1 className="text-[10vw] font-serif italic">ANGELS OF SICMR</h1>
                     </div>
 
-                    <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none select-none">
-                        <h1 className="text-[8vw] font-serif italic text-center">ANGELS OF SICMR</h1>
-                    </div>
-
+                    {/* APPS */}
                     <AnimatePresence>
                         {openApps.VIDEOS && (
-                            <Window title="ARCHIVE_LIBRARY" theme={theme} onClose={() => setOpenApps(p => ({...p, VIDEOS: false}))} onFocus={() => bringToFront('VIDEOS')} zIndex={zIndices.VIDEOS} initialX={60} initialY={80}>
-                                <div className="p-4 space-y-6">
+                            <Window title="ARCHIVE_LIBRARY" onClose={() => toggleApp('VIDEOS')} onFocus={() => bringToFront('VIDEOS')} zIndex={zIndices.VIDEOS} x={100} y={100}>
+                                <div className="p-4 space-y-4">
                                     {videoLinks.map((url, i) => (
-                                        <div key={i} className="border border-current/20 p-1 bg-black/40 rounded-xl overflow-hidden">
-                                            <iframe src={url} className="w-full aspect-video rounded-lg" frameBorder="0" allowFullScreen></iframe>
-                                        </div>
+                                        <iframe key={i} src={url} className="w-full aspect-video rounded-xl border border-white/10" frameBorder="0" allowFullScreen></iframe>
                                     ))}
                                 </div>
                             </Window>
                         )}
-
                         {openApps.PHOTOS && (
-                            <Window title="IMAGE_ARCHIVE" theme={theme} onClose={() => setOpenApps(p => ({...p, PHOTOS: false}))} onFocus={() => bringToFront('PHOTOS')} zIndex={zIndices.PHOTOS} initialX={150} initialY={150}>
-                                <div className="p-4 space-y-6">
+                            <Window title="IMAGE_ARCHIVE" onClose={() => toggleApp('PHOTOS')} onFocus={() => bringToFront('PHOTOS')} zIndex={zIndices.PHOTOS} x={180} y={150}>
+                                <div className="p-4 space-y-4">
                                     {photoLinks.map((url, i) => (
-                                        <img key={i} src={url} className="w-full border border-current/30 shadow-xl rounded-2xl" />
+                                        <img key={i} src={url} className="w-full rounded-2xl shadow-xl border border-white/10" />
                                     ))}
                                 </div>
                             </Window>
                         )}
-
-                        {openApps.CHAT && (
-                            <Window title="ENCRYPTED_CHAT" theme={theme} onClose={() => setOpenApps(p => ({...p, CHAT: false}))} onFocus={() => bringToFront('CHAT')} zIndex={zIndices.CHAT} initialX={window.innerWidth - 460} initialY={100}>
-                                <div className="flex flex-col h-full">
-                                    <div className="flex-1 p-4 overflow-y-auto space-y-3 text-[11px]">
-                                        {chatMessages.map((m, i) => (
-                                            <div key={i} className="border-l border-current/40 pl-3">
-                                                <span className="font-bold opacity-40">[{m.user}]</span><br/>{m.text}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="p-4 border-t border-current/10">
-                                        <input 
-                                            placeholder="Message..." 
-                                            className="w-full bg-transparent outline-none border-b border-current/20 pb-1"
-                                            onKeyDown={(e) => {
-                                                if(e.key === 'Enter' && e.target.value.trim()){
-                                                    setChatMessages([...chatMessages, { user: username, text: e.target.value }]);
-                                                    e.target.value = '';
-                                                }
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            </Window>
-                        )}
-
                         {openApps.WINSTON && (
-                            <Window title="WINSTON" theme={theme} onClose={() => setOpenApps(p => ({...p, WINSTON: false}))} onFocus={() => bringToFront('WINSTON')} zIndex={zIndices.WINSTON} initialX={window.innerWidth/2 - 200} initialY={180} isWinston>
-                                <div className="p-8 text-center flex flex-col items-center bg-white text-black h-full">
-                                    <h2 className="text-3xl font-black tracking-tighter mb-6">WINSTON FAN CLUB</h2>
-                                    <img src="https://grocerybag.tv/media/winston.JPG" className="winston-img mb-8 shadow-2xl" />
-                                    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="discord-btn shadow-lg hover:scale-105 transition-transform">JOIN SERVER</a>
+                            <Window title="WINSTON_CLUB" onClose={() => toggleApp('WINSTON')} onFocus={() => bringToFront('WINSTON')} zIndex={zIndices.WINSTON} x={window.innerWidth/2 - 200} y={120}>
+                                <div className="bg-white text-black h-full p-8 text-center flex flex-col items-center">
+                                    <h2 className="text-3xl font-black mb-6">WINSTON</h2>
+                                    <img src="https://grocerybag.tv/media/winston.JPG" className="winston-img mb-8" />
+                                    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="discord-btn">JOIN DISCORD</a>
                                 </div>
                             </Window>
                         )}
                     </AnimatePresence>
 
-                    {/* macOS Dock */}
-                    <div className="fixed bottom-6 w-full flex justify-center z-[5000]">
-                        <div className={`glass-panel p-3 px-8 rounded-[32px] flex gap-10 shadow-2xl items-center`}>
+                    {/* NOW PLAYING - DYNAMIC ISLAND */}
+                    <motion.div 
+                        initial={{ bottom: -100 }}
+                        animate={{ bottom: 40 }}
+                        transition={{ delay: 5, duration: 1, type: 'spring' }}
+                        className="fixed left-1/2 -translate-x-1/2 z-[5000] glass-panel p-3 px-5 rounded-[28px] flex items-center gap-4 min-w-[320px] shadow-2xl"
+                    >
+                        <div className="w-12 h-12 bg-zinc-800 rounded-lg flex items-center justify-center text-xl">👼</div>
+                        <div className="flex flex-col">
+                            <b className="text-sm font-semibold">SICMR Startup Sequence</b>
+                            <span className="text-xs opacity-50 font-medium tracking-wide">Angels of SICMR — Act I</span>
+                        </div>
+                    </motion.div>
+
+                    {/* DOCK */}
+                    <div className="fixed bottom-6 w-full flex justify-center z-[4000]">
+                        <div className="glass-panel p-3 px-8 rounded-[35px] flex gap-10 shadow-2xl items-center border-white/5">
                             <button onClick={() => toggleApp('VIDEOS')} className="text-3xl hover:scale-125 transition-transform">📽️</button>
                             <button onClick={() => toggleApp('PHOTOS')} className="text-3xl hover:scale-125 transition-transform">🖼️</button>
-                            <button onClick={() => toggleApp('CHAT')} className="text-3xl hover:scale-125 transition-transform">💬</button>
                             <button onClick={() => toggleApp('WINSTON')} className="text-3xl hover:scale-125 transition-transform">🐶</button>
                         </div>
                     </div>
@@ -223,25 +198,25 @@
             );
         }
 
-        function Window({ title, children, onClose, onFocus, theme, isWinston, zIndex, initialX, initialY }) {
+        function Window({ title, children, onClose, onFocus, zIndex, x, y }) {
             return (
                 <motion.div 
                     drag dragMomentum={false} onDragStart={onFocus}
-                    initial={{ opacity: 0, scale: 0.9, x: initialX, y: initialY }}
+                    initial={{ opacity: 0, scale: 0.9, x, y }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
-                    style={{ zIndex: zIndex, position: 'absolute' }}
-                    className={`w-[420px] h-[500px] border shadow-2xl flex flex-col rounded-[24px] overflow-hidden backdrop-blur-2xl ${theme.winBg} ${theme.winBorder}`}
+                    style={{ zIndex, position: 'absolute' }}
+                    className="w-[420px] h-[520px] glass-panel shadow-2xl flex flex-col rounded-[24px] overflow-hidden"
                 >
-                    <div className={`${theme.titleBar} p-4 flex items-center relative cursor-grab active:cursor-grabbing`}>
+                    <div className="p-4 flex items-center justify-center relative cursor-grab active:cursor-grabbing bg-white/5">
                         <div className="flex gap-2 absolute left-4">
-                            <div onClick={(e) => { e.stopPropagation(); onClose(); }} className="traffic-light close-btn"></div>
+                            <div onClick={onClose} className="traffic-light close-btn"></div>
                             <div className="traffic-light minimize-btn"></div>
                             <div className="traffic-light expand-btn"></div>
                         </div>
-                        <span className="text-[10px] font-bold tracking-widest uppercase w-full text-center opacity-50 pointer-events-none">{title}</span>
+                        <span className="text-[10px] font-bold tracking-widest uppercase opacity-40">{title}</span>
                     </div>
-                    <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white rounded-b-[24px]' : ''}`}>
+                    <div className="flex-1 overflow-y-auto">
                         {children}
                     </div>
                 </motion.div>
