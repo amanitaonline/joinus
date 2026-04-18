@@ -3,318 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✶ ANGELS OF WINSTON ✶</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <title>XXXO</title>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Courier New', monospace; transition: background 0.5s ease; }
-        .video-background {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; pointer-events: none; opacity: 0.3; filter: grayscale(100%) contrast(110%);
+        body {
+            background-color: #000;
+            margin: 0;
+            padding: 0;
         }
-        .video-background iframe {
-            width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh;
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+
+        .wrapper {
+            padding: 200px;
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .custom-wallpaper {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -2; background-size: cover; background-position: center;
+
+        .container {
+            container-type: inline-size;
+            width: 100%;
+            max-width: 1200px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .font {
+            font-family: 'Helvetica', Arial, sans-serif;
+            font-weight: bold;
+            font-size: 3.5cqw; 
+            text-align: center;
+            text-transform: uppercase;
+            width: 100%;
+            margin: 20px 0;
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        .flash {
+            animation: flash-effect 0.14s infinite; 
+        }
+
+        @keyframes flash-effect {
+            0%, 49% { color: red; }
+            50%, 100% { color: white; }
+        }
+        .contact {
+            color: white;
+            transition: color 0.3s;
+        }
+
+        .contact:hover {
+            color: red;
+        }
+        .embed {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #111;
+        }
+        .embed iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
         
-        .glass-panel { backdrop-filter: blur(25px); background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .dark .glass-panel { background: rgba(15, 15, 15, 0.75); border: 1px solid rgba(255, 255, 255, 0.05); }
-        
-        .window-titlebar { backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-
-        .illuminati-logo {
-            width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent;
-            border-bottom: 14px solid currentColor; display: inline-block;
-        }
-        .glow-triangle { filter: drop-shadow(0 0 8px currentColor); animation: pulse-glow 2s infinite alternate ease-in-out; cursor: pointer; }
-        @keyframes pulse-glow { 0% { filter: drop-shadow(0 0 4px currentColor); } 100% { filter: drop-shadow(0 0 12px currentColor); } }
-
-        .traffic-light { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
-        .close-btn { background: #ff5f56; }
-        .minimize-btn { background: #ffbd2e; }
-        .expand-btn { background: #27c93f; }
-
-        .iphone-frame {
-            width: 320px; height: 640px; background: #1a1a1a; border-radius: 50px; border: 6px solid #333;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5); position: relative; padding: 15px; display: flex; flex-direction: column;
-        }
-        .mobile-screen { flex: 1; border-radius: 4px; overflow: hidden; position: relative; background-size: cover; background-position: center; }
-        .home-button {
-            width: 50px; height: 50px; border-radius: 50%; border: 2px solid #333;
-            margin: 10px auto 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        .home-button-inner { width: 18px; height: 18px; border: 1px solid #444; border-radius: 4px; }
-        
-        .winston-discord-btn { 
-            background: #7289da; color: white !important; padding: 12px 24px; 
-            border-radius: 12px; font-weight: bold; display: inline-block;
-            box-shadow: 0 0 15px rgba(114, 137, 218, 0.4);
+        @media (max-width: 800px) {
+            .margin-wrapper {
+                padding: 50px; 
+            }
+            .dynamic-text {
+                font-size: 5cqw;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-        const { motion, AnimatePresence } = window.Motion;
-
-        const videoLinks = [
-            'https://drive.google.com/file/d/1q7ac9PRUOzAFHfs5xT9i22BnJiAvwNIn/preview', 'https://drive.google.com/file/d/1JXmV-YQbpKJIszF4jPrUMVwhnZrOx6s3/preview', 'https://drive.google.com/file/d/1DWfZc5YAmpgmYltg056luS5G8mfdk4im/preview', 'https://drive.google.com/file/d/1zaaMBdb6oa8xfdSdIcoGpsCNdXkVWU74/preview', 'https://drive.google.com/file/d/1TFQKrUjTj2Pl06LbhBkKQrzdSni70pM4/preview', 'https://drive.google.com/file/d/11ZCGUpoLeS5WSf1c5MYsxWhkPra4AQfr/preview', 'https://drive.google.com/file/d/1RSBFQmDIQDwn1utNzFlHAgkQGh1b_62r/preview', 'https://drive.google.com/file/d/1xZvq0wa_j6OmkXmzjgSW4RokTftRFIo8/preview', 'https://drive.google.com/file/d/133oxgJtwj09sN_QW8ZeSLTfOf1eqx-o9/preview'
-        ];
-
-        const photoLinks = [
-            'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg/revision/latest?cb=20220524185305', 'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg/revision/latest?cb=20240406232229', 'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg/revision/latest?cb=20200524140831', 'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg/revision/latest?cb=20240406231758', 'https://static.wikia.nocookie.net/marsargo/images/b/ba/70ba1c59a8024d8eae890a643c969b48.jpeg/revision/latest?cb=20220511193735'
-        ];
-
-        const formatChatText = (text) => {
-            const urlRegex = /(https?:\/\/[^\s]+)/g;
-            return text.split(urlRegex).map((part, i) => {
-                if (part.match(urlRegex)) {
-                    return <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-400 underline">{part}</a>;
-                }
-                return part;
-            });
-        };
-
-        function App() {
-            const [isBooting, setIsBooting] = useState(true);
-            const [viewMode, setViewMode] = useState('choice'); 
-            const [isLoggedIn, setIsLoggedIn] = useState(false);
-            const [username, setUsername] = useState("");
-            const [isDark, setIsDark] = useState(true);
-            const [isMuted, setIsMuted] = useState(false);
-            const [wallpaper, setWallpaper] = useState(null);
+    <div class="wrapper">
+        <div class="container">
             
-            const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false });
-            const [activeMobileApp, setActiveMobileApp] = useState(null);
-            const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10 });
-            const [topZ, setTopZ] = useState(20);
+            <div class="font flash">
+                YOU WANT ME BE SOMEBODY WHO I'M REALLY NOT
+            </div>
+
+            <div class="embed">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/sfbQ5mHWkOs?si=cv1IE-oOnE3cX6O3" title="XXXO" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+
+            <a href="mailto:matangi@atomicmail.io" class="font contact">
+                CONTACT
+            </a>
             
-            const [chatMessages, setChatMessages] = useState([
-                { user: "SYSTEM", text: "Welcome to the network." },
-                { user: "SYSTEM", text: "JOIN OUR SERVER: https://discord.gg/CRMjDFNBm7" }
-            ]);
+        </div>
+    </div>
 
-            const audioRef = useRef(null);
-
-            useEffect(() => {
-                const timer = setTimeout(() => setIsBooting(false), 3000);
-                return () => clearTimeout(timer);
-            }, []);
-
-            const theme = isDark ? {
-                bg: "bg-black", text: "text-red-600", winBg: "bg-zinc-900", titleBar: "bg-red-950/40", mobileText: "text-white"
-            } : {
-                bg: "bg-[#d6d2c4]", text: "text-[#4a3f35]", winBg: "bg-[#eceae0]", titleBar: "bg-[#b0ab99]/40", mobileText: "text-black"
-            };
-
-            const toggleApp = (app) => {
-                setOpenApps(prev => ({ ...prev, [app]: !prev[app] }));
-                const newZ = topZ + 1;
-                setZIndices(prev => ({ ...prev, [app]: newZ }));
-                setTopZ(newZ);
-            };
-
-            if (isBooting) return (
-                <div className="h-screen w-full bg-black flex flex-col items-center justify-center">
-                    <div className="illuminati-logo text-white scale-[4] mb-16"></div>
-                    <div className="w-48 h-1 bg-zinc-800 rounded-full overflow-hidden">
-                        <motion.div initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: 2.5 }} className="h-full bg-white"/>
-                    </div>
-                </div>
-            );
-
-            if (viewMode === 'choice') return (
-                <div className="h-screen w-full bg-black flex flex-col items-center justify-center gap-8 text-white">
-                    <div className="flex gap-12">
-                        <button onClick={() => setViewMode('desktop')} className="glass-panel p-10 rounded-3xl hover:scale-105 transition-all">
-                            <div className="text-5xl mb-4">💻</div><div className="text-[10px] font-bold">DESKTOP</div>
-                        </button>
-                        <button onClick={() => setViewMode('mobile')} className="glass-panel p-10 rounded-3xl hover:scale-105 transition-all">
-                            <div className="text-5xl mb-4">📱</div><div className="text-[10px] font-bold">MOBILE</div>
-                        </button>
-                    </div>
-                </div>
-            );
-
-            if (!isLoggedIn) return (
-                <div className="h-screen w-full bg-black flex items-center justify-center p-4">
-                    <div className="glass-panel p-10 rounded-[32px] w-full max-w-sm text-center space-y-6 text-red-600">
-                        <div className="illuminati-logo scale-150"></div>
-                        <input type="text" placeholder="Username" className="w-full bg-black/50 border border-red-900/30 p-3 rounded-xl text-center text-sm" value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && username && setIsLoggedIn(true)}/>
-                        <button onClick={() => username && setIsLoggedIn(true)} className="w-full bg-red-900/20 border border-red-900/40 py-3 rounded-xl text-xs font-bold">LOGIN</button>
-                    </div>
-                </div>
-            );
-
-            // MOBILE
-            if (viewMode === 'mobile') return (
-                <div className="h-screen w-full flex items-center justify-center bg-zinc-950">
-                    <audio ref={audioRef} autoPlay loop src="https://grocerybag.tv/media/SNOW3.mp3" muted={isMuted} />
-                    <div className="iphone-frame">
-                        <div className="mobile-screen" style={{backgroundImage: wallpaper ? `url(${wallpaper})` : 'none', backgroundColor: isDark ? '#000' : '#d6d2c4'}}>
-                            <div className="flex justify-between px-4 py-1 text-[9px] text-white bg-black/30 backdrop-blur-md"><span>AOS</span><span>12:00</span><span>100% 🔋</span></div>
-                            <div className="grid grid-cols-3 gap-6 p-6 mt-4">
-                                <MobileIcon icon="🐶" label="Winston" onClick={() => setActiveMobileApp('WINSTON')} theme={theme} />
-                                <MobileIcon icon="📽️" label="Videos" onClick={() => setActiveMobileApp('VIDEOS')} theme={theme} />
-                                <MobileIcon icon="🖼️" label="Archive" onClick={() => setActiveMobileApp('PHOTOS')} theme={theme} />
-                                <MobileIcon icon="💬" label="Chat" onClick={() => setActiveMobileApp('CHAT')} theme={theme} />
-                                <MobileIcon icon="🎵" label="iTunes" onClick={() => setActiveMobileApp('ITUNES')} theme={theme} />
-                                <MobileIcon icon="⚙️" label="Settings" onClick={() => setActiveMobileApp('SETTINGS')} theme={theme} />
-                            </div>
-                            <AnimatePresence>
-                                {activeMobileApp && (
-                                    <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className={`absolute inset-0 z-50 overflow-y-auto p-4 pt-10 ${activeMobileApp === 'WINSTON' ? 'bg-white' : theme.winBg}`}>
-                                        {activeMobileApp === 'PHOTOS' && photoLinks.map((url, i) => (
-                                            <img key={i} src={url} className="w-full mb-4 rounded-xl border border-white/10" onClick={() => setWallpaper(url)} />
-                                        ))}
-                                        {activeMobileApp === 'VIDEOS' && videoLinks.map((url, i) => (
-                                            <iframe key={i} src={url} className="w-full aspect-video rounded-xl mb-4" />
-                                        ))}
-                                        {activeMobileApp === 'CHAT' && (
-                                            <div className="flex flex-col h-full text-[11px] pb-20">
-                                                {chatMessages.map((m, i) => <div key={i} className="mb-2 opacity-80"><b>[{m.user}]</b> {formatChatText(m.text)}</div>)}
-                                                <input className="fixed bottom-4 left-4 right-4 p-3 rounded-full bg-white/10 border border-white/20 text-white outline-none" placeholder="Message..." onKeyDown={(e) => { if(e.key==='Enter' && e.target.value){ setChatMessages([...chatMessages, {user: username, text: e.target.value}]); e.target.value=''; }}} />
-                                            </div>
-                                        )}
-                                        {activeMobileApp === 'ITUNES' && (
-                                            <div className="flex flex-col items-center pt-10">
-                                                <img src="https://grocerybag.tv/media/winston.JPG" className="w-40 h-40 rounded-3xl mb-8 shadow-2xl" />
-                                                <button onClick={() => setIsMuted(!isMuted)} className="text-4xl">{isMuted ? '🔇' : '🔊'}</button>
-                                            </div>
-                                        )}
-                                        {activeMobileApp === 'WINSTON' && (
-                                            <div className="text-center text-black">
-                                                <h2 className="text-xl font-black mb-4">WINSTON'S FAN CLUB</h2>
-                                                <img src="https://grocerybag.tv/media/winston.JPG" className="w-40 h-40 mx-auto rounded-3xl mb-8 object-cover" />
-                                                <a href="https://discord.gg/CRMjDFNBm7" className="winston-discord-btn">JOIN SERVER</a>
-                                            </div>
-                                        )}
-                                        {activeMobileApp === 'SETTINGS' && (
-                                            <div className={`space-y-4 pt-4 ${theme.text}`}>
-                                                <div onClick={() => setIsDark(!isDark)} className="p-4 bg-white/5 rounded-xl border border-white/10 flex justify-between"><span>Lite Mode</span><span>{isDark ? 'OFF' : 'ON'}</span></div>
-                                                <div onClick={() => setViewMode('choice')} className="p-4 bg-red-950/20 rounded-xl border border-red-500/20 font-bold text-center">Switch Version</div>
-                                            </div>
-                                        )}
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                        <div className="home-button" onClick={() => setActiveMobileApp(null)}><div className="home-button-inner"></div></div>
-                    </div>
-                </div>
-            );
-
-            // DESKTOP
-            return (
-                <div className={`h-screen w-full relative overflow-hidden ${isDark ? 'dark' : ''} ${theme.bg} ${theme.text}`}>
-                    <audio ref={audioRef} autoPlay loop src="https://grocerybag.tv/media/SNOW3.mp3" muted={isMuted} />
-                    <div className="video-background"><iframe src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&loop=1&playlist=8uy6OhNEg1w&controls=0" frameBorder="0"></iframe></div>
-                    {wallpaper && <div className="custom-wallpaper" style={{backgroundImage: `url(${wallpaper})`, opacity: isDark ? 0.4 : 1}}></div>}
-
-                    {/* Desktop Nav */}
-                    <div className="fixed top-4 w-full flex justify-center z-[5000] px-6">
-                        <div className="glass-panel h-11 w-full max-w-6xl rounded-full flex justify-between items-center px-6">
-                            <div className="flex items-center text-[10px] font-bold uppercase">
-                                <div onClick={() => setViewMode('choice')} className="illuminati-logo glow-triangle mr-3"></div> 
-                                Angels Of WINSTON — {username}
-                            </div>
-                            <div className="flex gap-4 items-center">
-                                <button className="text-[9px] border px-3 py-1 rounded-full border-current" onClick={() => setIsDark(!isDark)}>{isDark ? 'LIGHT' : 'DARK'}</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Draggable Mini Player */}
-                    <motion.div drag dragMomentum={false} className="fixed bottom-24 right-8 z-[5000] glass-panel p-4 rounded-3xl flex items-center gap-4 border border-white/5 cursor-move">
-                        <div className="w-10 h-10 bg-black rounded-lg overflow-hidden pointer-events-none"><img src="https://grocerybag.tv/media/winston.JPG" className="w-full h-full object-cover opacity-60" /></div>
-                        <div className="pointer-events-none">
-                            <div className="text-[10px] font-bold">SNOW3.mp3</div>
-                            <div className="text-[8px] opacity-40 uppercase">Now Playing</div>
-                        </div>
-                        <button onClick={() => setIsMuted(!isMuted)} className="ml-2 hover:scale-110 transition-transform">
-                            {isMuted ? '🔇' : '🔊'}
-                        </button>
-                    </motion.div>
-
-                    <AnimatePresence>
-                        {openApps.PHOTOS && (
-                            <Window title="IMAGE_ARCHIVE" theme={theme} onClose={() => toggleApp('PHOTOS')} zIndex={zIndices.PHOTOS} initialX={150} initialY={150}>
-                                <div className="p-4 grid grid-cols-2 gap-4">{photoLinks.map((url, i) => <img key={i} src={url} className="w-full rounded-xl cursor-pointer hover:scale-105 transition-transform" onClick={() => setWallpaper(url)} />)}</div>
-                            </Window>
-                        )}
-                        {openApps.VIDEOS && (
-                            <Window title="ARCHIVE_LIBRARY" theme={theme} onClose={() => toggleApp('VIDEOS')} zIndex={zIndices.VIDEOS} initialX={60} initialY={80}>
-                                <div className="p-4 space-y-4">{videoLinks.map((url, i) => <iframe key={i} src={url} className="w-full aspect-video rounded-xl" frameBorder="0" />)}</div>
-                            </Window>
-                        )}
-                        {openApps.CHAT && (
-                            <Window title="ENCRYPTED_CHAT" theme={theme} onClose={() => toggleApp('CHAT')} zIndex={zIndices.CHAT} initialX={500} initialY={100}>
-                                <div className="flex flex-col h-full">
-                                    <div className="flex-1 p-4 space-y-3 text-[11px]">{chatMessages.map((m, i) => <div key={i} className="border-l border-current/30 pl-3"><b>[{m.user}]</b><br/>{formatChatText(m.text)}</div>)}</div>
-                                    <div className="p-4 border-t border-current/10"><input className="w-full bg-transparent outline-none text-xs" placeholder="Type..." onKeyDown={(e) => { if(e.key==='Enter' && e.target.value){ setChatMessages([...chatMessages, {user: username, text: e.target.value}]); e.target.value=''; }}} /></div>
-                                </div>
-                            </Window>
-                        )}
-                        {openApps.WINSTON && (
-                            <Window title="WINSTON'S FAN CLUB" theme={theme} onClose={() => toggleApp('WINSTON')} zIndex={zIndices.WINSTON} initialX={300} initialY={180} isWinston>
-                                <div className="p-8 text-center flex flex-col items-center bg-white text-black h-full">
-                                    <h2 className="text-3xl font-black mb-6">WINSTON'S FAN CLUB</h2>
-                                    <img src="https://grocerybag.tv/media/winston.JPG" className="w-48 h-48 rounded-3xl mb-8 shadow-2xl object-cover" />
-                                    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="winston-discord-btn">JOIN SERVER</a>
-                                </div>
-                            </Window>
-                        )}
-                    </AnimatePresence>
-
-                    <div className="fixed bottom-6 w-full flex justify-center z-[5000]">
-                        <div className="glass-panel p-3 px-8 rounded-[32px] flex gap-10 shadow-2xl items-center">
-                            <button onClick={() => toggleApp('VIDEOS')} className="text-3xl">📽️</button>
-                            <button onClick={() => toggleApp('PHOTOS')} className="text-3xl">🖼️</button>
-                            <button onClick={() => toggleApp('CHAT')} className="text-3xl">💬</button>
-                            <button onClick={() => toggleApp('WINSTON')} className="text-3xl">🐶</button>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-
-        function MobileIcon({ icon, label, onClick, theme }) {
-            return (
-                <div onClick={onClick} className="flex flex-col items-center gap-1 active:scale-90 transition-transform cursor-pointer">
-                    <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-lg">{icon}</div>
-                    <span className={`text-[9px] font-bold ${theme.mobileText}`}>{label}</span>
-                </div>
-            );
-        }
-
-        function Window({ title, children, onClose, theme, zIndex, initialX, initialY, isWinston }) {
-            return (
-                <motion.div drag dragMomentum={false} initial={{ x: initialX, y: initialY }} style={{ zIndex, position: 'absolute' }} className={`w-[400px] h-[480px] border flex flex-col rounded-[24px] overflow-hidden ${theme.winBg} border-white/10 shadow-2xl`}>
-                    <div className={`window-titlebar p-4 flex justify-between items-center ${theme.titleBar} cursor-grab active:cursor-grabbing`}>
-                        <div className="flex gap-2">
-                            <div onClick={onClose} className="traffic-light close-btn"></div>
-                            <div className="traffic-light minimize-btn"></div>
-                            <div className="traffic-light expand-btn"></div>
-                        </div>
-                        <span className="text-[9px] font-bold opacity-50 uppercase tracking-widest">{title}</span>
-                        <div className="w-12"></div>
-                    </div>
-                    <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white text-black' : ''}`}>{children}</div>
-                </motion.div>
-            );
-        }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
 </body>
 </html>
