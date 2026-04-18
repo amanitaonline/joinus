@@ -7,11 +7,11 @@
     <style>
         body {
             background-color: #000;
-            /* Added a subtle glitter texture to the background */
             background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            cursor: crosshair;
         }
 
         .wrapper {
@@ -31,7 +31,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            z-index: 1; /* Keep content above sparkles */
+            z-index: 1; 
         }
 
         .font {
@@ -44,7 +44,6 @@
             margin: 20px 0;
             text-decoration: none;
             letter-spacing: 1px;
-            /* Added a text shadow for extra 'pop' */
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
@@ -71,7 +70,7 @@
             width: 100%;
             aspect-ratio: 16 / 9;
             background-color: #111;
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3); /* Subtle glow */
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3); 
         }
 
         .embed iframe {
@@ -80,21 +79,26 @@
             border: none;
         }
         
-        /* Sparkle Styles */
-        .sparkle {
+        /* NEW HYBRID SPARKLE STYLE */
+        .sparkle-star {
             position: absolute;
-            width: 5px;
-            height: 5px;
-            background: white;
-            border-radius: 50%;
             pointer-events: none;
-            box-shadow: 0 0 10px 2px white, 0 0 15px 4px red;
-            animation: sparkle-fade 0.8s linear forwards;
+            font-size: 24px;
+            z-index: 9999;
+            color: white;
+            text-shadow: 0 0 10px #fff;
+            animation: burst 0.8s ease-out forwards;
         }
 
-        @keyframes sparkle-fade {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(0); opacity: 0; }
+        @keyframes burst {
+            0% { 
+                transform: translate(0, 0) scale(1) rotate(0deg); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translate(var(--x), var(--y)) scale(0) rotate(180deg); 
+                opacity: 0; 
+            }
         }
 
         @media (max-width: 800px) {
@@ -125,32 +129,34 @@
     </div>
 
     <script>
-        // Y2K Sparkle Trail Logic
+        // Hybrid "✦" Sparkle Burst Logic
         document.addEventListener('mousemove', (e) => {
-            const sparkle = document.createElement('div');
-            sparkle.className = 'sparkle';
-            
-            // Randomize sparkle color between white and red
-            if (Math.random() > 0.5) {
-                sparkle.style.background = 'red';
-                sparkle.style.boxShadow = '0 0 10px 2px red';
+            if (Math.random() > 0.7) {
+                const star = document.createElement('div');
+                star.className = 'sparkle-star';
+                star.innerHTML = '✦';
+                
+                // Random burst trajectory
+                const destinationX = (Math.random() - 0.5) * 100;
+                const destinationY = (Math.random() - 0.5) * 100;
+                star.style.setProperty('--x', destinationX + 'px');
+                star.style.setProperty('--y', destinationY + 'px');
+
+                // Randomize color between Red and White with Glow
+                if(Math.random() > 0.5) {
+                    star.style.color = 'red';
+                    star.style.textShadow = '0 0 10px red, 0 0 20px #ff0000';
+                }
+
+                star.style.left = e.pageX + 'px';
+                star.style.top = e.pageY + 'px';
+                
+                document.body.appendChild(star);
+                
+                setTimeout(() => {
+                    star.remove();
+                }, 800);
             }
-
-            sparkle.style.left = e.pageX + 'px';
-            sparkle.style.top = e.pageY + 'px';
-            
-            // Random trajectory
-            const destinationX = (Math.random() - 0.5) * 50;
-            const destinationY = (Math.random() - 0.5) * 50;
-            
-            sparkle.style.setProperty('--x', destinationX + 'px');
-            sparkle.style.setProperty('--y', destinationY + 'px');
-
-            document.body.appendChild(sparkle);
-
-            setTimeout(() => {
-                sparkle.remove();
-            }, 800);
         });
     </script>
 
