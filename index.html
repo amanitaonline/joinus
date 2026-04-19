@@ -83,7 +83,7 @@
 
         const videoLinks = [
             'https://www.youtube.com/embed/xQxOU-CQnDo',
-            'https://www.youtube.com/embed/y2pGZzF_eI8',
+            'https://www.youtube.com/embed/Qn31c2Ks5dQ',
             'https://www.youtube.com/embed/jbgWXRxlSuQ',
             'https://www.youtube.com/embed/tp1ZluX4aYs',
             'https://www.youtube.com/embed/KbS-dKD4c9I',
@@ -96,6 +96,7 @@
             'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg/revision/latest',
             'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg/revision/latest'
         ];
+
 
         const formatChatText = (text) => {
             const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -128,7 +129,6 @@
 
             const audioRef = useRef(null);
 
-            // Sparkle logic integrated into useEffect
             useEffect(() => {
                 const handleMouseMove = (e) => {
                     if (Math.random() > 0.7) {
@@ -194,7 +194,7 @@
 
             if (!isLoggedIn) return (
                 <div className="h-screen w-full bg-black flex items-center justify-center p-4">
-                    <div className="glass-panel p-10 rounded-[32px] w-full max-w-sm text-center space-y-6 text-red-600">
+                    <div className="glass-panel p-10 rounded-[32px] w-full max-sm text-center space-y-6 text-red-600">
                         <div className="illuminati-logo scale-150"></div>
                         <input type="text" placeholder="Username" className="w-full bg-black/50 border border-red-900/30 p-3 rounded-xl text-center text-sm" value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && username && setIsLoggedIn(true)}/>
                         <button onClick={() => username && setIsLoggedIn(true)} className="w-full bg-red-900/20 border border-red-900/40 py-3 rounded-xl text-xs font-bold">LOGIN</button>
@@ -202,10 +202,10 @@
                 </div>
             );
 
-            // MOBILE VIEW
+            // MOBILE
             if (viewMode === 'mobile') return (
                 <div className="h-screen w-full flex items-center justify-center bg-zinc-950">
-                    <audio ref={audioRef} autoPlay loop src="https://grocerybag.tv/media/TMM.mp3" muted={isMuted} />
+                    <audio ref={audioRef} autoPlay loop src="https://grocerybag.tv/media/SONG.mp3" muted={isMuted} />
                     <div className="iphone-frame">
                         <div className="mobile-screen" style={{backgroundImage: wallpaper ? `url(${wallpaper})` : 'none', backgroundColor: isDark ? '#000' : '#d6d2c4'}}>
                             <div className="flex justify-between px-4 py-1 text-[9px] text-white bg-black/30 backdrop-blur-md"><span>AOS</span><span>12:00</span><span>100% 🔋</span></div>
@@ -261,10 +261,10 @@
                 </div>
             );
 
-            // DESKTOP VIEW
+            // DESKTOP
             return (
                 <div className={`h-screen w-full relative overflow-hidden ${isDark ? 'dark' : ''} ${theme.bg} ${theme.text}`}>
-                    <audio ref={audioRef} autoPlay loop src="https://grocerybag.tv/media/.mp3" muted={isMuted} />
+                    <audio ref={audioRef} autoPlay loop src="https://grocerybag.tv/media/SONG.mp3" muted={isMuted} />
                     <div className="video-background"><iframe src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&loop=1&playlist=8uy6OhNEg1w&controls=0" frameBorder="0"></iframe></div>
                     {wallpaper && <div className="custom-wallpaper" style={{backgroundImage: `url(${wallpaper})`, opacity: isDark ? 0.4 : 1}}></div>}
 
@@ -280,6 +280,18 @@
                             </div>
                         </div>
                     </div>
+
+                    {/* Restored Mini Player */}
+                    <motion.div drag dragMomentum={false} className="fixed bottom-24 right-8 z-[5000] glass-panel p-4 rounded-3xl flex items-center gap-4 border border-white/5 cursor-move">
+                        <div className="w-10 h-10 bg-black rounded-lg overflow-hidden pointer-events-none"><img src="https://grocerybag.tv/media/winston.JPG" className="w-full h-full object-cover opacity-60" /></div>
+                        <div className="pointer-events-none">
+                            <div className="text-[10px] font-bold">Winnies_JAMz.mp3</div>
+                            <div className="text-[8px] opacity-40 uppercase">Now Playing</div>
+                        </div>
+                        <button onClick={() => setIsMuted(!isMuted)} className="ml-2 hover:scale-110 transition-transform">
+                            {isMuted ? '🔇' : '🔊'}
+                        </button>
+                    </motion.div>
 
                     <AnimatePresence>
                         {openApps.XXXO && (
