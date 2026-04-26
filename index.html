@@ -117,9 +117,9 @@
             const [isMuted, setIsMuted] = useState(false);
             const [wallpaper, setWallpaper] = useState(null);
             
-            const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false, XXXO: false });
+            const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false, XXXO: false, AGARIO: false });
             const [activeMobileApp, setActiveMobileApp] = useState(null);
-            const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10, XXXO: 10 });
+            const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10, XXXO: 10, AGARIO: 10 });
             const [topZ, setTopZ] = useState(20);
             
             const [chatMessages, setChatMessages] = useState([
@@ -332,6 +332,14 @@
                         )}
                     </AnimatePresence>
 
+                        {openApps.AGARIO && (
+                            <Window title="WINSTONWOBBLES.EXE" theme={theme} onClose={() => toggleApp('AGARIO')} zIndex={zIndices.AGARIO} initialX={80} initialY={60} width={640} height={400}>
+                                <div style={{width:'100%',height:'100%',background:'#0a0a0a',position:'relative'}}>
+                                    <AgarIO />
+                                </div>
+                            </Window>
+                        )}
+
                     <div className="fixed bottom-6 w-full flex justify-center z-[5000]">
                         <div className="glass-panel p-3 px-8 rounded-[32px] flex gap-10 shadow-2xl items-center">
                             <button onClick={() => toggleApp('VIDEOS')} className="text-3xl hover:scale-110 transition-transform">📽️</button>
@@ -339,10 +347,255 @@
                             <button onClick={() => toggleApp('CHAT')} className="text-3xl hover:scale-110 transition-transform">💬</button>
                             <button onClick={() => toggleApp('XXXO')} className="text-3xl hover:scale-110 transition-transform">🪩</button>
                             <button onClick={() => toggleApp('WINSTON')} className="text-3xl hover:scale-110 transition-transform">🐶</button>
+                            <button onClick={() => toggleApp('AGARIO')} className="text-3xl hover:scale-110 transition-transform">👾</button>
                         </div>
                     </div>
                 </div>
             );
+        }
+
+        function AgarIO() {
+            const canvasRef = useRef(null);
+            const stateRef = useRef({});
+            const rafRef = useRef(null);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                const W = 2400, H = 2400;
+                const COLORS = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff922b','#cc5de8','#20c997','#f06595','#74c0fc','#a9e34b'];
+                const NAMES = ['brad','greg','unnamed','void creature','thing','entity','yapper','cell 7','unknown','placeholder'];
+                const ri=(a,b)=>Math.floor(Math.random()*(b-a))+a;
+                const rf=(a,b)=>Math.random()*(b-a)+a;
+                const dst=(a,b)=>Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2);
+                const lerp=(a,b,t)=>a+(b-a)*t;
+
+                function resize(){
+                    const p=canvas.parentElement; canvas.width=p.offsetWidth; canvas.height=p.offsetHeight;
+                    s.VW=canvas.width; s.VH=canvas.height;
+                }
+
+                class Blob {
+                    constructor(x,y,r,color,name,isP=false){
+                        this.x=x;this.y=y;this.r=r;this.color=color;this.name=name;this.isPlayer=isP;
+                        this.vx=0;this.vy=0;this.wobble=rf(0,Math.PI*2);this.wobbleSpeed=rf(0.04,0.09);
+                        this.blinkTimer=ri(80,200);this.blinking=false;this.blinkFrame=0;
+                        this.targetX=rf(50,W-50);this.targetY=rf(50,H-50);this.aiTimer=0;
+                        this.eatFlash=0;
+                    }
+                    get mass(){return Math.PI*this.r*this.r;}
+                    grow(m){this.r=Math.sqrt((this.mass+m)/Math.PI);}
+                }
+
+                const s = stateRef.current;
+                s.mouse={x:200,y:150};s.dead=false;s.score=0;s.frame=0;s.VW=400;s.VH=300;
+                s.zoom=1;s.targetZoom=1;s.particles=[];s.ripples=[];
+
+                function spawnFood(){return{x:rf(20,W-20),y:rf(20,H-20),r:rf(4,8),color:COLORS[ri(0,COLORS.length)],pulse:rf(0,Math.PI*2)};}
+
+                function spawnParticles(wx,wy,color,count=8){
+                    for(let i=0;i<count;i++){
+                        const angle=Math.random()*Math.PI*2;
+                        const spd=rf(1.5,4.5);
+                        s.particles.push({x:wx,y:wy,vx:Math.cos(angle)*spd,vy:Math.sin(angle)*spd,r:rf(2,5),color,life:1,decay:rf(0.04,0.08)});
+                    }
+                }
+
+                function spawnRipple(wx,wy,color){
+                    s.ripples.push({x:wx,y:wy,r:0,maxR:rf(30,60),color,life:1});
+                }
+
+                function init(){
+                    resize();
+                    s.player=new Blob(W/2,H/2,30,'#ffffff','winston',true);
+                    s.camera={x:W/2,y:H/2};s.score=0;s.dead=false;
+                    s.zoom=1;s.targetZoom=1;s.particles=[];s.ripples=[];
+                    s.blobs=[];
+                    for(let i=0;i<14;i++){const r=rf(15,50);s.blobs.push(new Blob(rf(r,W-r),rf(r,H-r),r,COLORS[i%COLORS.length],NAMES[i%NAMES.length]));}
+                    s.food=[];for(let i=0;i<300;i++)s.food.push(spawnFood());
+                }
+
+                function drawBlob(b,ox,oy,zoom){
+                    const cx=(b.x-ox)*zoom+s.VW/2*(1-zoom),cy=(b.y-oy)*zoom+s.VH/2*(1-zoom);
+                    const r=b.r*zoom,w=b.wobble;
+                    ctx.save();ctx.translate(cx,cy);
+                    if(b.eatFlash>0){ctx.shadowColor='#fff';ctx.shadowBlur=r*0.6*b.eatFlash;}
+                    ctx.beginPath();
+                    for(let i=0;i<=20;i++){const a=(i/20)*Math.PI*2,wm=1+0.07*Math.sin(a*3+w)+0.04*Math.sin(a*5-w*1.3);const rx=Math.cos(a)*r*wm,ry=Math.sin(a)*r*wm;i===0?ctx.moveTo(rx,ry):ctx.lineTo(rx,ry);}
+                    ctx.closePath();ctx.fillStyle=b.color;ctx.fill();
+                    ctx.shadowBlur=0;
+                    if(b.isPlayer){ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=2;ctx.stroke();}
+                    const er=r*0.13;
+                    [{ox:.3,oy:-.25},{ox:-.3,oy:-.25}].forEach(e=>{
+                        const ex=e.ox*r*.6,ey=e.oy*r*.6;
+                        ctx.beginPath();ctx.arc(ex,ey,er,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+                        if(!b.blinking){ctx.beginPath();ctx.arc(ex+er*.2,ey+er*.2,er*.55,0,Math.PI*2);ctx.fillStyle='#111';ctx.fill();}
+                        else{ctx.beginPath();ctx.strokeStyle='#111';ctx.lineWidth=er*.6;ctx.moveTo(ex-er*.6,ey);ctx.lineTo(ex+er*.6,ey);ctx.stroke();}
+                    });
+                    const mw=r*.28,my=r*.25;ctx.beginPath();ctx.arc(0,my,mw,0,Math.PI);ctx.strokeStyle='#111';ctx.lineWidth=Math.max(1.5,r*.05);ctx.stroke();
+                    ctx.restore();
+                    if(b.r*zoom>18){
+                        const tx=(b.x-ox)*zoom+s.VW/2*(1-zoom);
+                        const ty=(b.y-oy)*zoom+s.VH/2*(1-zoom);
+                        ctx.save();ctx.font=`${Math.max(9,Math.min(13,r*.3))}px 'Courier New'`;ctx.textAlign='center';
+                        ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillText(b.name,tx+1,ty+r*.62+1);
+                        ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillText(b.name,tx,ty+r*.6);ctx.restore();
+                    }
+                }
+
+                function loop(){
+                    s.frame++;
+                    const p=s.player;
+                    if(!p||s.dead){
+                        ctx.clearRect(0,0,s.VW,s.VH);
+                        ctx.fillStyle='rgba(0,0,0,0.88)';ctx.fillRect(0,0,s.VW,s.VH);
+                        ctx.fillStyle='#fff';ctx.font="bold 18px 'Courier New'";ctx.textAlign='center';
+                        ctx.fillText('you got ate',s.VW/2,s.VH/2-20);
+                        ctx.fillStyle='#666';ctx.font="11px 'Courier New'";
+                        ctx.fillText('score: '+s.score,s.VW/2,s.VH/2+5);
+                        ctx.fillStyle='#fff';ctx.fillRect(s.VW/2-40,s.VH/2+20,80,28);
+                        ctx.fillStyle='#000';ctx.font="11px 'Courier New'";ctx.fillText('try again',s.VW/2,s.VH/2+38);
+                        rafRef.current=requestAnimationFrame(loop);return;
+                    }
+
+                    // target zoom based on player size — zooms out as you grow
+                    s.targetZoom = Math.max(0.3, Math.min(1, 60/p.r));
+                    s.zoom = lerp(s.zoom, s.targetZoom, 0.04);
+
+                    const zoom=s.zoom;
+                    // convert mouse to world coords accounting for zoom
+                    const worldMX = (s.mouse.x - s.VW/2)/zoom + s.camera.x;
+                    const worldMY = (s.mouse.y - s.VH/2)/zoom + s.camera.y;
+                    const ang=Math.atan2(worldMY-p.y,worldMX-p.x),spd=Math.max(1,8-p.r*.06);
+                    p.vx+=Math.cos(ang)*spd*.15;p.vy+=Math.sin(ang)*spd*.15;p.vx*=.82;p.vy*=.82;
+                    p.x=Math.max(p.r,Math.min(W-p.r,p.x+p.vx));p.y=Math.max(p.r,Math.min(H-p.r,p.y+p.vy));
+                    s.camera.x=lerp(s.camera.x,p.x,.08);s.camera.y=lerp(s.camera.y,p.y,.08);
+                    p.wobble+=p.wobbleSpeed;p.blinkTimer--;
+                    if(p.blinkTimer<=0){p.blinking=true;p.blinkFrame=0;p.blinkTimer=ri(100,220);}
+                    if(p.blinking){p.blinkFrame++;if(p.blinkFrame>6)p.blinking=false;}
+                    if(p.eatFlash>0)p.eatFlash=Math.max(0,p.eatFlash-0.08);
+
+                    s.blobs.forEach(b=>{
+                        b.wobble+=b.wobbleSpeed;b.blinkTimer--;
+                        if(b.blinkTimer<=0){b.blinking=true;b.blinkFrame=0;b.blinkTimer=ri(80,200);}
+                        if(b.blinking){b.blinkFrame++;if(b.blinkFrame>6)b.blinking=false;}
+                        if(b.eatFlash>0)b.eatFlash=Math.max(0,b.eatFlash-0.08);
+                        b.aiTimer++;
+                        if(b.aiTimer>60||dst(b,{x:b.targetX,y:b.targetY})<60){
+                            b.aiTimer=0;b.targetX=rf(50,W-50);b.targetY=rf(50,H-50);
+                            const nb=[...s.blobs,p].filter(o=>o!==b);
+                            const dng=nb.find(o=>o.r>b.r*1.1&&dst(o,b)<200);
+                            const pry=nb.find(o=>o.r<b.r*.85&&dst(o,b)<250);
+                            if(dng){b.targetX=b.x-(dng.x-b.x)*3;b.targetY=b.y-(dng.y-b.y)*3;}
+                            else if(pry){b.targetX=pry.x;b.targetY=pry.y;}
+                        }
+                        const ba=Math.atan2(b.targetY-b.y,b.targetX-b.x),bs=Math.max(1,7-b.r*.05);
+                        b.vx+=Math.cos(ba)*bs*.12;b.vy+=Math.sin(ba)*bs*.12;b.vx*=.82;b.vy*=.82;
+                        b.x=Math.max(b.r,Math.min(W-b.r,b.x+b.vx));b.y=Math.max(b.r,Math.min(H-b.r,b.y+b.vy));
+                    });
+
+                    s.food.forEach((f,i)=>{
+                        f.pulse+=.07;
+                        if(dst(p,f)<p.r+f.r){
+                            spawnParticles(f.x,f.y,f.color,5);
+                            p.grow(Math.PI*f.r*f.r*.5);s.food[i]=spawnFood();s.score++;
+                        }
+                        s.blobs.forEach(b=>{if(dst(b,f)<b.r+f.r){b.grow(Math.PI*f.r*f.r*.5);s.food[i]=spawnFood();}});
+                    });
+
+                    for(let i=s.blobs.length-1;i>=0;i--){
+                        const b=s.blobs[i];
+                        if(dst(p,b)<Math.max(p.r,b.r)){
+                            if(p.r>b.r*1.1){
+                                spawnParticles(b.x,b.y,b.color,14);
+                                spawnRipple(b.x,b.y,b.color);
+                                p.grow(b.mass*.7);p.eatFlash=1;
+                                s.blobs.splice(i,1);s.score+=Math.floor(b.r);
+                                const nr=rf(15,45);s.blobs.push(new Blob(rf(nr,W-nr),rf(nr,H-nr),nr,COLORS[ri(0,COLORS.length)],NAMES[ri(0,NAMES.length)]));
+                            } else if(b.r>p.r*1.1){s.dead=true;}
+                        }
+                        for(let j=s.blobs.length-1;j>=0;j--){
+                            if(i===j)continue;const a=s.blobs[i],bb=s.blobs[j];
+                            if(a&&bb&&dst(a,bb)<Math.max(a.r,bb.r)&&a.r>bb.r*1.15){
+                                spawnParticles(bb.x,bb.y,bb.color,10);
+                                a.grow(bb.mass*.7);a.eatFlash=1;s.blobs.splice(j,1);if(j<i)i--;
+                                const nr=rf(15,45);s.blobs.push(new Blob(rf(nr,W-nr),rf(nr,H-nr),nr,COLORS[ri(0,COLORS.length)],NAMES[ri(0,NAMES.length)]));break;
+                            }
+                        }
+                    }
+
+                    // update particles
+                    for(let i=s.particles.length-1;i>=0;i--){
+                        const pt=s.particles[i];
+                        pt.x+=pt.vx;pt.y+=pt.vy;pt.vx*=0.88;pt.vy*=0.88;
+                        pt.life-=pt.decay;if(pt.life<=0){s.particles.splice(i,1);}
+                    }
+                    // update ripples
+                    for(let i=s.ripples.length-1;i>=0;i--){
+                        const rp=s.ripples[i];
+                        rp.r+=3;rp.life-=0.05;if(rp.life<=0){s.ripples.splice(i,1);}
+                    }
+
+                    // DRAW
+                    const ox=s.camera.x-s.VW/2/zoom,oy=s.camera.y-s.VH/2/zoom;
+                    ctx.clearRect(0,0,s.VW,s.VH);
+                    ctx.fillStyle='#0a0a0a';ctx.fillRect(0,0,s.VW,s.VH);
+
+                    // grid with zoom
+                    ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=1;
+                    const sp=80*zoom,sxg=-(ox*zoom%sp),syg=-(oy*zoom%sp);
+                    for(let x=sxg;x<s.VW;x+=sp){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,s.VH);ctx.stroke();}
+                    for(let y=syg;y<s.VH;y+=sp){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(s.VW,y);ctx.stroke();}
+
+                    // ripples (world space → screen)
+                    s.ripples.forEach(rp=>{
+                        const sx=(rp.x-ox)*zoom,sy=(rp.y-oy)*zoom;
+                        ctx.beginPath();ctx.arc(sx,sy,rp.r*zoom,0,Math.PI*2);
+                        ctx.strokeStyle=rp.color;ctx.globalAlpha=rp.life*0.5;ctx.lineWidth=2;ctx.stroke();ctx.globalAlpha=1;
+                    });
+
+                    // food
+                    s.food.forEach(f=>{
+                        const fx=(f.x-ox)*zoom,fy=(f.y-oy)*zoom;
+                        if(fx<-20||fx>s.VW+20||fy<-20||fy>s.VH+20)return;
+                        ctx.beginPath();ctx.arc(fx,fy,(f.r+Math.sin(f.pulse)*1.5)*zoom,0,Math.PI*2);
+                        ctx.fillStyle=f.color;ctx.globalAlpha=.85;ctx.fill();ctx.globalAlpha=1;
+                    });
+
+                    // particles
+                    s.particles.forEach(pt=>{
+                        const px=(pt.x-ox)*zoom,py=(pt.y-oy)*zoom;
+                        ctx.beginPath();ctx.arc(px,py,pt.r*zoom,0,Math.PI*2);
+                        ctx.fillStyle=pt.color;ctx.globalAlpha=pt.life*0.9;ctx.fill();ctx.globalAlpha=1;
+                    });
+
+                    // blobs — pass ox/oy in world units, drawBlob handles zoom internally
+                    [...s.blobs,p].sort((a,b)=>a.r-b.r).forEach(b=>{
+                        const bsx=(b.x-ox)*zoom,bsy=(b.y-oy)*zoom;
+                        if(bsx<-b.r*zoom*2||bsx>s.VW+b.r*zoom*2||bsy<-b.r*zoom*2||bsy>s.VH+b.r*zoom*2)return;
+                        drawBlob(b,ox,oy,zoom);
+                    });
+
+                    ctx.save();ctx.font="9px 'Courier New'";ctx.fillStyle='rgba(255,255,255,0.2)';
+                    ctx.textAlign='left';ctx.fillText('winstonwobbles',8,s.VH-8);
+                    ctx.textAlign='right';ctx.fillText('score:'+s.score,s.VW-8,s.VH-8);ctx.restore();
+                    rafRef.current=requestAnimationFrame(loop);
+                }
+
+                init();loop();
+
+                const onMove=e=>{const r=canvas.getBoundingClientRect();s.mouse.x=e.clientX-r.left;s.mouse.y=e.clientY-r.top;};
+                const onClick=e=>{if(s.dead){init();}};
+                const onTouch=e=>{e.preventDefault();const r=canvas.getBoundingClientRect();const t=e.touches[0];s.mouse.x=t.clientX-r.left;s.mouse.y=t.clientY-r.top;};
+                canvas.addEventListener('mousemove',onMove);
+                canvas.addEventListener('click',onClick);
+                canvas.addEventListener('touchmove',onTouch,{passive:false});
+                window.addEventListener('resize',resize);
+
+                return()=>{cancelAnimationFrame(rafRef.current);canvas.removeEventListener('mousemove',onMove);canvas.removeEventListener('click',onClick);canvas.removeEventListener('touchmove',onTouch);window.removeEventListener('resize',resize);};
+            },[]);
+
+            return <canvas ref={canvasRef} style={{display:'block',width:'100%',height:'100%',cursor:'none'}} />;
         }
 
         function MobileIcon({ icon, label, onClick, theme }) {
@@ -354,9 +607,9 @@
             );
         }
 
-        function Window({ title, children, onClose, theme, zIndex, initialX, initialY, isWinston }) {
+        function Window({ title, children, onClose, theme, zIndex, initialX, initialY, isWinston, width, height }) {
             return (
-                <motion.div drag dragMomentum={false} initial={{ x: initialX, y: initialY }} style={{ zIndex, position: 'absolute' }} className={`w-[400px] h-[480px] border flex flex-col rounded-[24px] overflow-hidden ${theme.winBg} border-white/10 shadow-2xl`}>
+                <motion.div drag dragMomentum={false} initial={{ x: initialX, y: initialY }} style={{ zIndex, position: 'absolute', width: width||400, height: height||480 }} className={`border flex flex-col rounded-[24px] overflow-hidden ${theme.winBg} border-white/10 shadow-2xl`}>
                     <div className={`window-titlebar p-4 flex justify-between items-center ${theme.titleBar} cursor-grab active:cursor-grabbing`}>
                         <div className="flex gap-2">
                             <div onClick={onClose} className="traffic-light close-btn"></div>
