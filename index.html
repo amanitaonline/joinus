@@ -117,9 +117,9 @@
             const [isMuted, setIsMuted] = useState(false);
             const [wallpaper, setWallpaper] = useState(null);
             
-            const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false, XXXO: false, AGARIO: false });
+            const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false, XXXO: false, AGARIO: false, SHEETS: false });
             const [activeMobileApp, setActiveMobileApp] = useState(null);
-            const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10, XXXO: 10, AGARIO: 10 });
+            const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10, XXXO: 10, AGARIO: 10, SHEETS: 10 });
             const [topZ, setTopZ] = useState(20);
             
             const [chatMessages, setChatMessages] = useState([
@@ -340,6 +340,16 @@
                             </Window>
                         )}
 
+                        {openApps.SHEETS && (
+                            <Window title="SPREADSHEET" theme={theme} onClose={() => toggleApp('SHEETS')} zIndex={zIndices.SHEETS} initialX={100} initialY={50} width={1100} height={680}>
+                                <iframe
+                                    src="https://docs.google.com/spreadsheets/d/1FrMl5JqDngqHEfZdsCjA7BdHvZn1w9h7/edit?gid=870502116#gid=870502116"
+                                    style={{width:'100%',height:'100%',border:'none',display:'block'}}
+                                    allow="clipboard-read; clipboard-write"
+                                />
+                            </Window>
+                        )}
+
                     <div className="fixed bottom-6 w-full flex justify-center z-[5000]">
                         <div className="glass-panel p-3 px-8 rounded-[32px] flex gap-10 shadow-2xl items-center">
                             <button onClick={() => toggleApp('VIDEOS')} className="text-3xl hover:scale-110 transition-transform">📽️</button>
@@ -348,6 +358,7 @@
                             <button onClick={() => toggleApp('XXXO')} className="text-3xl hover:scale-110 transition-transform">🪩</button>
                             <button onClick={() => toggleApp('WINSTON')} className="text-3xl hover:scale-110 transition-transform">🐶</button>
                             <button onClick={() => toggleApp('AGARIO')} className="text-3xl hover:scale-110 transition-transform">👾</button>
+                            <button onClick={() => toggleApp('SHEETS')} className="text-3xl hover:scale-110 transition-transform">📋</button>
                         </div>
                     </div>
                 </div>
