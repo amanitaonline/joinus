@@ -24,7 +24,7 @@
 
         .video-background {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; pointer-events: none; opacity: 0.3; filter: grayscale(100%) contrast(110%);
+            z-index: -1; pointer-events: none; opacity: 0; filter: grayscale(100%) contrast(110%);
         }
         .video-background iframe {
             width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh;
@@ -32,7 +32,7 @@
         }
         .custom-wallpaper {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -2; background-size: cover; background-position: center;
+            z-index: 0; background-size: cover; background-position: center;
         }
         
         .glass-panel { backdrop-filter: blur(25px); background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); }
@@ -215,6 +215,8 @@
                                 <MobileIcon icon="🖼️" label="Archive" onClick={() => setActiveMobileApp('PHOTOS')} theme={theme} />
                                 <MobileIcon icon="💬" label="Chat" onClick={() => setActiveMobileApp('CHAT')} theme={theme} />
                                 <MobileIcon icon="🪩" label="XXXO" onClick={() => setActiveMobileApp('XXXO')} theme={theme} />
+                                <MobileIcon icon="👾" label="Wobbles" onClick={() => setActiveMobileApp('AGARIO')} theme={theme} />
+                                <MobileIcon icon="📋" label="Uploads" onClick={() => setActiveMobileApp('SHEETS')} theme={theme} />
                                 <MobileIcon icon="⚙️" label="Settings" onClick={() => setActiveMobileApp('SETTINGS')} theme={theme} />
                             </div>
                             <AnimatePresence>
@@ -246,6 +248,16 @@
                                                 <a href="https://discord.gg/CRMjDFNBm7" className="winston-discord-btn">JOIN SERVER</a>
                                             </div>
                                         )}
+                                        {activeMobileApp === 'AGARIO' && (
+                                            <div style={{width:'100%',height:'100%',position:'relative',background:'#0a0a0a'}}>
+                                                <AgarIO />
+                                            </div>
+                                        )}
+                                        {activeMobileApp === 'SHEETS' && (
+                                            <div style={{width:'100%',height:'100%',overflowY:'auto'}}>
+                                                <SpreadsheetApp theme={theme} />
+                                            </div>
+                                        )}
                                         {activeMobileApp === 'SETTINGS' && (
                                             <div className={`space-y-4 pt-4 ${theme.text}`}>
                                                 <div onClick={() => setIsDark(!isDark)} className="p-4 bg-white/5 rounded-xl border border-white/10 flex justify-between"><span>Lite Mode</span><span>{isDark ? 'OFF' : 'ON'}</span></div>
@@ -263,10 +275,10 @@
 
             // DESKTOP
             return (
-                <div className={`h-screen w-full relative overflow-hidden ${isDark ? 'dark' : ''} ${theme.bg} ${theme.text}`}>
+                <div className={`h-screen w-full relative overflow-hidden ${isDark ? 'dark' : ''} ${theme.text}`} style={{background: wallpaper ? 'transparent' : ''}}>
                     <audio ref={audioRef} autoPlay loop src="https://grocerybag.tv/media/SONG.mp3" muted={isMuted} />
                     <div className="video-background"><iframe src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&loop=1&playlist=8uy6OhNEg1w&controls=0" frameBorder="0"></iframe></div>
-                    {wallpaper && <div className="custom-wallpaper" style={{backgroundImage: `url(${wallpaper})`, opacity: isDark ? 0.4 : 1}}></div>}
+                    <div className="custom-wallpaper" style={{backgroundImage: wallpaper ? `url(${wallpaper})` : 'none', opacity: wallpaper ? 1 : 0, transition:'opacity 0.4s'}}></div>
 
                     {/* Desktop Nav */}
                     <div className="fixed top-4 w-full flex justify-center z-[5000] px-6">
@@ -277,6 +289,8 @@
                             </div>
                             <div className="flex gap-4 items-center">
                                 <button className="text-[9px] border px-3 py-1 rounded-full border-current" onClick={() => setIsDark(!isDark)}>{isDark ? 'LIGHT' : 'DARK'}</button>
+                                <button className="text-[9px] border px-3 py-1 rounded-full border-current" onClick={() => toggleApp('PHOTOS')}>🖼️ WALLPAPER</button>
+                                {wallpaper && <button className="text-[9px] border px-3 py-1 rounded-full border-current opacity-50 hover:opacity-100" onClick={() => setWallpaper(null)}>✕ CLEAR</button>}
                             </div>
                         </div>
                     </div>
@@ -305,7 +319,13 @@
                         )}
                         {openApps.PHOTOS && (
                             <Window title="IMAGE_ARCHIVE" theme={theme} onClose={() => toggleApp('PHOTOS')} zIndex={zIndices.PHOTOS} initialX={150} initialY={150}>
-                                <div className="p-4 grid grid-cols-2 gap-4">{photoLinks.map((url, i) => <img key={i} src={url} className="w-full rounded-xl cursor-pointer hover:scale-105 transition-transform" onClick={() => setWallpaper(url)} />)}</div>
+                                <div className="p-4 space-y-3">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span style={{fontSize:'9px',letterSpacing:'0.1em',opacity:0.4,textTransform:'uppercase'}}>click image to set as wallpaper</span>
+                                        {wallpaper && <button onClick={() => setWallpaper(null)} style={{fontSize:'9px',padding:'3px 10px',border:'1px solid rgba(255,255,255,0.2)',borderRadius:'99px',background:'transparent',color:'inherit',cursor:'pointer',letterSpacing:'0.06em'}}>clear wallpaper</button>}
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">{photoLinks.map((url, i) => <img key={i} src={url} className="w-full rounded-xl cursor-pointer hover:scale-105 transition-transform" style={{outline: wallpaper===url ? '2px solid white' : 'none'}} onClick={() => setWallpaper(url)} />)}</div>
+                                </div>
                             </Window>
                         )}
                         {openApps.VIDEOS && (
@@ -341,12 +361,8 @@
                         )}
 
                         {openApps.SHEETS && (
-                            <Window title="SPREADSHEET" theme={theme} onClose={() => toggleApp('SHEETS')} zIndex={zIndices.SHEETS} initialX={100} initialY={50} width={1100} height={680}>
-                                <iframe
-                                    src="https://docs.google.com/spreadsheets/d/1FrMl5JqDngqHEfZdsCjA7BdHvZn1w9h7/edit?gid=870502116#gid=870502116"
-                                    style={{width:'100%',height:'100%',border:'none',display:'block'}}
-                                    allow="clipboard-read; clipboard-write"
-                                />
+                            <Window title="ANGELS OF SICMR 💕" theme={theme} onClose={() => toggleApp('SHEETS')} zIndex={zIndices.SHEETS} initialX={60} initialY={40} width={1000} height={580}>
+                                <SpreadsheetApp theme={theme} />
                             </Window>
                         )}
 
@@ -360,6 +376,83 @@
                             <button onClick={() => toggleApp('AGARIO')} className="text-3xl hover:scale-110 transition-transform">👾</button>
                             <button onClick={() => toggleApp('SHEETS')} className="text-3xl hover:scale-110 transition-transform">📋</button>
                         </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function SpreadsheetApp({ theme }) {
+            const SHEET_DATA = {"headers": ["Upload #", "Video name", "Youtube upload date", "Vimeo upload date", "Video length", "Youtube link", "Youtube ID", "Vimeo ID", "Saved quality", "Max quality"], "rows": [["99", "Lick It Like A Kitten (Movie)", "TBA", "", "TBA", "TBA", "TBA", "", "", "TBA"], ["98", "Mars Argo - Lick It Like A Kitten", "2024-06-24", "", "02:48:00", "https://www.youtube.com/watch?v=w7U28aGNQSE", "w7U28aGNQSE", "", "2160p", "2160p"], ["97", "Mars Argo - I Can Only Be Me (Official Music Video)", "2023-04-20", "", "03:32:00", "https://www.youtube.com/watch?v=16YuH7e0UfA", "16YuH7e0UfA", "", "1080p", "1080p"], ["96", "Mars Argo - I Can Only Be Me (Official Lyric Video) [fixed]", "2023-03-22", "", "03:10:00", "https://www.youtube.com/watch?v=KTd18djsR9s", "KTd18djsR9s", "", "2160p", "2160p"], ["95", "Mars Argo - I Can Only Be Me (Official Lyric Video)", "2023-03-20", "", "03:10:00", "https://www.youtube.com/watch?v=6gapL4Ve564", "6gapL4Ve564", "", "2160p", "2160p"], ["94", "Mars Argo - I Can Only Be Me", "2023-03-15", "", "03:05:00", "https://www.youtube.com/watch?v=GDGWUaKzft0", "GDGWUaKzft0", "", "2160p", "2160p"], ["93", "Mars Argo - Angry", "2022-04-25", "", "03:55:00", "https://www.youtube.com/watch?v=2K_c9RGrlXI", "2K_c9RGrlXI", "", "2160p", "2160p"], ["92", "Mars Argo - Using You (Official)", "2015-01-13", "", "03:43:00", "https://www.youtube.com/watch?v=tp1ZluX4aYs", "tp1ZluX4aYs", "", "550p", "550p"], ["91", "Mars Argo - Using You (with the happy heart image)", "2015-01-03", "", "03:28:00", "https://www.youtube.com/watch?v=_qr-PSvRmQ4", "_qr-PSvRmQ4", "", "No", "1080p"], ["90", "Day of Retribution", "2014-05-30", "", "04:00:00", "https://www.youtube.com/watch?v=lUTQ6A2SzX4", "lUTQ6A2SzX4", "", "720p", "1080p"], ["89", "Delete Your Facebook", "2014-02-11", "", "05:02:00", "https://www.youtube.com/watch?v=KbS-dKD4c9I", "KbS-dKD4c9I", "", "1080p", "1080p"], ["88", "You Can Do This", "2013-12-13", "", "03:10:00", "https://www.youtube.com/watch?v=wwX41xVMZv8", "wwX41xVMZv8", "", "1080p", "1080p"], ["87", "Internet Candy Chips", "2013-08-17", "", "03:43:00", "https://www.youtube.com/watch?v=eii5ffL31oY", "eii5ffL31oY", "", "1080p", "1080p"], ["86", "Mars Argo - Stuck on You (Live at Bedrock Studio)", "2013-06-23", "", "04:40:00", "https://www.youtube.com/watch?v=s99MN1o7ahs", "s99MN1o7ahs", "", "1080p", "1080p"], ["85", "Mars Argo - You Gave Away (Live at Bedrock Studios)", "2013-06-22", "", "03:50:00", "https://www.youtube.com/watch?v=flTLaVVlnSw", "flTLaVVlnSw", "", "720p", "1080p"], ["84", "Digital Imperialists", "2013-06-21", "", "04:35:00", "https://www.youtube.com/watch?v=MSjkmHR5J00", "MSjkmHR5J00", "", "No", "1080p"], ["83", "Mars Argo - Open Up the Door In Your Head (Live at Bedrock Studios)", "2013-06-20", "", "03:28:00", "https://www.youtube.com/watch?v=tiZXNGFDFE0", "tiZXNGFDFE0", "", "720p", "1080p"], ["82", "Mars Argo - Limousine Machine (Live at Bedrock Studios)", "2013-06-19", "", "03:50:00", "https://www.youtube.com/watch?v=br22fM5tp1M", "br22fM5tp1M", "", "720p", "1080p"], ["81", "Mars Argo - Beauty is Empty (Live at Bedrock Studios)", "2013-06-19", "", "03:23:00", "https://www.youtube.com/watch?v=tEIRAEM7SNE", "tEIRAEM7SNE", "", "1080p", "1080p"], ["80", "Mars Argo - Don’t Call Me (Live at Bedrock Studios)", "2013-06-18", "", "02:32:00", "https://www.youtube.com/watch?v=208VXVIVfzU", "208VXVIVfzU", "", "1080p", "1080p"], ["79", "Amanda Bynes", "2013-06-03", "", "02:50:00", "https://www.youtube.com/watch?v=4_nFvzLwpVc", "4_nFvzLwpVc", "", "1080p", "1080p"], ["78", "Chef Boyardee Commercial", "2013-05-15", "", "01:09:00", "https://www.youtube.com/watch?v=o3LB-Ru7nXg", "o3LB-Ru7nXg", "", "No", "1080p"], ["77", "Twitter and Facebook", "2013-05-04", "", "03:59:00", "https://www.youtube.com/watch?v=Jel2hiy1uE8", "Jel2hiy1uE8", "", "1080p", "1080p"], ["76", "Mars Argo - Runaway Runaway (Official)", "2013-02-14", "", "03:54:00", "https://www.youtube.com/watch?v=jbgWXRxlSuQ", "jbgWXRxlSuQ", "", "1080p", "1080p"], ["75", "Guns Should Be Illegal", "2013-02-11", "", "03:02:00", "https://www.youtube.com/watch?v=x6Hu09OJZ-k", "x6Hu09OJZ-k", "", "1080p", "1080p"], ["74", "Road Trip", "2013-01-26", "", "02:38:00", "https://www.youtube.com/watch?v=3hKrFg9CTDk", "3hKrFg9CTDk", "", "1080p", "1080p"], ["73", "Mars Argo - Pls Don’t Forget Me", "2012-12-14", "", "03:18:00", "https://www.youtube.com/watch?v=3y26Xaoqzn0", "3y26Xaoqzn0", "", "1080p", "1080p"], ["72", "Titanic Sinclair (feat. Mars Argo) - Limousine Machine", "2012-12-08", "", "03:24:00", "https://www.youtube.com/watch?v=eQr2-KQesdE", "eQr2-KQesdE", "", "1080p", "1080p"], ["71", "Ouija", "2012-12-02", "", "05:08:00", "https://www.youtube.com/watch?v=8_IhP24Cbjw", "8_IhP24Cbjw", "", "No", "1080p"], ["70", "The Future is So Old", "2012-11-26", "", "06:06:00", "https://www.youtube.com/watch?v=FsBFpoDCcm0", "FsBFpoDCcm0", "", "1080p", "1080p"], ["69", "Mars Argo - Runaway Runaway (with the sad heart image)", "2012-11-18", "", "04:09:00", "https://www.youtube.com/watch?v=2v1DSvq-PmQ", "2v1DSvq-PmQ", "", "No", "1080p"], ["68", "Mars Argo - Stuck on You (with the sad heart image)", "2012-11-18", "", "04:16:00", "https://www.youtube.com/watch?v=GwYKbRxErkQ", "GwYKbRxErkQ", "", "1080p", "1080p"], ["67", "LA or BUST", "2012-10-08", "", "05:56:00", "https://www.youtube.com/watch?v=aUoqmlKLWbc", "aUoqmlKLWbc", "", "480p", "1080p"], ["66", "Winston In A Hot Dog Suit", "2012-09-28", "", "03:18:00", "https://www.youtube.com/watch?v=8-T171-AU0U", "8-T171-AU0U", "", "1080p", "1080p"], ["65", "Mars Argo - Beauty is Empty", "2012-08-28", "", "03:31:00", "https://www.youtube.com/watch?v=xR62YlFYqrA", "xR62YlFYqrA", "", "1080p", "1080p"], ["64", "Ask Me a Fcking Question", "2012-06-12", "", "04:50:00", "https://www.youtube.com/watch?v=it7GJ6gWJG0", "it7GJ6gWJG0", "", "1080p", "1080p"], ["63", "Facebook", "2012-05-15", "", "02:17:00", "https://www.youtube.com/watch?v=jeCLbC0PCNI", "jeCLbC0PCNI", "", "No", "1080p"], ["62", "Our First Date", "2012-05-03", "", "02:12:00", "https://www.youtube.com/watch?v=e2dUWHbYMaI", "e2dUWHbYMaI", "", "1080p", "1080p"], ["61", "IMG_3545.MOV / Mars Argo Watching concert", "2012-04-15", "", "00:16:00", "https://www.youtube.com/watch?v=Lo_GxNrZ-8s", "Lo_GxNrZ-8s", "", "320p", "320p"], ["60", "Mars Argo Live 2/24/2012 in Chicago", "2012-02-26", "", "04:35:00", "https://www.youtube.com/watch?v=7m4MlP0Ms5w", "7m4MlP0Ms5w", "", "1080p", "1080p"], ["59", "Mars Argo - Whats Your Name (Part 3)", "2012-02-15", "", "05:52:00", "https://www.youtube.com/watch?v=PqQi5LxV278", "PqQi5LxV278", "", "No", "1080p"], ["58", "Mars Argo - Everything Turns to Gold", "2012-02-09", "", "04:11:00", "https://www.youtube.com/watch?v=mtAls9HPkaU", "mtAls9HPkaU", "", "1080p", "1080p"], ["57", "What I Want For Christmas", "2011-12-22", "", "03:23:00", "https://www.youtube.com/watch?v=XdRMHA9z0zk", "XdRMHA9z0zk", "", "No", "1080p"], ["56", "What Do You Love?", "2011-11-11", "", "03:28:00", "https://www.youtube.com/watch?v=hYqTIpPe20s", "hYqTIpPe20s", "", "720p", "1080p"], ["55", "Rejected Mountain Dew Commercial", "2011-09-21", "", "02:01:00", "https://www.youtube.com/watch?v=148ZUGi-sgU", "148ZUGi-sgU", "", "480p", "1080p"], ["54", "Beyonce is Pregnant", "2011-08-29", "", "02:03:00", "https://www.youtube.com/watch?v=1mqA9SJcgnY", "1mqA9SJcgnY", "", "1080p", "1080p"], ["53", "I Shaved My Pussy", "2011-08-17", "", "02:39:00", "https://www.youtube.com/watch?v=MvYFbFv6Wdg", "MvYFbFv6Wdg", "", "1080p", "1080p"], ["52", "Lost at home", "2011-07-08", "", "01:30:00", "https://www.youtube.com/watch?v=6dYyN_SD8ZM", "6dYyN_SD8ZM", "", "1080p", "1080p"], ["51", "Vince Dynamic Makes Magic", "2011-06-30", "", "01:00:00", "https://www.youtube.com/watch?v=OHXt9vUEtlI", "OHXt9vUEtlI", "", "No", "1080p"], ["50", "Mars Argo - Whats Your Name (Part 2)", "2011-06-26", "", "05:01:00", "https://www.youtube.com/watch?v=42G25Gtoh0o", "42G25Gtoh0o", "", "360p", "1080p"], ["49", "Mars Argo - Nothing Without You", "2011-06-19", "", "04:30:00", "https://www.youtube.com/watch?v=SfjoCnX74oA", "SfjoCnX74oA", "", "1080p", "1080p"], ["48", "Mars Argo - Love in Black and White (Official)", "2011-06-06", "", "03:43:00", "https://www.youtube.com/watch?v=Sw0YMlbS7fM", "Sw0YMlbS7fM", "", "1080p", "1080p"], ["47", "Mars Argo - Using You (Acoustic)", "2011-05-26", "", "04:32:00", "https://www.youtube.com/watch?v=xfmz-ytgNXg", "xfmz-ytgNXg", "", "1080p", "1080p"], ["46", "Mars Argo - Whats Your Name (Part 1)", "2011-04-22", "", "06:44:00", "https://www.youtube.com/watch?v=1luqjPwdhUQ", "1luqjPwdhUQ", "", "No", "1080p"], ["45", "Soon.", "2011-04-08", "", "01:14:00", "https://www.youtube.com/watch?v=iL6XnInUO84", "iL6XnInUO84", "", "No", "1080p"], ["44", "Mars Argo - Using You (Mars Argo image)", "2011-03-21", "", "03:47:00", "https://www.youtube.com/watch?v=JGdqDkCUg2Q", "JGdqDkCUg2Q", "", "720p", "1080p"], ["43", "Mars Argo - Formal Girl (Mars Argo image)", "2011-03-21", "", "03:58:00", "https://www.youtube.com/watch?v=byjt-i9PWK4", "byjt-i9PWK4", "", "720p", "1080p"], ["42", "Mars Argo - A-Okay (Mars Argo image)", "2011-03-21", "", "02:46:00", "https://www.youtube.com/watch?v=dKcr2awiUOE", "dKcr2awiUOE", "", "720p", "1080p"], ["41", "Mars Argo - Beauty is Empty (Mars Argo image)", "2011-03-21", "", "03:51:00", "https://www.youtube.com/watch?v=qSZ1puGvHWA", "qSZ1puGvHWA", "", "720p", "1080p"], ["40", "Tucker Woodley Interviews Mars Argo", "2011-03-08", "", "2:03", "https://www.youtube.com/watch?v=7-TnV1tjU7I", "7-TnV1tjU7I", "", "No", "1080p"], ["39", "Do You Ever Feel Empty?", "2011-01-29", "", "01:52:00", "https://www.youtube.com/watch?v=BiHiI2bbN-0", "BiHiI2bbN-0", "", "720p", "1080p"], ["38", "Art is Easy", "2011-01-20", "", "00:37:00", "https://www.youtube.com/watch?v=cTWFBASTz6Q", "cTWFBASTz6Q", "", "480p", "1080p"], ["37", "Mars Argo - Mrs. Stadler (Official)", "2010-11-11", "", "03:33:00", "https://www.youtube.com/watch?v=lsTaZ8K2k6g", "lsTaZ8K2k6g", "", "1080p", "1080p"], ["36", "Mars Argo - Spider in My Bathtub", "2010-09-24", "", "04:08:00", "https://www.youtube.com/watch?v=qdQl3qRbGIo", "qdQl3qRbGIo", "", "720p", "720p"], ["35", "It’s a Global Conspiracy!", "2010-09-06", "", "00:05:00", "https://www.youtube.com/watch?v=HCpWOqjMXTk", "HCpWOqjMXTk", "", "720p", "720p"], ["34", "How to Pronounce Washington", "2010-08-10", "", "01:18:00", "https://www.youtube.com/watch?v=8Aq_Ks7ndBM", "8Aq_Ks7ndBM", "", "720p", "720p"], ["33", "Mars Argo from the Future", "2010-07-14", "", "00:36:00", "https://www.youtube.com/watch?v=pzL2qIVKzFg", "pzL2qIVKzFg", "", "720p", "720p"], ["32", "Mars Argo - Technology is a Dead Bird (Acoustic)", "2010-06-08", "", "04:14:00", "https://www.youtube.com/watch?v=nkFBMnHkVDE", "nkFBMnHkVDE", "", "720p", "720p"], ["31", "Mars Argo - Electric Car (Live Acoustic)", "2010-06-05", "", "03:49:00", "https://www.youtube.com/watch?v=mhSIiYHJAms", "mhSIiYHJAms", "", "720p", "720p"], ["30", "Reality is a Dream / Mars Argo episode 1", "2010-05-10", "", "03:59:00", "https://www.youtube.com/watch?v=0_MAQE_t5J0", "0_MAQE_t5J0", "", "720p", "720p"], ["29", "Mars Argo", "2010-05-05", "", "00:31:00", "https://www.youtube.com/watch?v=4mr9lDb1Ddk", "4mr9lDb1Ddk", "", "No", "720p"], ["28", "LoveEveryOne", "2009-01-23", "", "02:13:00", "https://www.youtube.com/watch?v=intuZLehfgo", "intuZLehfgo", "", "720p", "720p"], ["27", "Suicide Birds", "2009-12-17", "", "03:20:00", "https://www.youtube.com/watch?v=HwqJg3OpUqs", "HwqJg3OpUqs", "", "720p", "720p"], ["26", "Our Songs in Your Videos", "2009-12-11", "", "00:36:00", "https://www.youtube.com/watch?v=9TjbQ_WOV6g", "9TjbQ_WOV6g", "", "360p", "720p"], ["25", "Over 9000 Years", "2009-12-04", "", "02:40:00", "https://www.youtube.com/watch?v=AAeCt9ZE3ZI", "AAeCt9ZE3ZI", "", "720p", "720p"], ["24", "Culturally Relevant", "2009-11-20", "", "01:30:00", "https://www.youtube.com/watch?v=Teuv-Os4qmw", "Teuv-Os4qmw", "", "720p", "720p"], ["23", "MARSARGO DOT BANDCAMP DOT COM", "2009-11-06", "", "00:58:00", "https://www.youtube.com/watch?v=Uop2EMS5lAE", "Uop2EMS5lAE", "", "720p", "720p"], ["22", "Playing in a Cemetery with Mars Argo", "2009-10-22", "", "00:39:00", "https://www.youtube.com/watch?v=0X5Ff3cij-Q", "0X5Ff3cij-Q", "", "720p", "720p"], ["21", "Machine Machine Machine", "2009-10-14", "", "02:16:00", "https://www.youtube.com/watch?v=o2ZikdQ4HRo", "o2ZikdQ4HRo", "", "720p", "720p"], ["20", "Life in the Year 2009", "2009-10-03", "", "01:08:00", "https://www.youtube.com/watch?v=MehekoPGh4Q", "MehekoPGh4Q", "", "720p", "720p"], ["19", "The Internet = Kaleidoscope + Lava x Mars Argo", "2009-09-23", "", "03:30:00", "https://www.youtube.com/watch?v=XdyaeZG2BOA", "XdyaeZG2BOA", "", "720p", "720p"], ["18", "Monsters Under My Bed", "2009-09-09", "", "01:06:00", "https://www.youtube.com/watch?v=AkLjw8ocspo", "AkLjw8ocspo", "", "720p", "720p"], ["17", "What inspires you?", "2009-09-03", "", "02:03:00", "https://www.youtube.com/watch?v=niupSyR3n5c", "niupSyR3n5c", "", "720p", "720p"], ["16", "Would you live forever?", "*-9-2009", "", "02:14:00", "https://www.youtube.com/watch?v=RnRba__Kr0Q", "RnRba__Kr0Q", "", "720p", "720p"], ["15", "Vince Dynamic “Young Jersey Friend”", "2009-08-14", "", "05:00:00", "https://www.youtube.com/watch?v=vKSESQKlgkI", "vKSESQKlgkI", "", "720p", "720p"], ["14", "Vlogvetica", "*-8-2009", "", "00:09:00", "https://www.youtube.com/watch?v=n5l8lgiOz1c", "n5l8lgiOz1c", "", "No", "720p"], ["13", "Technology is a Dead Bird Promo / The Singularity is Near", "2009-07-10", "2009-07-10", "01:22:00", "https://www.youtube.com/watch?v=p5zj3dHM3Ao", "p5zj3dHM3Ao", "5534594", "720p", "720p"], ["12", "Memories Fade", "*-6-2009", "*-6-2009", "", "https://www.youtube.com/watch?v=WOgAbtSqm28", "WOgAbtSqm28", "5416736", "No", "720p"], ["11", "A film. A record.", "*-6-2009", "*-6-2009", "01:19:00", "https://www.youtube.com/watch?v=ZN_fBwQpy8A", "ZN_fBwQpy8A", "5297389", "No", "720p"], ["10", "Ask me a question.", "*-5-2009", "*-5-2009", "00:06:00", "https://www.youtube.com/watch?v=rfBRNPCHOyk", "rfBRNPCHOyk", "4558239", "720p", "720p"], ["9", "A small conversation.", "*-5-2009", "*-5-2009", "04:50:00", "https://www.youtube.com/watch?v=QCfGPHRiavk", "QCfGPHRiavk", "4526378", "720p", "720p"], ["8", "Kites", "*-5-2009", "*-5-2009", "01:23:00", "https://www.youtube.com/watch?v=-qQEMX6j9iU", "-qQEMX6j9iU", "4525538", "720p", "720p"], ["7", "Sunday", "2009-03-22", "2009-03-22", "01:19:00", "https://www.youtube.com/watch?v=vzFThkvYAMw", "vzFThkvYAMw", "3812400", "720p", "720p"], ["6", "“Tired Today” Original Song", "2009-03-18", "2009-03-18", "01:34:00", "https://www.youtube.com/watch?v=QqgmPbB7p1c", "QqgmPbB7p1c", "3738133", "720p", "720p"], ["5", "Art School", "2009-03-13", "2009-03-13", "01:03:00", "https://www.youtube.com/watch?v=E3Y_2FwlEN8", "E3Y_2FwlEN8", "3618963", "720p", "720p"], ["4", "Paper Airplane / How Do You Fold a Paper Airplane?", "2009-03-12", "2009-03-12", "00:50:00", "https://www.youtube.com/watch?v=DoG__a0pdHc", "DoG__a0pdHc", "3592234", "720p", "720p"], ["3", "Our Neighborhood", "2009-02-16", "2009-02-16", "00:54:00", "https://www.youtube.com/watch?v=kqOFnB9ebrA", "kqOFnB9ebrA", "3269638", "720p", "720p"], ["2", "Lets Play Some Music / Moot", "2009-02-12", "2009-02-12", "01:28:00", "https://www.youtube.com/watch?v=FixhffgLB1Q", "FixhffgLB1Q", "3246322", "720p", "720p"], ["1", "Our first video / GROCERYBAG.TV VIDEO BLOG - #001", "2009-01-29", "2009-01-29", "00:51:00", "https://www.youtube.com/watch?v=n5ZEJrIdK-g", "n5ZEJrIdK-g", "3007108", "720p", "720p"]]};
+            const [search, setSearch] = React.useState('');
+            const [sortCol, setSortCol] = React.useState(null);
+            const [sortDir, setSortDir] = React.useState(1);
+
+            const headers = SHEET_DATA.headers;
+            const rows = SHEET_DATA.rows;
+
+            const filtered = rows.filter(r =>
+                search === '' || r.some(c => c.toLowerCase().includes(search.toLowerCase()))
+            );
+
+            const sorted = sortCol === null ? filtered : [...filtered].sort((a, b) => {
+                const av = a[sortCol] || '', bv = b[sortCol] || '';
+                return av.localeCompare(bv, undefined, {numeric: true}) * sortDir;
+            });
+
+            const handleSort = (i) => {
+                if (sortCol === i) setSortDir(d => d * -1);
+                else { setSortCol(i); setSortDir(1); }
+            };
+
+            const cellStyle = (val, colIdx) => {
+                const base = { padding: '4px 10px', whiteSpace: 'nowrap', fontSize: '11px', maxWidth: '260px', overflow: 'hidden', textOverflow: 'ellipsis', borderBottom: '1px solid rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.04)' };
+                // link col
+                if (colIdx === 5 && val.startsWith('http')) return {...base, color: '#74c0fc', cursor: 'pointer'};
+                if (val === 'TBA') return {...base, color: 'rgba(255,255,255,0.3)'};
+                if (val === 'No') return {...base, color: 'rgba(255,80,80,0.7)'};
+                if (val === 'Saved' || val.startsWith('Saved')) return {...base, color: '#6bcb77'};
+                return base;
+            };
+
+            return (
+                <div style={{display:'flex', flexDirection:'column', height:'100%', background:'#0d0d0d', fontFamily:"'Courier New', monospace", color:'rgba(255,255,255,0.85)'}}>
+                    <div style={{padding:'10px 14px', borderBottom:'1px solid rgba(255,255,255,0.08)', display:'flex', alignItems:'center', gap:'10px', background:'rgba(255,255,255,0.03)'}}>
+                        <div style={{fontSize:'10px', color:'rgba(255,255,255,0.35)', letterSpacing:'0.08em', textTransform:'uppercase'}}>ANGELS OF SICMR 💕 — Mars Argo YouTube Uploads</div>
+                        <input
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            placeholder="search..."
+                            style={{marginLeft:'auto', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', padding:'4px 10px', color:'#fff', fontSize:'11px', outline:'none', fontFamily:"'Courier New', monospace", width:'180px'}}
+                        />
+                        <div style={{fontSize:'10px', color:'rgba(255,255,255,0.25)'}}>{sorted.length} rows</div>
+                    </div>
+                    <div style={{overflowX:'auto', overflowY:'auto', flex:1}}>
+                        <table style={{borderCollapse:'collapse', width:'100%', minWidth:'900px'}}>
+                            <thead>
+                                <tr style={{background:'rgba(255,255,255,0.05)', position:'sticky', top:0, zIndex:1}}>
+                                    {headers.map((h, i) => (
+                                        <th key={i} onClick={() => handleSort(i)} style={{padding:'6px 10px', fontSize:'10px', fontWeight:'600', textAlign:'left', letterSpacing:'0.06em', textTransform:'uppercase', color: sortCol===i ? '#fff' : 'rgba(255,255,255,0.5)', cursor:'pointer', whiteSpace:'nowrap', borderBottom:'1px solid rgba(255,255,255,0.1)', borderRight:'1px solid rgba(255,255,255,0.05)', userSelect:'none'}}>
+                                            {h.trim()} {sortCol===i ? (sortDir===1?'↑':'↓') : ''}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {sorted.map((row, ri) => (
+                                    <tr key={ri} style={{background: ri%2===0 ? 'transparent' : 'rgba(255,255,255,0.02)', transition:'background 0.1s'}}
+                                        onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,0.06)'}
+                                        onMouseLeave={e => e.currentTarget.style.background=ri%2===0?'transparent':'rgba(255,255,255,0.02)'}>
+                                        {row.map((cell, ci) => (
+                                            <td key={ci} style={{...cellStyle(cell, ci)}}
+                                                onClick={ci===5 && cell.startsWith('http') ? ()=>window.open(cell,'_blank') : undefined}
+                                                title={cell}>
+                                                {cell || '—'}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             );
