@@ -116,10 +116,13 @@
             const [isDark, setIsDark] = useState(true);
             const [isMuted, setIsMuted] = useState(false);
             const [wallpaper, setWallpaper] = useState(null);
+            const [ctxMenu, setCtxMenu] = useState(null);
+            const handleCtx = (e) => { e.preventDefault(); setCtxMenu({x: e.clientX, y: e.clientY}); };
+            const closeCtx = () => setCtxMenu(null);
             
-            const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false, XXXO: false, AGARIO: false, SHEETS: false });
+            const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false, XXXO: false, AGARIO: false, SHEETS: false, PAINT: false });
             const [activeMobileApp, setActiveMobileApp] = useState(null);
-            const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10, XXXO: 10, AGARIO: 10, SHEETS: 10 });
+            const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10, XXXO: 10, AGARIO: 10, SHEETS: 10, PAINT: 10 });
             const [topZ, setTopZ] = useState(20);
             
             const [chatMessages, setChatMessages] = useState([
@@ -194,10 +197,10 @@
 
             if (!isLoggedIn) return (
                 <div className="h-screen w-full bg-black flex items-center justify-center p-4">
-                    <div className="glass-panel p-10 rounded-[32px] w-full max-sm text-center space-y-6 text-red-600">
-                        <div className="illuminati-logo scale-150"></div>
-                        <input type="text" placeholder="Username" className="w-full bg-black/50 border border-red-900/30 p-3 rounded-xl text-center text-sm" value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && username && setIsLoggedIn(true)}/>
-                        <button onClick={() => username && setIsLoggedIn(true)} className="w-full bg-red-900/20 border border-red-900/40 py-3 rounded-xl text-xs font-bold">LOGIN</button>
+                    <div className="glass-panel p-8 rounded-[24px] text-center space-y-5 text-red-600" style={{width:'260px'}}>
+                        <div className="illuminati-logo scale-150 mx-auto"></div>
+                        <input type="text" placeholder="username" className="w-full bg-black/50 border border-red-900/30 p-2 rounded-lg text-center text-xs" value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && username && setIsLoggedIn(true)}/>
+                        <button onClick={() => username && setIsLoggedIn(true)} className="w-full bg-red-900/20 border border-red-900/40 py-2 rounded-lg text-xs font-bold">LOGIN</button>
                     </div>
                 </div>
             );
@@ -218,6 +221,7 @@
                                 <MobileIcon icon="👾" label="Wobbles" onClick={() => setActiveMobileApp('AGARIO')} theme={theme} />
                                 <MobileIcon icon="📋" label="Uploads" onClick={() => setActiveMobileApp('SHEETS')} theme={theme} />
                                 <MobileIcon icon="⚙️" label="Settings" onClick={() => setActiveMobileApp('SETTINGS')} theme={theme} />
+                                <MobileIcon icon="🎨" label="Paint" onClick={() => setActiveMobileApp('PAINT')} theme={theme} />
                             </div>
                             <AnimatePresence>
                                 {activeMobileApp && (
@@ -254,8 +258,15 @@
                                             </div>
                                         )}
                                         {activeMobileApp === 'SHEETS' && (
-                                            <div style={{width:'100%',height:'100%',overflowY:'auto'}}>
-                                                <SpreadsheetApp theme={theme} />
+                                            <div style={{width:'100%',height:'100%',overflow:'hidden',position:'relative'}}>
+                                                <div style={{transform:'scale(0.52)',transformOrigin:'top left',width:'192%',height:'192%',pointerEvents:'all'}}>
+                                                    <SpreadsheetApp theme={theme} />
+                                                </div>
+                                            </div>
+                                        )}
+                                        {activeMobileApp === 'PAINT' && (
+                                            <div style={{width:'100%',height:'100%',position:'relative',background:'#c0c0c0'}}>
+                                                <PaintApp mobile={true} />
                                             </div>
                                         )}
                                         {activeMobileApp === 'SETTINGS' && (
@@ -275,7 +286,28 @@
 
             // DESKTOP
             return (
-                <div className={`h-screen w-full relative overflow-hidden ${isDark ? 'dark' : ''} ${theme.text}`} style={{background: wallpaper ? 'transparent' : ''}}>
+                <>
+                <div className={`h-screen w-full relative overflow-hidden ${isDark ? 'dark' : ''} ${theme.text}`} style={{background: wallpaper ? 'transparent' : ''}} onContextMenu={handleCtx} onClick={closeCtx}>
+                    {ctxMenu && (
+                        <div style={{position:'fixed',left:ctxMenu.x,top:ctxMenu.y,zIndex:99999,background:'rgba(20,20,20,0.95)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:'12px',padding:'6px',minWidth:'170px',boxShadow:'0 8px 32px rgba(0,0,0,0.6)',fontFamily:"'Courier New',monospace",fontSize:'11px',color:'#fff',backdropFilter:'blur(20px)'}} onClick={e=>e.stopPropagation()}>
+                            {[
+                                {label:'🖼️  Change Wallpaper', action:()=>{toggleApp('PHOTOS');setCtxMenu(null);}},
+                                {label: isDark ? '☀️  Light Mode' : '🌑  Dark Mode', action:()=>{setIsDark(!isDark);setCtxMenu(null);}},
+                                {label:'📱  Switch to Mobile', action:()=>{setViewMode('choice');setCtxMenu(null);}},
+                                null,
+                                {label:'📽️  Videos', action:()=>{toggleApp('VIDEOS');setCtxMenu(null);}},
+                                {label:'💬  Chat', action:()=>{toggleApp('CHAT');setCtxMenu(null);}},
+                                {label:'👾  Wobbles', action:()=>{toggleApp('AGARIO');setCtxMenu(null);}},
+                                {label:'📋  Uploads', action:()=>{toggleApp('SHEETS');setCtxMenu(null);}},
+                                wallpaper ? null : null,
+                                wallpaper ? {label:'✕  Clear Wallpaper', action:()=>{setWallpaper(null);setCtxMenu(null);}} : null,
+                            ].filter(Boolean).map((item,i) => item === null ? (
+                                <div key={i} style={{height:'1px',background:'rgba(255,255,255,0.08)',margin:'4px 0'}} />
+                            ) : (
+                                <div key={i} onClick={item.action} style={{padding:'7px 12px',borderRadius:'7px',cursor:'pointer',transition:'background 0.1s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>{item.label}</div>
+                            ))}
+                        </div>
+                    )}
                     <audio ref={audioRef} autoPlay loop src="https://grocerybag.tv/media/SONG.mp3" muted={isMuted} />
                     <div className="video-background"><iframe src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&loop=1&playlist=8uy6OhNEg1w&controls=0" frameBorder="0"></iframe></div>
                     <div className="custom-wallpaper" style={{backgroundImage: wallpaper ? `url(${wallpaper})` : 'none', opacity: wallpaper ? 1 : 0, transition:'opacity 0.4s'}}></div>
@@ -366,16 +398,431 @@
                             </Window>
                         )}
 
-                    <div className="fixed bottom-6 w-full flex justify-center z-[5000]">
-                        <div className="glass-panel p-3 px-8 rounded-[32px] flex gap-10 shadow-2xl items-center">
-                            <button onClick={() => toggleApp('VIDEOS')} className="text-3xl hover:scale-110 transition-transform">📽️</button>
-                            <button onClick={() => toggleApp('PHOTOS')} className="text-3xl hover:scale-110 transition-transform">🖼️</button>
-                            <button onClick={() => toggleApp('CHAT')} className="text-3xl hover:scale-110 transition-transform">💬</button>
-                            <button onClick={() => toggleApp('XXXO')} className="text-3xl hover:scale-110 transition-transform">🪩</button>
-                            <button onClick={() => toggleApp('WINSTON')} className="text-3xl hover:scale-110 transition-transform">🐶</button>
-                            <button onClick={() => toggleApp('AGARIO')} className="text-3xl hover:scale-110 transition-transform">👾</button>
-                            <button onClick={() => toggleApp('SHEETS')} className="text-3xl hover:scale-110 transition-transform">📋</button>
+                        {openApps.PAINT && (
+                            <Window title="MS_PAINT.EXE 🎨" theme={theme} onClose={() => toggleApp('PAINT')} zIndex={zIndices.PAINT} initialX={120} initialY={60} width={820} height={580}>
+                                <PaintApp mobile={false} />
+                            </Window>
+                        )}
+
+                    <style>{`
+                        .dock-wrap { position:fixed; bottom:18px; width:100%; display:flex; justify-content:center; z-index:5000; pointer-events:none; overflow:visible; }
+                        .dock { pointer-events:all; display:flex; align-items:flex-end; gap:18px; padding:10px 24px; backdrop-filter:blur(25px); background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.1); border-radius:28px; box-shadow:0 8px 40px rgba(0,0,0,0.4); overflow:visible; }
+                        .dock-item { display:flex; flex-direction:column; align-items:center; position:relative; cursor:pointer; overflow:visible; }
+                        .dock-label { position:absolute; bottom:100%; margin-bottom:14px; background:rgba(30,30,30,0.92); color:#fff; font-size:10px; font-family:'Courier New',monospace; font-weight:700; letter-spacing:0.06em; padding:4px 10px; border-radius:8px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity 0.15s; border:1px solid rgba(255,255,255,0.1); z-index:9999; }
+                        .dock-item:hover .dock-label { opacity:1; }
+                        .dock-icon { font-size:32px; display:block; transform-origin:bottom center; transition:transform 0.15s cubic-bezier(.34,1.56,.64,1); will-change:transform; line-height:1; padding:2px 4px; }
+                        .dock-item:hover .dock-icon { transform:scale(1.65) translateY(-8px); }
+                        .dock-item:hover + .dock-item .dock-icon,
+                        .dock-item:has(+ .dock-item:hover) .dock-icon { transform:scale(1.3) translateY(-4px); }
+                    `}</style>
+                </div>
+                <div className="dock-wrap">
+                    <div className="dock">
+                        {[
+                            {icon:'📽️',label:'Videos',app:'VIDEOS'},
+                            {icon:'🖼️',label:'Wallpaper',app:'PHOTOS'},
+                            {icon:'💬',label:'Chat',app:'CHAT'},
+                            {icon:'🪩',label:'XXXO',app:'XXXO'},
+                            {icon:'🐶',label:'Winston',app:'WINSTON'},
+                            {icon:'👾',label:'Wobbles',app:'AGARIO'},
+                            {icon:'📋',label:'Uploads',app:'SHEETS'},
+                            {icon:'🎨',label:'Paint',app:'PAINT'},
+                        ].map(({icon,label,app}) => (
+                            <div key={app} className="dock-item" onClick={() => toggleApp(app)}>
+                                <span className="dock-label">{label}</span>
+                                <span className="dock-icon">{icon}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                </>
+            );
+        }
+
+        function PaintApp({ mobile }) {
+            const canvasRef = useRef(null);
+            const overlayRef = useRef(null);
+            const [tool, setTool] = useState('pencil');
+            const [color, setColor] = useState('#000000');
+            const [bgColor, setBgColor] = useState('#ffffff');
+            const [size, setSize] = useState(3);
+            const [isDrawing, setIsDrawing] = useState(false);
+            const [startPos, setStartPos] = useState({x:0,y:0});
+            const [fillTol, setFillTol] = useState(30);
+            const [textInput, setTextInput] = useState('');
+            const [textPos, setTextPos] = useState(null);
+            const [selectRect, setSelectRect] = useState(null);
+            const [history, setHistory] = useState([]);
+            const [histIdx, setHistIdx] = useState(-1);
+
+            const PALETTE = [
+                '#000000','#808080','#800000','#808000','#008000','#008080','#000080','#800080',
+                '#ffffff','#c0c0c0','#ff0000','#ffff00','#00ff00','#00ffff','#0000ff','#ff00ff',
+                '#ff8040','#804000','#80ff00','#004040','#0080ff','#8000ff','#ff0080','#ff8080',
+                '#ffcc99','#804040','#ccff99','#99ccff','#cc99ff','#ff99cc','#ffff99','#99ffcc',
+            ];
+
+            const TOOLS = [
+                {id:'select',  icon:'⬚', label:'Select'},
+                {id:'pencil',  icon:'✏️', label:'Pencil'},
+                {id:'brush',   icon:'🖌️', label:'Brush'},
+                {id:'eraser',  icon:'⬜', label:'Eraser'},
+                {id:'fill',    icon:'🪣', label:'Fill'},
+                {id:'text',    icon:'A', label:'Text'},
+                {id:'eyedrop', icon:'💉', label:'Eyedropper'},
+                {id:'spray',   icon:'💨', label:'Spray'},
+                {id:'line',    icon:'╱', label:'Line'},
+                {id:'rect',    icon:'▭', label:'Rectangle'},
+                {id:'ellipse', icon:'⬭', label:'Ellipse'},
+                {id:'rrect',   icon:'▢', label:'Rounded Rect'},
+            ];
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                pushHistory();
+            }, []);
+
+            const pushHistory = () => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const data = canvas.toDataURL();
+                setHistory(prev => {
+                    const next = [...prev.slice(0, histIdx + 1), data];
+                    setHistIdx(next.length - 1);
+                    return next;
+                });
+            };
+
+            const undo = () => {
+                if (histIdx <= 0) return;
+                const newIdx = histIdx - 1;
+                setHistIdx(newIdx);
+                const img = new Image();
+                img.src = history[newIdx];
+                img.onload = () => {
+                    const canvas = canvasRef.current;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0,0,canvas.width,canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                };
+            };
+
+            const redo = () => {
+                if (histIdx >= history.length - 1) return;
+                const newIdx = histIdx + 1;
+                setHistIdx(newIdx);
+                const img = new Image();
+                img.src = history[newIdx];
+                img.onload = () => {
+                    const canvas = canvasRef.current;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0,0,canvas.width,canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                };
+            };
+
+            const getPos = (e) => {
+                const canvas = canvasRef.current;
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+            };
+
+            const floodFill = (ctx, x, y, fillColor) => {
+                const canvas = canvasRef.current;
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                const w = canvas.width;
+                const h = canvas.height;
+                const idx = (Math.round(y) * w + Math.round(x)) * 4;
+                const targetR = data[idx], targetG = data[idx+1], targetB = data[idx+2], targetA = data[idx+3];
+
+                const hexToRgb = hex => {
+                    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+                    return [r,g,b,255];
+                };
+                const [fr,fg,fb,fa] = hexToRgb(fillColor);
+                if (targetR===fr && targetG===fg && targetB===fb) return;
+
+                const match = (i) => Math.abs(data[i]-targetR) + Math.abs(data[i+1]-targetG) + Math.abs(data[i+2]-targetB) + Math.abs(data[i+3]-targetA) < fillTol * 4;
+                const stack = [[Math.round(x), Math.round(y)]];
+                const visited = new Uint8Array(w*h);
+                while (stack.length) {
+                    const [cx,cy] = stack.pop();
+                    if (cx<0||cx>=w||cy<0||cy>=h) continue;
+                    const i = (cy*w+cx)*4;
+                    if (visited[cy*w+cx]) continue;
+                    if (!match(i)) continue;
+                    visited[cy*w+cx] = 1;
+                    data[i]=fr; data[i+1]=fg; data[i+2]=fb; data[i+3]=fa;
+                    stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+                }
+                ctx.putImageData(imageData, 0, 0);
+            };
+
+            const onPointerDown = (e) => {
+                e.preventDefault();
+                const pos = getPos(e);
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+
+                if (tool === 'text') {
+                    setTextPos(pos);
+                    return;
+                }
+                if (tool === 'eyedrop') {
+                    const pixel = ctx.getImageData(Math.round(pos.x), Math.round(pos.y), 1, 1).data;
+                    const hex = '#' + [pixel[0],pixel[1],pixel[2]].map(v=>v.toString(16).padStart(2,'0')).join('');
+                    setColor(hex);
+                    return;
+                }
+                if (tool === 'fill') {
+                    floodFill(ctx, pos.x, pos.y, color);
+                    pushHistory();
+                    return;
+                }
+
+                setIsDrawing(true);
+                setStartPos(pos);
+
+                if (tool === 'pencil' || tool === 'brush' || tool === 'eraser' || tool === 'spray') {
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x, pos.y);
+                }
+                if (tool === 'select') {
+                    setSelectRect({x: pos.x, y: pos.y, w: 0, h: 0});
+                }
+            };
+
+            const onPointerMove = (e) => {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                const oc = overlayRef.current;
+                const octx = oc ? oc.getContext('2d') : null;
+
+                if (tool === 'pencil') {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = size;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                } else if (tool === 'brush') {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = size * 3;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.globalAlpha = 0.7;
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                } else if (tool === 'eraser') {
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = size * 5;
+                    ctx.lineCap = 'square';
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                } else if (tool === 'spray') {
+                    ctx.fillStyle = color;
+                    for (let i = 0; i < 20; i++) {
+                        const ox = (Math.random()-0.5) * size * 8;
+                        const oy = (Math.random()-0.5) * size * 8;
+                        ctx.fillRect(pos.x+ox, pos.y+oy, 1.5, 1.5);
+                    }
+                } else if (tool === 'select') {
+                    setSelectRect({x: startPos.x, y: startPos.y, w: pos.x - startPos.x, h: pos.y - startPos.y});
+                } else if (octx && ['line','rect','ellipse','rrect'].includes(tool)) {
+                    octx.clearRect(0, 0, oc.width, oc.height);
+                    octx.strokeStyle = color;
+                    octx.fillStyle = bgColor;
+                    octx.lineWidth = size;
+                    const x = Math.min(startPos.x, pos.x);
+                    const y = Math.min(startPos.y, pos.y);
+                    const w = Math.abs(pos.x - startPos.x);
+                    const h = Math.abs(pos.y - startPos.y);
+                    if (tool === 'line') {
+                        octx.beginPath(); octx.moveTo(startPos.x, startPos.y); octx.lineTo(pos.x, pos.y); octx.stroke();
+                    } else if (tool === 'rect') {
+                        octx.fillRect(x,y,w,h); octx.strokeRect(x,y,w,h);
+                    } else if (tool === 'ellipse') {
+                        octx.beginPath(); octx.ellipse(x+w/2, y+h/2, w/2, h/2, 0, 0, Math.PI*2);
+                        octx.fill(); octx.stroke();
+                    } else if (tool === 'rrect') {
+                        const r = Math.min(12, w/4, h/4);
+                        octx.beginPath(); octx.roundRect(x,y,w,h,r); octx.fill(); octx.stroke();
+                    }
+                }
+            };
+
+            const onPointerUp = (e) => {
+                if (!isDrawing) return;
+                const pos = getPos(e);
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                const oc = overlayRef.current;
+                const octx = oc ? oc.getContext('2d') : null;
+
+                if (['line','rect','ellipse','rrect'].includes(tool) && octx) {
+                    octx.clearRect(0, 0, oc.width, oc.height);
+                    ctx.strokeStyle = color;
+                    ctx.fillStyle = bgColor;
+                    ctx.lineWidth = size;
+                    const x = Math.min(startPos.x, pos.x);
+                    const y = Math.min(startPos.y, pos.y);
+                    const w = Math.abs(pos.x - startPos.x);
+                    const h = Math.abs(pos.y - startPos.y);
+                    if (tool === 'line') {
+                        ctx.beginPath(); ctx.moveTo(startPos.x, startPos.y); ctx.lineTo(pos.x, pos.y); ctx.stroke();
+                    } else if (tool === 'rect') {
+                        ctx.fillRect(x,y,w,h); ctx.strokeRect(x,y,w,h);
+                    } else if (tool === 'ellipse') {
+                        ctx.beginPath(); ctx.ellipse(x+w/2, y+h/2, w/2, h/2, 0, 0, Math.PI*2);
+                        ctx.fill(); ctx.stroke();
+                    } else if (tool === 'rrect') {
+                        const r = Math.min(12, w/4, h/4);
+                        ctx.beginPath(); ctx.roundRect(x,y,w,h,r); ctx.fill(); ctx.stroke();
+                    }
+                }
+
+                ctx.beginPath();
+                ctx.globalAlpha = 1;
+                setIsDrawing(false);
+                pushHistory();
+            };
+
+            const commitText = () => {
+                if (!textInput || !textPos) return;
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                ctx.font = `${size * 6 + 10}px 'Courier New', monospace`;
+                ctx.fillStyle = color;
+                ctx.fillText(textInput, textPos.x, textPos.y);
+                setTextInput('');
+                setTextPos(null);
+                pushHistory();
+            };
+
+            const clearCanvas = () => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                pushHistory();
+            };
+
+            const exportPNG = () => {
+                const canvas = canvasRef.current;
+                const a = document.createElement('a');
+                a.href = canvas.toDataURL('image/png');
+                a.download = 'painting.png';
+                a.click();
+            };
+
+            const exportJPG = () => {
+                const canvas = canvasRef.current;
+                const a = document.createElement('a');
+                a.href = canvas.toDataURL('image/jpeg', 0.95);
+                a.download = 'painting.jpg';
+                a.click();
+            };
+
+            const toolbarStyle = {
+                display:'flex', flexDirection:'column', gap:'2px', padding:'4px',
+                background:'#c0c0c0', borderRight:'2px solid #808080', width: mobile ? '40px' : '50px',
+                flexShrink: 0, alignItems:'center', overflowY:'auto'
+            };
+            const btnBase = {
+                width: mobile ? '32px' : '40px', height: mobile ? '32px' : '40px',
+                display:'flex', alignItems:'center', justifyContent:'center',
+                border:'1px solid #808080', cursor:'pointer', fontSize: mobile ? '13px' : '16px',
+                fontFamily:'Courier New', fontWeight:'bold', userSelect:'none',
+                transition:'all 0.05s',
+            };
+
+            return (
+                <div style={{display:'flex', flexDirection:'column', height:'100%', background:'#c0c0c0', fontFamily:"'Courier New',monospace"}}>
+                    {/* Menu bar */}
+                    <div style={{display:'flex', gap:'2px', padding:'2px 6px', background:'#c0c0c0', borderBottom:'1px solid #808080', fontSize:'11px', alignItems:'center', flexWrap:'wrap'}}>
+                        <span style={{cursor:'pointer', padding:'2px 8px', background:'rgba(0,0,0,0.08)', border:'1px solid #999', borderRadius:'2px'}} onClick={clearCanvas}>New</span>
+                        <span style={{cursor:'pointer', padding:'2px 8px', background:'rgba(0,0,0,0.08)', border:'1px solid #999', borderRadius:'2px'}} onClick={exportPNG}>Save PNG</span>
+                        <span style={{cursor:'pointer', padding:'2px 8px', background:'rgba(0,0,0,0.08)', border:'1px solid #999', borderRadius:'2px'}} onClick={exportJPG}>Save JPG</span>
+                        <span style={{padding:'2px 4px', opacity:0.5}}>|</span>
+                        <span style={{cursor:'pointer', padding:'2px 8px', background:'rgba(0,0,0,0.08)', border:'1px solid #999', borderRadius:'2px'}} onClick={undo}>Undo</span>
+                        <span style={{cursor:'pointer', padding:'2px 8px', background:'rgba(0,0,0,0.08)', border:'1px solid #999', borderRadius:'2px'}} onClick={redo}>Redo</span>
+                        <span style={{padding:'2px 4px', opacity:0.5}}>|</span>
+                        <span style={{fontSize:'10px', opacity:0.6}}>Size:</span>
+                        <input type="range" min="1" max="20" value={size} onChange={e=>setSize(Number(e.target.value))} style={{width:'60px', cursor:'pointer'}} />
+                        <span style={{fontSize:'10px', minWidth:'16px'}}>{size}</span>
+                        <span style={{padding:'2px 4px', opacity:0.5}}>|</span>
+                        <span style={{fontSize:'10px', opacity:0.6}}>FG:</span>
+                        <input type="color" value={color} onChange={e=>setColor(e.target.value)} style={{width:'24px',height:'20px',border:'1px solid #808080',cursor:'pointer',padding:'0'}} />
+                        <span style={{fontSize:'10px', opacity:0.6}}>BG:</span>
+                        <input type="color" value={bgColor} onChange={e=>setBgColor(e.target.value)} style={{width:'24px',height:'20px',border:'1px solid #808080',cursor:'pointer',padding:'0'}} />
+                    </div>
+
+                    {/* Main area */}
+                    <div style={{display:'flex', flex:1, overflow:'hidden'}}>
+                        {/* Tool sidebar */}
+                        <div style={toolbarStyle}>
+                            {TOOLS.map(t => (
+                                <div key={t.id} title={t.label} style={{...btnBase, background: tool===t.id ? '#a0a0a0' : '#d4d0c8', boxShadow: tool===t.id ? 'inset 1px 1px 2px rgba(0,0,0,0.4)' : '1px 1px 0 #fff, inset -1px -1px 0 #808080'}} onClick={()=>setTool(t.id)}>
+                                    {t.icon}
+                                </div>
+                            ))}
+                            {/* Color preview boxes */}
+                            <div style={{position:'relative', width:mobile?'32px':'40px', height:mobile?'28px':'36px', marginTop:'6px'}}>
+                                <div style={{position:'absolute', right:0, bottom:0, width:'65%', height:'65%', background:bgColor, border:'1px solid #000'}} />
+                                <div style={{position:'absolute', left:0, top:0, width:'65%', height:'65%', background:color, border:'1px solid #000'}} />
+                            </div>
                         </div>
+
+                        {/* Canvas area */}
+                        <div style={{flex:1, overflow:'auto', background:'#808080', position:'relative', display:'flex', alignItems:'flex-start', justifyContent:'flex-start'}}>
+                            <div style={{position:'relative', margin:'8px'}}>
+                                <canvas ref={canvasRef} width={mobile ? 600 : 1200} height={mobile ? 400 : 800}
+                                    style={{display:'block', background:'#fff', cursor: tool==='eyedrop'?'crosshair':tool==='fill'?'cell':'crosshair', maxWidth:'100%', touchAction:'none', border:'2px inset #808080'}}
+                                    onMouseDown={onPointerDown} onMouseMove={onPointerMove} onMouseUp={onPointerUp} onMouseLeave={()=>{if(isDrawing){setIsDrawing(false);pushHistory();}}}
+                                    onTouchStart={onPointerDown} onTouchMove={onPointerMove} onTouchEnd={onPointerUp}
+                                />
+                                <canvas ref={overlayRef} width={mobile ? 600 : 1200} height={mobile ? 400 : 800}
+                                    style={{position:'absolute', top:0, left:0, pointerEvents:'none', maxWidth:'100%'}}
+                                />
+                                {selectRect && (
+                                    <div style={{position:'absolute', left: Math.min(selectRect.x, selectRect.x+selectRect.w)//(canvas scale factor)
+                                        , top: Math.min(selectRect.y, selectRect.y+selectRect.h), width: Math.abs(selectRect.w), height: Math.abs(selectRect.h),
+                                        border:'1px dashed #000', pointerEvents:'none', boxSizing:'border-box'}} />
+                                )}
+                                {textPos && (
+                                    <div style={{position:'absolute', left: textPos.x, top: textPos.y - 20, zIndex:100}}>
+                                        <input autoFocus value={textInput} onChange={e=>setTextInput(e.target.value)}
+                                            onKeyDown={e=>{if(e.key==='Enter') commitText(); if(e.key==='Escape'){setTextPos(null);setTextInput('');}}}
+                                            style={{background:'transparent', border:'1px dashed #000', outline:'none', fontFamily:'Courier New', fontSize:`${size*6+10}px`, color, minWidth:'40px', width:'auto'}} />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Color palette */}
+                    <div style={{display:'flex', flexWrap:'wrap', padding:'4px 6px', background:'#c0c0c0', borderTop:'2px solid #808080', gap:'2px'}}>
+                        {PALETTE.map(c => (
+                            <div key={c} title={c}
+                                style={{width:mobile?'16px':'20px', height:mobile?'16px':'20px', background:c, border: color===c ? '2px solid #000' : '1px solid #808080', cursor:'pointer', boxSizing:'border-box', flexShrink:0}}
+                                onClick={()=>setColor(c)}
+                                onContextMenu={e=>{e.preventDefault();setBgColor(c);}}
+                            />
+                        ))}
+                        <span style={{fontSize:'9px', opacity:0.5, alignSelf:'center', marginLeft:'8px'}}>left click = fg · right click = bg</span>
                     </div>
                 </div>
             );
@@ -699,7 +1146,39 @@
                 return()=>{cancelAnimationFrame(rafRef.current);canvas.removeEventListener('mousemove',onMove);canvas.removeEventListener('click',onClick);canvas.removeEventListener('touchmove',onTouch);window.removeEventListener('resize',resize);};
             },[]);
 
-            return <canvas ref={canvasRef} style={{display:'block',width:'100%',height:'100%',cursor:'none'}} />;
+            return (
+                <div style={{position:'relative',width:'100%',height:'100%'}}>
+                    <canvas ref={canvasRef} style={{display:'block',width:'100%',height:'100%',cursor:'none'}} />
+                    <div
+                        style={{position:'absolute',bottom:24,left:24,width:90,height:90,borderRadius:'50%',background:'rgba(255,255,255,0.08)',border:'2px solid rgba(255,255,255,0.2)',touchAction:'none',userSelect:'none'}}
+                        onTouchStart={e=>{
+                            const s=stateRef.current;
+                            const r=e.currentTarget.getBoundingClientRect();
+                            const cx=r.left+r.width/2, cy=r.top+r.height/2;
+                            s._joyCenter={cx,cy};
+                            const t=e.touches[0];
+                            s.mouse.x=s.VW/2+(t.clientX-cx)*3;
+                            s.mouse.y=s.VH/2+(t.clientY-cy)*3;
+                            e.preventDefault();
+                        }}
+                        onTouchMove={e=>{
+                            const s=stateRef.current;
+                            if(!s._joyCenter) return;
+                            const {cx,cy}=s._joyCenter;
+                            const t=e.touches[0];
+                            s.mouse.x=s.VW/2+(t.clientX-cx)*3;
+                            s.mouse.y=s.VH/2+(t.clientY-cy)*3;
+                            e.preventDefault();
+                        }}
+                        onTouchEnd={e=>{
+                            const s=stateRef.current;
+                            s._joyCenter=null;
+                        }}
+                    >
+                        <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:36,height:36,borderRadius:'50%',background:'rgba(255,255,255,0.18)',border:'1px solid rgba(255,255,255,0.3)'}} />
+                    </div>
+                </div>
+            );
         }
 
         function MobileIcon({ icon, label, onClick, theme }) {
@@ -712,9 +1191,36 @@
         }
 
         function Window({ title, children, onClose, theme, zIndex, initialX, initialY, isWinston, width, height }) {
+            const w = width||400, h = height||480;
+            const [pos, setPos] = React.useState({ x: Math.min(initialX, window.innerWidth - w), y: Math.min(initialY, window.innerHeight - h) });
+            const dragging = React.useRef(false);
+            const dragStart = React.useRef({mx:0, my:0, wx:0, wy:0});
+
+            const onTitleMouseDown = (e) => {
+                if (e.target.classList.contains('traffic-light')) return;
+                dragging.current = true;
+                dragStart.current = { mx: e.clientX, my: e.clientY, wx: pos.x, wy: pos.y };
+                e.preventDefault();
+            };
+            React.useEffect(() => {
+                const onMove = (e) => {
+                    if (!dragging.current) return;
+                    const dx = e.clientX - dragStart.current.mx;
+                    const dy = e.clientY - dragStart.current.my;
+                    setPos({
+                        x: Math.max(0, Math.min(window.innerWidth - w, dragStart.current.wx + dx)),
+                        y: Math.max(0, Math.min(window.innerHeight - h, dragStart.current.wy + dy)),
+                    });
+                };
+                const onUp = () => { dragging.current = false; };
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onUp);
+                return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+            }, [w, h]);
+
             return (
-                <motion.div drag dragMomentum={false} initial={{ x: initialX, y: initialY }} style={{ zIndex, position: 'absolute', width: width||400, height: height||480 }} className={`border flex flex-col rounded-[24px] overflow-hidden ${theme.winBg} border-white/10 shadow-2xl`}>
-                    <div className={`window-titlebar p-4 flex justify-between items-center ${theme.titleBar} cursor-grab active:cursor-grabbing`}>
+                <div style={{ zIndex, position: 'absolute', left: pos.x, top: pos.y, width: w, height: h, borderRadius: '24px', overflow: 'hidden', display:'flex', flexDirection:'column' }} className={`border ${theme.winBg} border-white/10 shadow-2xl`}>
+                    <div className={`window-titlebar p-4 flex justify-between items-center ${theme.titleBar} cursor-grab active:cursor-grabbing`} style={{flexShrink:0}} onMouseDown={onTitleMouseDown}>
                         <div className="flex gap-2">
                             <div onClick={onClose} className="traffic-light close-btn"></div>
                             <div className="traffic-light minimize-btn"></div>
@@ -724,7 +1230,7 @@
                         <div className="w-12"></div>
                     </div>
                     <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white text-black' : ''}`}>{children}</div>
-                </motion.div>
+                </div>
             );
         }
 
