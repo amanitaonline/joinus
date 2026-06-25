@@ -1,1241 +1,625 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✶ FUCK SICMR ✶</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
-    <style>
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Courier New', monospace; transition: background 0.5s ease; background-color: #000; cursor: crosshair; }
-        
-        /* Cursor Sparkle Styles */
-        .sparkle-star {
-            position: absolute; pointer-events: none; font-size: 24px; z-index: 99999;
-            color: white; text-shadow: 0 0 10px #fff; animation: burst 0.8s ease-out forwards;
-        }
-        @keyframes burst {
-            0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
-            100% { transform: translate(var(--x), var(--y)) scale(0) rotate(180deg); opacity: 0; }
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artwork Ripper</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
 
-        .video-background {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; pointer-events: none; opacity: 0; filter: grayscale(100%) contrast(110%);
-        }
-        .video-background iframe {
-            width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh;
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        }
-        .custom-wallpaper {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; background-size: cover; background-position: center;
-        }
-        
-        .glass-panel { backdrop-filter: blur(25px); background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .dark .glass-panel { background: rgba(15, 15, 15, 0.75); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .window-titlebar { backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .illuminati-logo {
-            width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent;
-            border-bottom: 14px solid currentColor; display: inline-block;
-        }
-        .glow-triangle { filter: drop-shadow(0 0 8px currentColor); animation: pulse-glow 2s infinite alternate ease-in-out; cursor: pointer; }
-        @keyframes pulse-glow { 0% { filter: drop-shadow(0 0 4px currentColor); } 100% { filter: drop-shadow(0 0 12px currentColor); } }
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #fc3c44;
+    --accent2: #1a73e8;
+    --text: #e8e8f0;
+    --muted: #5a5a72;
+    --card: #14141e;
+  }
 
-        .traffic-light { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
-        .close-btn { background: #ff5f56; }
-        .minimize-btn { background: #ffbd2e; }
-        .expand-btn { background: #27c93f; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 48px 20px 80px;
+  }
 
-        .iphone-frame {
-            width: 320px; height: 640px; background: #1a1a1a; border-radius: 50px; border: 6px solid #333;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5); position: relative; padding: 15px; display: flex; flex-direction: column;
-        }
-        .mobile-screen { flex: 1; border-radius: 4px; overflow: hidden; position: relative; background-size: cover; background-position: center; }
-        .home-button {
-            width: 50px; height: 50px; border-radius: 50%; border: 2px solid #333;
-            margin: 10px auto 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        .home-button-inner { width: 18px; height: 18px; border: 1px solid #444; border-radius: 4px; }
-        
-        .winston-discord-btn { 
-            background: #7289da; color: white !important; padding: 12px 24px; 
-            border-radius: 12px; font-weight: bold; display: inline-block;
-            box-shadow: 0 0 15px rgba(114, 137, 218, 0.4);
-        }
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
 
-        /* XXXO Integrated Styles */
-        .xxxo-container { background: #000; color: white; height: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .xxxo-flash { animation: flash-effect 0.14s infinite; font-weight: bold; text-transform: uppercase; text-align: center; margin: 15px 0; font-size: 1.2rem; }
-        @keyframes flash-effect { 0%, 49% { color: red; } 50%, 100% { color: white; } }
-    </style>
+  header h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1.3rem, 3.5vw, 1.9rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+
+  header h1 .red { color: var(--accent); }
+
+  header p {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .search-wrap {
+    max-width: 720px;
+    margin: 0 auto 32px;
+  }
+
+  .type-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .type-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .type-tab:hover { color: var(--text); border-color: #2e2e45; }
+  .type-tab.active { background: rgba(252,60,68,0.14); border-color: rgba(252,60,68,0.45); color: var(--accent); }
+  .type-tab.id-mode.active { background: rgba(26,115,232,0.14); border-color: rgba(26,115,232,0.45); color: var(--accent2); }
+
+  .search-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 13px 16px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input[type="text"]:focus { border-color: #3a3a58; }
+  input[type="text"]::placeholder { color: var(--muted); }
+
+  .size-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 13px 30px 13px 14px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a5a72'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    flex-shrink: 0;
+  }
+
+  .btn {
+    padding: 13px 22px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    white-space: nowrap;
+    background: var(--accent);
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .btn:hover { opacity: 0.85; }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn.id-btn { background: var(--accent2); }
+
+  .status {
+    max-width: 720px;
+    margin: 0 auto 16px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    min-height: 16px;
+    letter-spacing: 0.01em;
+  }
+
+  .status.error { color: #ff6b6b; }
+  .status.loading { color: #a0a0c0; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    display: inline-block;
+    width: 13px; height: 13px;
+    border: 2px solid #3e3e5e;
+    border-top-color: var(--muted);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  .results {
+    max-width: 720px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+  }
+
+  .results.wide-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
+    position: relative;
+  }
+
+  .result-card:hover { transform: translateY(-2px); border-color: #2e2e45; }
+
+  .result-card img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+    background: var(--surface);
+  }
+
+  .result-card img.wide { aspect-ratio: 2/3; }
+  .result-card img.landscape { aspect-ratio: 16/9; }
+
+  .card-info { padding: 10px 12px; }
+
+  .card-title {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-sub {
+    font-size: 0.7rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+  }
+
+  .dl-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .result-card:hover .dl-overlay { opacity: 1; }
+
+  .size-badge {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    background: rgba(0,0,0,0.72);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.62rem;
+    font-family: 'Space Mono', monospace;
+    color: #bbb;
+  }
+
+  .type-badge {
+    position: absolute;
+    top: 7px;
+    left: 7px;
+    background: rgba(0,0,0,0.72);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.62rem;
+    font-family: 'Space Mono', monospace;
+    color: #bbb;
+  }
+
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .empty svg { opacity: 0.25; margin-bottom: 16px; }
+
+  /* Modal */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-bg.open { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 480px;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .modal img { width: 100%; display: block; max-height: 70vh; object-fit: contain; background: #08080f; }
+
+  .modal-footer {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .modal-info { font-size: 0.8rem; min-width: 0; }
+  .modal-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .modal-sub { color: var(--muted); margin-top: 2px; font-size: 0.72rem; }
+
+  .modal-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .btn-sm { padding: 8px 16px; font-size: 0.78rem; border-radius: 7px; }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 7px;
+    transition: all 0.15s;
+  }
+
+  .btn-ghost:hover { color: var(--text); border-color: #3e3e5e; }
+
+  .close-modal {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(0,0,0,0.65);
+    border: none;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    color: #ccc;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hint {
+    max-width: 720px;
+    margin: 0 auto 10px;
+    font-size: 0.73rem;
+    color: var(--muted);
+    letter-spacing: 0.01em;
+  }
+</style>
 </head>
 <body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-        const { motion, AnimatePresence } = window.Motion;
-
-        const videoLinks = [
-            'https://www.youtube.com/embed/xQxOU-CQnDo',
-            'https://www.youtube.com/embed/Qn31c2Ks5dQ',
-            'https://www.youtube.com/embed/jbgWXRxlSuQ',
-            'https://www.youtube.com/embed/tp1ZluX4aYs',
-            'https://www.youtube.com/embed/KbS-dKD4c9I',
-            'https://www.youtube.com/embed/6J89xs-LKTY'
-        ];
-
-        const photoLinks = [
-            'https://static.wikia.nocookie.net/marsargo/images/2/22/Tony_Katai_%28June_2015%29_1-001.jpg/revision/latest',
-            'https://static.wikia.nocookie.net/marsargo/images/9/97/Tony_Katai_%282015%29_1-010.jpg/revision/latest',
-            'https://static.wikia.nocookie.net/marsargo/images/7/75/9bkw5urxqbu.jpg/revision/latest',
-            'https://static.wikia.nocookie.net/marsargo/images/e/e2/Tony_Katai_%282015%29_1-002.jpg/revision/latest'
-        ];
-
-
-        const formatChatText = (text) => {
-            const urlRegex = /(https?:\/\/[^\s]+)/g;
-            return text.split(urlRegex).map((part, i) => {
-                if (part.match(urlRegex)) {
-                    return <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-400 underline">{part}</a>;
-                }
-                return part;
-            });
-        };
-
-        function App() {
-            const [isBooting, setIsBooting] = useState(true);
-            const [viewMode, setViewMode] = useState('choice'); 
-            const [isLoggedIn, setIsLoggedIn] = useState(false);
-            const [username, setUsername] = useState("");
-            const [isDark, setIsDark] = useState(true);
-            const [isMuted, setIsMuted] = useState(false);
-            const [wallpaper, setWallpaper] = useState(null);
-            const [ctxMenu, setCtxMenu] = useState(null);
-            const handleCtx = (e) => { e.preventDefault(); setCtxMenu({x: e.clientX, y: e.clientY}); };
-            const closeCtx = () => setCtxMenu(null);
-            
-            const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false, XXXO: false, AGARIO: false, SHEETS: false, PAINT: false });
-            const [activeMobileApp, setActiveMobileApp] = useState(null);
-            const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10, XXXO: 10, AGARIO: 10, SHEETS: 10, PAINT: 10 });
-            const [topZ, setTopZ] = useState(20);
-            
-            const [chatMessages, setChatMessages] = useState([
-                { user: "SYSTEM", text: "Welcome to the network." },
-                { user: "SYSTEM", text: "JOIN OUR SERVER: https://discord.gg/CRMjDFNBm7" }
-            ]);
-
-            const audioRef = useRef(null);
-
-            useEffect(() => {
-                const handleMouseMove = (e) => {
-                    if (Math.random() > 0.7) {
-                        const star = document.createElement('div');
-                        star.className = 'sparkle-star';
-                        star.innerHTML = '✦';
-                        const destinationX = (Math.random() - 0.5) * 100;
-                        const destinationY = (Math.random() - 0.5) * 100;
-                        star.style.setProperty('--x', destinationX + 'px');
-                        star.style.setProperty('--y', destinationY + 'px');
-                        if(Math.random() > 0.5) {
-                            star.style.color = 'red';
-                            star.style.textShadow = '0 0 10px red, 0 0 20px #ff0000';
-                        }
-                        star.style.left = e.pageX + 'px';
-                        star.style.top = e.pageY + 'px';
-                        document.body.appendChild(star);
-                        setTimeout(() => star.remove(), 800);
-                    }
-                };
-                window.addEventListener('mousemove', handleMouseMove);
-                const timer = setTimeout(() => setIsBooting(false), 3000);
-                return () => {
-                    window.removeEventListener('mousemove', handleMouseMove);
-                    clearTimeout(timer);
-                };
-            }, []);
-
-            const theme = isDark ? {
-                bg: "bg-black", text: "text-red-600", winBg: "bg-zinc-900", titleBar: "bg-red-950/40", mobileText: "text-white"
-            } : {
-                bg: "bg-[#d6d2c4]", text: "text-[#4a3f35]", winBg: "bg-[#eceae0]", titleBar: "bg-[#b0ab99]/40", mobileText: "text-black"
-            };
-
-            const toggleApp = (app) => {
-                setOpenApps(prev => ({ ...prev, [app]: !prev[app] }));
-                const newZ = topZ + 1;
-                setZIndices(prev => ({ ...prev, [app]: newZ }));
-                setTopZ(newZ);
-            };
-
-            if (isBooting) return (
-                <div className="h-screen w-full bg-black flex flex-col items-center justify-center">
-                    <div className="illuminati-logo text-white scale-[4] mb-16"></div>
-                    <div className="w-48 h-1 bg-zinc-800 rounded-full overflow-hidden">
-                        <motion.div initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: 2.5 }} className="h-full bg-white"/>
-                    </div>
-                </div>
-            );
-
-            if (viewMode === 'choice') return (
-                <div className="h-screen w-full bg-black flex flex-col items-center justify-center gap-8 text-white">
-                    <div className="flex gap-12">
-                        <button onClick={() => setViewMode('desktop')} className="glass-panel p-10 rounded-3xl hover:scale-105 transition-all">
-                            <div className="text-5xl mb-4">💻</div><div className="text-[10px] font-bold">DESKTOP</div>
-                        </button>
-                        <button onClick={() => setViewMode('mobile')} className="glass-panel p-10 rounded-3xl hover:scale-105 transition-all">
-                            <div className="text-5xl mb-4">📱</div><div className="text-[10px] font-bold">MOBILE</div>
-                        </button>
-                    </div>
-                </div>
-            );
-
-            if (!isLoggedIn) return (
-                <div className="h-screen w-full bg-black flex items-center justify-center p-4">
-                    <div className="glass-panel p-8 rounded-[24px] text-center space-y-5 text-red-600" style={{width:'260px'}}>
-                        <div className="illuminati-logo scale-150 mx-auto"></div>
-                        <input type="text" placeholder="username" className="w-full bg-black/50 border border-red-900/30 p-2 rounded-lg text-center text-xs" value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && username && setIsLoggedIn(true)}/>
-                        <button onClick={() => username && setIsLoggedIn(true)} className="w-full bg-red-900/20 border border-red-900/40 py-2 rounded-lg text-xs font-bold">LOGIN</button>
-                    </div>
-                </div>
-            );
-
-            // MOBILE
-            if (viewMode === 'mobile') return (
-                <div className="h-screen w-full flex items-center justify-center bg-zinc-950">
-                    <audio ref={audioRef} autoPlay loop src="https://grocerybag.tv/media/SONG.mp3" muted={isMuted} />
-                    <div className="iphone-frame">
-                        <div className="mobile-screen" style={{backgroundImage: wallpaper ? `url(${wallpaper})` : 'none', backgroundColor: isDark ? '#000' : '#d6d2c4'}}>
-                            <div className="flex justify-between px-4 py-1 text-[9px] text-white bg-black/30 backdrop-blur-md"><span>AOS</span><span>12:00</span><span>100% 🔋</span></div>
-                            <div className="grid grid-cols-3 gap-6 p-6 mt-4">
-                                <MobileIcon icon="🐶" label="Winston" onClick={() => setActiveMobileApp('WINSTON')} theme={theme} />
-                                <MobileIcon icon="📽️" label="Videos" onClick={() => setActiveMobileApp('VIDEOS')} theme={theme} />
-                                <MobileIcon icon="🖼️" label="Archive" onClick={() => setActiveMobileApp('PHOTOS')} theme={theme} />
-                                <MobileIcon icon="💬" label="Chat" onClick={() => setActiveMobileApp('CHAT')} theme={theme} />
-                                <MobileIcon icon="🪩" label="XXXO" onClick={() => setActiveMobileApp('XXXO')} theme={theme} />
-                                <MobileIcon icon="👾" label="Wobbles" onClick={() => setActiveMobileApp('AGARIO')} theme={theme} />
-                                <MobileIcon icon="📋" label="Uploads" onClick={() => setActiveMobileApp('SHEETS')} theme={theme} />
-                                <MobileIcon icon="⚙️" label="Settings" onClick={() => setActiveMobileApp('SETTINGS')} theme={theme} />
-                                <MobileIcon icon="🎨" label="Paint" onClick={() => setActiveMobileApp('PAINT')} theme={theme} />
-                            </div>
-                            <AnimatePresence>
-                                {activeMobileApp && (
-                                    <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className={`absolute inset-0 z-50 overflow-y-auto p-4 pt-10 ${activeMobileApp === 'XXXO' ? 'bg-black' : activeMobileApp === 'WINSTON' ? 'bg-white' : theme.winBg}`}>
-                                        {activeMobileApp === 'XXXO' && (
-                                            <div className="xxxo-container">
-                                                <div className="xxxo-flash">YOU WANT ME BE SOMEBODY WHO I'M REALLY NOT</div>
-                                                <iframe src="https://www.youtube.com/embed/sfbQ5mHWkOs" className="w-full aspect-video border-none shadow-[0_0_20px_rgba(255,0,0,0.5)]" />
-                                                <a href="mailto:matangi@atomicmail.io" className="mt-10 text-white font-bold hover:text-red-500">CONTACT</a>
-                                            </div>
-                                        )}
-                                        {activeMobileApp === 'PHOTOS' && photoLinks.map((url, i) => (
-                                            <img key={i} src={url} className="w-full mb-4 rounded-xl border border-white/10" onClick={() => setWallpaper(url)} />
-                                        ))}
-                                        {activeMobileApp === 'VIDEOS' && videoLinks.map((url, i) => (
-                                            <iframe key={i} src={url} className="w-full aspect-video rounded-xl mb-4" />
-                                        ))}
-                                        {activeMobileApp === 'CHAT' && (
-                                            <div className="flex flex-col h-full text-[11px] pb-20">
-                                                {chatMessages.map((m, i) => <div key={i} className="mb-2 opacity-80"><b>[{m.user}]</b> {formatChatText(m.text)}</div>)}
-                                                <input className="fixed bottom-4 left-4 right-4 p-3 rounded-full bg-white/10 border border-white/20 text-white outline-none" placeholder="Message..." onKeyDown={(e) => { if(e.key==='Enter' && e.target.value){ setChatMessages([...chatMessages, {user: username, text: e.target.value}]); e.target.value=''; }}} />
-                                            </div>
-                                        )}
-                                        {activeMobileApp === 'WINSTON' && (
-                                            <div className="text-center text-black">
-                                                <h2 className="text-xl font-black mb-4">WINSTON'S FAN CLUB</h2>
-                                                <img src="https://grocerybag.tv/media/winston.JPG" className="w-40 h-40 mx-auto rounded-3xl mb-8 object-cover" />
-                                                <a href="https://discord.gg/CRMjDFNBm7" className="winston-discord-btn">JOIN SERVER</a>
-                                            </div>
-                                        )}
-                                        {activeMobileApp === 'AGARIO' && (
-                                            <div style={{width:'100%',height:'100%',position:'relative',background:'#0a0a0a'}}>
-                                                <AgarIO />
-                                            </div>
-                                        )}
-                                        {activeMobileApp === 'SHEETS' && (
-                                            <div style={{width:'100%',height:'100%',overflow:'hidden',position:'relative'}}>
-                                                <div style={{transform:'scale(0.52)',transformOrigin:'top left',width:'192%',height:'192%',pointerEvents:'all'}}>
-                                                    <SpreadsheetApp theme={theme} />
-                                                </div>
-                                            </div>
-                                        )}
-                                        {activeMobileApp === 'PAINT' && (
-                                            <div style={{width:'100%',height:'100%',position:'relative',background:'#c0c0c0'}}>
-                                                <PaintApp mobile={true} />
-                                            </div>
-                                        )}
-                                        {activeMobileApp === 'SETTINGS' && (
-                                            <div className={`space-y-4 pt-4 ${theme.text}`}>
-                                                <div onClick={() => setIsDark(!isDark)} className="p-4 bg-white/5 rounded-xl border border-white/10 flex justify-between"><span>Lite Mode</span><span>{isDark ? 'OFF' : 'ON'}</span></div>
-                                                <div onClick={() => setViewMode('choice')} className="p-4 bg-red-950/20 rounded-xl border border-red-500/20 font-bold text-center">Switch Version</div>
-                                            </div>
-                                        )}
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                        <div className="home-button" onClick={() => setActiveMobileApp(null)}><div className="home-button-inner"></div></div>
-                    </div>
-                </div>
-            );
-
-            // DESKTOP
-            return (
-                <>
-                <div className={`h-screen w-full relative overflow-hidden ${isDark ? 'dark' : ''} ${theme.text}`} style={{background: wallpaper ? 'transparent' : ''}} onContextMenu={handleCtx} onClick={closeCtx}>
-                    {ctxMenu && (
-                        <div style={{position:'fixed',left:ctxMenu.x,top:ctxMenu.y,zIndex:99999,background:'rgba(20,20,20,0.95)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:'12px',padding:'6px',minWidth:'170px',boxShadow:'0 8px 32px rgba(0,0,0,0.6)',fontFamily:"'Courier New',monospace",fontSize:'11px',color:'#fff',backdropFilter:'blur(20px)'}} onClick={e=>e.stopPropagation()}>
-                            {[
-                                {label:'🖼️  Change Wallpaper', action:()=>{toggleApp('PHOTOS');setCtxMenu(null);}},
-                                {label: isDark ? '☀️  Light Mode' : '🌑  Dark Mode', action:()=>{setIsDark(!isDark);setCtxMenu(null);}},
-                                {label:'📱  Switch to Mobile', action:()=>{setViewMode('choice');setCtxMenu(null);}},
-                                null,
-                                {label:'📽️  Videos', action:()=>{toggleApp('VIDEOS');setCtxMenu(null);}},
-                                {label:'💬  Chat', action:()=>{toggleApp('CHAT');setCtxMenu(null);}},
-                                {label:'👾  Wobbles', action:()=>{toggleApp('AGARIO');setCtxMenu(null);}},
-                                {label:'📋  Uploads', action:()=>{toggleApp('SHEETS');setCtxMenu(null);}},
-                                wallpaper ? null : null,
-                                wallpaper ? {label:'✕  Clear Wallpaper', action:()=>{setWallpaper(null);setCtxMenu(null);}} : null,
-                            ].filter(Boolean).map((item,i) => item === null ? (
-                                <div key={i} style={{height:'1px',background:'rgba(255,255,255,0.08)',margin:'4px 0'}} />
-                            ) : (
-                                <div key={i} onClick={item.action} style={{padding:'7px 12px',borderRadius:'7px',cursor:'pointer',transition:'background 0.1s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>{item.label}</div>
-                            ))}
-                        </div>
-                    )}
-                    <audio ref={audioRef} autoPlay loop src="https://grocerybag.tv/media/SONG.mp3" muted={isMuted} />
-                    <div className="video-background"><iframe src="https://www.youtube.com/embed/8uy6OhNEg1w?autoplay=1&mute=1&loop=1&playlist=8uy6OhNEg1w&controls=0" frameBorder="0"></iframe></div>
-                    <div className="custom-wallpaper" style={{backgroundImage: wallpaper ? `url(${wallpaper})` : 'none', opacity: wallpaper ? 1 : 0, transition:'opacity 0.4s'}}></div>
-
-                    {/* Desktop Nav */}
-                    <div className="fixed top-4 w-full flex justify-center z-[5000] px-6">
-                        <div className="glass-panel h-11 w-full max-w-6xl rounded-full flex justify-between items-center px-6">
-                            <div className="flex items-center text-[10px] font-bold uppercase">
-                                <div onClick={() => setViewMode('choice')} className="illuminati-logo glow-triangle mr-3"></div> 
-                                Angels Of WINSTON — {username}
-                            </div>
-                            <div className="flex gap-4 items-center">
-                                <button className="text-[9px] border px-3 py-1 rounded-full border-current" onClick={() => setIsDark(!isDark)}>{isDark ? 'LIGHT' : 'DARK'}</button>
-                                <button className="text-[9px] border px-3 py-1 rounded-full border-current" onClick={() => toggleApp('PHOTOS')}>🖼️ WALLPAPER</button>
-                                {wallpaper && <button className="text-[9px] border px-3 py-1 rounded-full border-current opacity-50 hover:opacity-100" onClick={() => setWallpaper(null)}>✕ CLEAR</button>}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Restored Mini Player */}
-                    <motion.div drag dragMomentum={false} className="fixed bottom-24 right-8 z-[5000] glass-panel p-4 rounded-3xl flex items-center gap-4 border border-white/5 cursor-move">
-                        <div className="w-10 h-10 bg-black rounded-lg overflow-hidden pointer-events-none"><img src="https://grocerybag.tv/media/winston.JPG" className="w-full h-full object-cover opacity-60" /></div>
-                        <div className="pointer-events-none">
-                            <div className="text-[10px] font-bold">Winnies_JAMz.mp3</div>
-                            <div className="text-[8px] opacity-40 uppercase">Now Playing</div>
-                        </div>
-                        <button onClick={() => setIsMuted(!isMuted)} className="ml-2 hover:scale-110 transition-transform">
-                            {isMuted ? '🔇' : '🔊'}
-                        </button>
-                    </motion.div>
-
-                    <AnimatePresence>
-                        {openApps.XXXO && (
-                            <Window title="XXXO_CORE" theme={theme} onClose={() => toggleApp('XXXO')} zIndex={zIndices.XXXO} initialX={400} initialY={120}>
-                                <div className="xxxo-container h-full">
-                                    <div className="xxxo-flash text-sm">YOU WANT ME BE SOMEBODY WHO I'M REALLY NOT</div>
-                                    <iframe src="https://www.youtube.com/embed/sfbQ5mHWkOs" className="w-full aspect-video border-none shadow-[0_0_20px_rgba(255,0,0,0.5)]" />
-                                    <a href="mailto:matangi@atomicmail.io" className="mt-6 text-[10px] text-white border border-white/20 px-4 py-2 hover:bg-red-600">CONTACT</a>
-                                </div>
-                            </Window>
-                        )}
-                        {openApps.PHOTOS && (
-                            <Window title="IMAGE_ARCHIVE" theme={theme} onClose={() => toggleApp('PHOTOS')} zIndex={zIndices.PHOTOS} initialX={150} initialY={150}>
-                                <div className="p-4 space-y-3">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span style={{fontSize:'9px',letterSpacing:'0.1em',opacity:0.4,textTransform:'uppercase'}}>click image to set as wallpaper</span>
-                                        {wallpaper && <button onClick={() => setWallpaper(null)} style={{fontSize:'9px',padding:'3px 10px',border:'1px solid rgba(255,255,255,0.2)',borderRadius:'99px',background:'transparent',color:'inherit',cursor:'pointer',letterSpacing:'0.06em'}}>clear wallpaper</button>}
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">{photoLinks.map((url, i) => <img key={i} src={url} className="w-full rounded-xl cursor-pointer hover:scale-105 transition-transform" style={{outline: wallpaper===url ? '2px solid white' : 'none'}} onClick={() => setWallpaper(url)} />)}</div>
-                                </div>
-                            </Window>
-                        )}
-                        {openApps.VIDEOS && (
-                            <Window title="ARCHIVE_LIBRARY" theme={theme} onClose={() => toggleApp('VIDEOS')} zIndex={zIndices.VIDEOS} initialX={60} initialY={80}>
-                                <div className="p-4 space-y-4">{videoLinks.map((url, i) => <iframe key={i} src={url} className="w-full aspect-video rounded-xl" frameBorder="0" />)}</div>
-                            </Window>
-                        )}
-                        {openApps.CHAT && (
-                            <Window title="ENCRYPTED_CHAT" theme={theme} onClose={() => toggleApp('CHAT')} zIndex={zIndices.CHAT} initialX={500} initialY={100}>
-                                <div className="flex flex-col h-full">
-                                    <div className="flex-1 p-4 space-y-3 text-[11px]">{chatMessages.map((m, i) => <div key={i} className="border-l border-current/30 pl-3"><b>[{m.user}]</b><br/>{formatChatText(m.text)}</div>)}</div>
-                                    <div className="p-4 border-t border-current/10"><input className="w-full bg-transparent outline-none text-xs" placeholder="Type..." onKeyDown={(e) => { if(e.key==='Enter' && e.target.value){ setChatMessages([...chatMessages, {user: username, text: e.target.value}]); e.target.value=''; }}} /></div>
-                                </div>
-                            </Window>
-                        )}
-                        {openApps.WINSTON && (
-                            <Window title="WINSTON'S FAN CLUB" theme={theme} onClose={() => toggleApp('WINSTON')} zIndex={zIndices.WINSTON} initialX={300} initialY={180} isWinston>
-                                <div className="p-8 text-center flex flex-col items-center bg-white text-black h-full">
-                                    <h2 className="text-3xl font-black mb-6">WINSTON'S FAN CLUB</h2>
-                                    <img src="https://grocerybag.tv/media/winston.JPG" className="w-48 h-48 rounded-3xl mb-8 shadow-2xl object-cover" />
-                                    <a href="https://discord.gg/CRMjDFNBm7" target="_blank" className="winston-discord-btn">JOIN SERVER</a>
-                                </div>
-                            </Window>
-                        )}
-                    </AnimatePresence>
-
-                        {openApps.AGARIO && (
-                            <Window title="WINSTONWOBBLES.EXE" theme={theme} onClose={() => toggleApp('AGARIO')} zIndex={zIndices.AGARIO} initialX={80} initialY={60} width={640} height={400}>
-                                <div style={{width:'100%',height:'100%',background:'#0a0a0a',position:'relative'}}>
-                                    <AgarIO />
-                                </div>
-                            </Window>
-                        )}
-
-                        {openApps.SHEETS && (
-                            <Window title="ANGELS OF SICMR 💕" theme={theme} onClose={() => toggleApp('SHEETS')} zIndex={zIndices.SHEETS} initialX={60} initialY={40} width={1000} height={580}>
-                                <SpreadsheetApp theme={theme} />
-                            </Window>
-                        )}
-
-                        {openApps.PAINT && (
-                            <Window title="MS_PAINT.EXE 🎨" theme={theme} onClose={() => toggleApp('PAINT')} zIndex={zIndices.PAINT} initialX={120} initialY={60} width={820} height={580}>
-                                <PaintApp mobile={false} />
-                            </Window>
-                        )}
-
-                    <style>{`
-                        .dock-wrap { position:fixed; bottom:18px; width:100%; display:flex; justify-content:center; z-index:5000; pointer-events:none; overflow:visible; }
-                        .dock { pointer-events:all; display:flex; align-items:flex-end; gap:18px; padding:10px 24px; backdrop-filter:blur(25px); background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.1); border-radius:28px; box-shadow:0 8px 40px rgba(0,0,0,0.4); overflow:visible; }
-                        .dock-item { display:flex; flex-direction:column; align-items:center; position:relative; cursor:pointer; overflow:visible; }
-                        .dock-label { position:absolute; bottom:100%; margin-bottom:14px; background:rgba(30,30,30,0.92); color:#fff; font-size:10px; font-family:'Courier New',monospace; font-weight:700; letter-spacing:0.06em; padding:4px 10px; border-radius:8px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity 0.15s; border:1px solid rgba(255,255,255,0.1); z-index:9999; }
-                        .dock-item:hover .dock-label { opacity:1; }
-                        .dock-icon { font-size:32px; display:block; transform-origin:bottom center; transition:transform 0.15s cubic-bezier(.34,1.56,.64,1); will-change:transform; line-height:1; padding:2px 4px; }
-                        .dock-item:hover .dock-icon { transform:scale(1.65) translateY(-8px); }
-                        .dock-item:hover + .dock-item .dock-icon,
-                        .dock-item:has(+ .dock-item:hover) .dock-icon { transform:scale(1.3) translateY(-4px); }
-                    `}</style>
-                </div>
-                <div className="dock-wrap">
-                    <div className="dock">
-                        {[
-                            {icon:'📽️',label:'Videos',app:'VIDEOS'},
-                            {icon:'🖼️',label:'Wallpaper',app:'PHOTOS'},
-                            {icon:'💬',label:'Chat',app:'CHAT'},
-                            {icon:'🪩',label:'XXXO',app:'XXXO'},
-                            {icon:'🐶',label:'Winston',app:'WINSTON'},
-                            {icon:'👾',label:'Wobbles',app:'AGARIO'},
-                            {icon:'📋',label:'Uploads',app:'SHEETS'},
-                            {icon:'🎨',label:'Paint',app:'PAINT'},
-                        ].map(({icon,label,app}) => (
-                            <div key={app} className="dock-item" onClick={() => toggleApp(app)}>
-                                <span className="dock-label">{label}</span>
-                                <span className="dock-icon">{icon}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                </>
-            );
-        }
-
-        function PaintApp({ mobile }) {
-            const canvasRef = useRef(null);
-            const overlayRef = useRef(null);
-            const [tool, setTool] = useState('pencil');
-            const [color, setColor] = useState('#000000');
-            const [bgColor, setBgColor] = useState('#ffffff');
-            const [size, setSize] = useState(3);
-            const [isDrawing, setIsDrawing] = useState(false);
-            const [startPos, setStartPos] = useState({x:0,y:0});
-            const [fillTol, setFillTol] = useState(30);
-            const [textInput, setTextInput] = useState('');
-            const [textPos, setTextPos] = useState(null);
-            const [selectRect, setSelectRect] = useState(null);
-            const [history, setHistory] = useState([]);
-            const [histIdx, setHistIdx] = useState(-1);
-
-            const PALETTE = [
-                '#000000','#808080','#800000','#808000','#008000','#008080','#000080','#800080',
-                '#ffffff','#c0c0c0','#ff0000','#ffff00','#00ff00','#00ffff','#0000ff','#ff00ff',
-                '#ff8040','#804000','#80ff00','#004040','#0080ff','#8000ff','#ff0080','#ff8080',
-                '#ffcc99','#804040','#ccff99','#99ccff','#cc99ff','#ff99cc','#ffff99','#99ffcc',
-            ];
-
-            const TOOLS = [
-                {id:'select',  icon:'⬚', label:'Select'},
-                {id:'pencil',  icon:'✏️', label:'Pencil'},
-                {id:'brush',   icon:'🖌️', label:'Brush'},
-                {id:'eraser',  icon:'⬜', label:'Eraser'},
-                {id:'fill',    icon:'🪣', label:'Fill'},
-                {id:'text',    icon:'A', label:'Text'},
-                {id:'eyedrop', icon:'💉', label:'Eyedropper'},
-                {id:'spray',   icon:'💨', label:'Spray'},
-                {id:'line',    icon:'╱', label:'Line'},
-                {id:'rect',    icon:'▭', label:'Rectangle'},
-                {id:'ellipse', icon:'⬭', label:'Ellipse'},
-                {id:'rrect',   icon:'▢', label:'Rounded Rect'},
-            ];
-
-            useEffect(() => {
-                const canvas = canvasRef.current;
-                if (!canvas) return;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                pushHistory();
-            }, []);
-
-            const pushHistory = () => {
-                const canvas = canvasRef.current;
-                if (!canvas) return;
-                const data = canvas.toDataURL();
-                setHistory(prev => {
-                    const next = [...prev.slice(0, histIdx + 1), data];
-                    setHistIdx(next.length - 1);
-                    return next;
-                });
-            };
-
-            const undo = () => {
-                if (histIdx <= 0) return;
-                const newIdx = histIdx - 1;
-                setHistIdx(newIdx);
-                const img = new Image();
-                img.src = history[newIdx];
-                img.onload = () => {
-                    const canvas = canvasRef.current;
-                    const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0,0,canvas.width,canvas.height);
-                    ctx.drawImage(img, 0, 0);
-                };
-            };
-
-            const redo = () => {
-                if (histIdx >= history.length - 1) return;
-                const newIdx = histIdx + 1;
-                setHistIdx(newIdx);
-                const img = new Image();
-                img.src = history[newIdx];
-                img.onload = () => {
-                    const canvas = canvasRef.current;
-                    const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0,0,canvas.width,canvas.height);
-                    ctx.drawImage(img, 0, 0);
-                };
-            };
-
-            const getPos = (e) => {
-                const canvas = canvasRef.current;
-                const rect = canvas.getBoundingClientRect();
-                const scaleX = canvas.width / rect.width;
-                const scaleY = canvas.height / rect.height;
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
-            };
-
-            const floodFill = (ctx, x, y, fillColor) => {
-                const canvas = canvasRef.current;
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = imageData.data;
-                const w = canvas.width;
-                const h = canvas.height;
-                const idx = (Math.round(y) * w + Math.round(x)) * 4;
-                const targetR = data[idx], targetG = data[idx+1], targetB = data[idx+2], targetA = data[idx+3];
-
-                const hexToRgb = hex => {
-                    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-                    return [r,g,b,255];
-                };
-                const [fr,fg,fb,fa] = hexToRgb(fillColor);
-                if (targetR===fr && targetG===fg && targetB===fb) return;
-
-                const match = (i) => Math.abs(data[i]-targetR) + Math.abs(data[i+1]-targetG) + Math.abs(data[i+2]-targetB) + Math.abs(data[i+3]-targetA) < fillTol * 4;
-                const stack = [[Math.round(x), Math.round(y)]];
-                const visited = new Uint8Array(w*h);
-                while (stack.length) {
-                    const [cx,cy] = stack.pop();
-                    if (cx<0||cx>=w||cy<0||cy>=h) continue;
-                    const i = (cy*w+cx)*4;
-                    if (visited[cy*w+cx]) continue;
-                    if (!match(i)) continue;
-                    visited[cy*w+cx] = 1;
-                    data[i]=fr; data[i+1]=fg; data[i+2]=fb; data[i+3]=fa;
-                    stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
-                }
-                ctx.putImageData(imageData, 0, 0);
-            };
-
-            const onPointerDown = (e) => {
-                e.preventDefault();
-                const pos = getPos(e);
-                const canvas = canvasRef.current;
-                const ctx = canvas.getContext('2d');
-
-                if (tool === 'text') {
-                    setTextPos(pos);
-                    return;
-                }
-                if (tool === 'eyedrop') {
-                    const pixel = ctx.getImageData(Math.round(pos.x), Math.round(pos.y), 1, 1).data;
-                    const hex = '#' + [pixel[0],pixel[1],pixel[2]].map(v=>v.toString(16).padStart(2,'0')).join('');
-                    setColor(hex);
-                    return;
-                }
-                if (tool === 'fill') {
-                    floodFill(ctx, pos.x, pos.y, color);
-                    pushHistory();
-                    return;
-                }
-
-                setIsDrawing(true);
-                setStartPos(pos);
-
-                if (tool === 'pencil' || tool === 'brush' || tool === 'eraser' || tool === 'spray') {
-                    ctx.beginPath();
-                    ctx.moveTo(pos.x, pos.y);
-                }
-                if (tool === 'select') {
-                    setSelectRect({x: pos.x, y: pos.y, w: 0, h: 0});
-                }
-            };
-
-            const onPointerMove = (e) => {
-                if (!isDrawing) return;
-                e.preventDefault();
-                const pos = getPos(e);
-                const canvas = canvasRef.current;
-                const ctx = canvas.getContext('2d');
-                const oc = overlayRef.current;
-                const octx = oc ? oc.getContext('2d') : null;
-
-                if (tool === 'pencil') {
-                    ctx.strokeStyle = color;
-                    ctx.lineWidth = size;
-                    ctx.lineCap = 'round';
-                    ctx.lineJoin = 'round';
-                    ctx.lineTo(pos.x, pos.y);
-                    ctx.stroke();
-                } else if (tool === 'brush') {
-                    ctx.strokeStyle = color;
-                    ctx.lineWidth = size * 3;
-                    ctx.lineCap = 'round';
-                    ctx.lineJoin = 'round';
-                    ctx.globalAlpha = 0.7;
-                    ctx.lineTo(pos.x, pos.y);
-                    ctx.stroke();
-                    ctx.globalAlpha = 1;
-                } else if (tool === 'eraser') {
-                    ctx.strokeStyle = '#ffffff';
-                    ctx.lineWidth = size * 5;
-                    ctx.lineCap = 'square';
-                    ctx.lineTo(pos.x, pos.y);
-                    ctx.stroke();
-                } else if (tool === 'spray') {
-                    ctx.fillStyle = color;
-                    for (let i = 0; i < 20; i++) {
-                        const ox = (Math.random()-0.5) * size * 8;
-                        const oy = (Math.random()-0.5) * size * 8;
-                        ctx.fillRect(pos.x+ox, pos.y+oy, 1.5, 1.5);
-                    }
-                } else if (tool === 'select') {
-                    setSelectRect({x: startPos.x, y: startPos.y, w: pos.x - startPos.x, h: pos.y - startPos.y});
-                } else if (octx && ['line','rect','ellipse','rrect'].includes(tool)) {
-                    octx.clearRect(0, 0, oc.width, oc.height);
-                    octx.strokeStyle = color;
-                    octx.fillStyle = bgColor;
-                    octx.lineWidth = size;
-                    const x = Math.min(startPos.x, pos.x);
-                    const y = Math.min(startPos.y, pos.y);
-                    const w = Math.abs(pos.x - startPos.x);
-                    const h = Math.abs(pos.y - startPos.y);
-                    if (tool === 'line') {
-                        octx.beginPath(); octx.moveTo(startPos.x, startPos.y); octx.lineTo(pos.x, pos.y); octx.stroke();
-                    } else if (tool === 'rect') {
-                        octx.fillRect(x,y,w,h); octx.strokeRect(x,y,w,h);
-                    } else if (tool === 'ellipse') {
-                        octx.beginPath(); octx.ellipse(x+w/2, y+h/2, w/2, h/2, 0, 0, Math.PI*2);
-                        octx.fill(); octx.stroke();
-                    } else if (tool === 'rrect') {
-                        const r = Math.min(12, w/4, h/4);
-                        octx.beginPath(); octx.roundRect(x,y,w,h,r); octx.fill(); octx.stroke();
-                    }
-                }
-            };
-
-            const onPointerUp = (e) => {
-                if (!isDrawing) return;
-                const pos = getPos(e);
-                const canvas = canvasRef.current;
-                const ctx = canvas.getContext('2d');
-                const oc = overlayRef.current;
-                const octx = oc ? oc.getContext('2d') : null;
-
-                if (['line','rect','ellipse','rrect'].includes(tool) && octx) {
-                    octx.clearRect(0, 0, oc.width, oc.height);
-                    ctx.strokeStyle = color;
-                    ctx.fillStyle = bgColor;
-                    ctx.lineWidth = size;
-                    const x = Math.min(startPos.x, pos.x);
-                    const y = Math.min(startPos.y, pos.y);
-                    const w = Math.abs(pos.x - startPos.x);
-                    const h = Math.abs(pos.y - startPos.y);
-                    if (tool === 'line') {
-                        ctx.beginPath(); ctx.moveTo(startPos.x, startPos.y); ctx.lineTo(pos.x, pos.y); ctx.stroke();
-                    } else if (tool === 'rect') {
-                        ctx.fillRect(x,y,w,h); ctx.strokeRect(x,y,w,h);
-                    } else if (tool === 'ellipse') {
-                        ctx.beginPath(); ctx.ellipse(x+w/2, y+h/2, w/2, h/2, 0, 0, Math.PI*2);
-                        ctx.fill(); ctx.stroke();
-                    } else if (tool === 'rrect') {
-                        const r = Math.min(12, w/4, h/4);
-                        ctx.beginPath(); ctx.roundRect(x,y,w,h,r); ctx.fill(); ctx.stroke();
-                    }
-                }
-
-                ctx.beginPath();
-                ctx.globalAlpha = 1;
-                setIsDrawing(false);
-                pushHistory();
-            };
-
-            const commitText = () => {
-                if (!textInput || !textPos) return;
-                const canvas = canvasRef.current;
-                const ctx = canvas.getContext('2d');
-                ctx.font = `${size * 6 + 10}px 'Courier New', monospace`;
-                ctx.fillStyle = color;
-                ctx.fillText(textInput, textPos.x, textPos.y);
-                setTextInput('');
-                setTextPos(null);
-                pushHistory();
-            };
-
-            const clearCanvas = () => {
-                const canvas = canvasRef.current;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                pushHistory();
-            };
-
-            const exportPNG = () => {
-                const canvas = canvasRef.current;
-                const a = document.createElement('a');
-                a.href = canvas.toDataURL('image/png');
-                a.download = 'painting.png';
-                a.click();
-            };
-
-            const exportJPG = () => {
-                const canvas = canvasRef.current;
-                const a = document.createElement('a');
-                a.href = canvas.toDataURL('image/jpeg', 0.95);
-                a.download = 'painting.jpg';
-                a.click();
-            };
-
-            const toolbarStyle = {
-                display:'flex', flexDirection:'column', gap:'2px', padding:'4px',
-                background:'#c0c0c0', borderRight:'2px solid #808080', width: mobile ? '40px' : '50px',
-                flexShrink: 0, alignItems:'center', overflowY:'auto'
-            };
-            const btnBase = {
-                width: mobile ? '32px' : '40px', height: mobile ? '32px' : '40px',
-                display:'flex', alignItems:'center', justifyContent:'center',
-                border:'1px solid #808080', cursor:'pointer', fontSize: mobile ? '13px' : '16px',
-                fontFamily:'Courier New', fontWeight:'bold', userSelect:'none',
-                transition:'all 0.05s',
-            };
-
-            return (
-                <div style={{display:'flex', flexDirection:'column', height:'100%', background:'#c0c0c0', fontFamily:"'Courier New',monospace"}}>
-                    {/* Menu bar */}
-                    <div style={{display:'flex', gap:'2px', padding:'2px 6px', background:'#c0c0c0', borderBottom:'1px solid #808080', fontSize:'11px', alignItems:'center', flexWrap:'wrap'}}>
-                        <span style={{cursor:'pointer', padding:'2px 8px', background:'rgba(0,0,0,0.08)', border:'1px solid #999', borderRadius:'2px'}} onClick={clearCanvas}>New</span>
-                        <span style={{cursor:'pointer', padding:'2px 8px', background:'rgba(0,0,0,0.08)', border:'1px solid #999', borderRadius:'2px'}} onClick={exportPNG}>Save PNG</span>
-                        <span style={{cursor:'pointer', padding:'2px 8px', background:'rgba(0,0,0,0.08)', border:'1px solid #999', borderRadius:'2px'}} onClick={exportJPG}>Save JPG</span>
-                        <span style={{padding:'2px 4px', opacity:0.5}}>|</span>
-                        <span style={{cursor:'pointer', padding:'2px 8px', background:'rgba(0,0,0,0.08)', border:'1px solid #999', borderRadius:'2px'}} onClick={undo}>Undo</span>
-                        <span style={{cursor:'pointer', padding:'2px 8px', background:'rgba(0,0,0,0.08)', border:'1px solid #999', borderRadius:'2px'}} onClick={redo}>Redo</span>
-                        <span style={{padding:'2px 4px', opacity:0.5}}>|</span>
-                        <span style={{fontSize:'10px', opacity:0.6}}>Size:</span>
-                        <input type="range" min="1" max="20" value={size} onChange={e=>setSize(Number(e.target.value))} style={{width:'60px', cursor:'pointer'}} />
-                        <span style={{fontSize:'10px', minWidth:'16px'}}>{size}</span>
-                        <span style={{padding:'2px 4px', opacity:0.5}}>|</span>
-                        <span style={{fontSize:'10px', opacity:0.6}}>FG:</span>
-                        <input type="color" value={color} onChange={e=>setColor(e.target.value)} style={{width:'24px',height:'20px',border:'1px solid #808080',cursor:'pointer',padding:'0'}} />
-                        <span style={{fontSize:'10px', opacity:0.6}}>BG:</span>
-                        <input type="color" value={bgColor} onChange={e=>setBgColor(e.target.value)} style={{width:'24px',height:'20px',border:'1px solid #808080',cursor:'pointer',padding:'0'}} />
-                    </div>
-
-                    {/* Main area */}
-                    <div style={{display:'flex', flex:1, overflow:'hidden'}}>
-                        {/* Tool sidebar */}
-                        <div style={toolbarStyle}>
-                            {TOOLS.map(t => (
-                                <div key={t.id} title={t.label} style={{...btnBase, background: tool===t.id ? '#a0a0a0' : '#d4d0c8', boxShadow: tool===t.id ? 'inset 1px 1px 2px rgba(0,0,0,0.4)' : '1px 1px 0 #fff, inset -1px -1px 0 #808080'}} onClick={()=>setTool(t.id)}>
-                                    {t.icon}
-                                </div>
-                            ))}
-                            {/* Color preview boxes */}
-                            <div style={{position:'relative', width:mobile?'32px':'40px', height:mobile?'28px':'36px', marginTop:'6px'}}>
-                                <div style={{position:'absolute', right:0, bottom:0, width:'65%', height:'65%', background:bgColor, border:'1px solid #000'}} />
-                                <div style={{position:'absolute', left:0, top:0, width:'65%', height:'65%', background:color, border:'1px solid #000'}} />
-                            </div>
-                        </div>
-
-                        {/* Canvas area */}
-                        <div style={{flex:1, overflow:'auto', background:'#808080', position:'relative', display:'flex', alignItems:'flex-start', justifyContent:'flex-start'}}>
-                            <div style={{position:'relative', margin:'8px'}}>
-                                <canvas ref={canvasRef} width={mobile ? 600 : 1200} height={mobile ? 400 : 800}
-                                    style={{display:'block', background:'#fff', cursor: tool==='eyedrop'?'crosshair':tool==='fill'?'cell':'crosshair', maxWidth:'100%', touchAction:'none', border:'2px inset #808080'}}
-                                    onMouseDown={onPointerDown} onMouseMove={onPointerMove} onMouseUp={onPointerUp} onMouseLeave={()=>{if(isDrawing){setIsDrawing(false);pushHistory();}}}
-                                    onTouchStart={onPointerDown} onTouchMove={onPointerMove} onTouchEnd={onPointerUp}
-                                />
-                                <canvas ref={overlayRef} width={mobile ? 600 : 1200} height={mobile ? 400 : 800}
-                                    style={{position:'absolute', top:0, left:0, pointerEvents:'none', maxWidth:'100%'}}
-                                />
-                                {selectRect && (
-                                    <div style={{position:'absolute', left: Math.min(selectRect.x, selectRect.x+selectRect.w)//(canvas scale factor)
-                                        , top: Math.min(selectRect.y, selectRect.y+selectRect.h), width: Math.abs(selectRect.w), height: Math.abs(selectRect.h),
-                                        border:'1px dashed #000', pointerEvents:'none', boxSizing:'border-box'}} />
-                                )}
-                                {textPos && (
-                                    <div style={{position:'absolute', left: textPos.x, top: textPos.y - 20, zIndex:100}}>
-                                        <input autoFocus value={textInput} onChange={e=>setTextInput(e.target.value)}
-                                            onKeyDown={e=>{if(e.key==='Enter') commitText(); if(e.key==='Escape'){setTextPos(null);setTextInput('');}}}
-                                            style={{background:'transparent', border:'1px dashed #000', outline:'none', fontFamily:'Courier New', fontSize:`${size*6+10}px`, color, minWidth:'40px', width:'auto'}} />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Color palette */}
-                    <div style={{display:'flex', flexWrap:'wrap', padding:'4px 6px', background:'#c0c0c0', borderTop:'2px solid #808080', gap:'2px'}}>
-                        {PALETTE.map(c => (
-                            <div key={c} title={c}
-                                style={{width:mobile?'16px':'20px', height:mobile?'16px':'20px', background:c, border: color===c ? '2px solid #000' : '1px solid #808080', cursor:'pointer', boxSizing:'border-box', flexShrink:0}}
-                                onClick={()=>setColor(c)}
-                                onContextMenu={e=>{e.preventDefault();setBgColor(c);}}
-                            />
-                        ))}
-                        <span style={{fontSize:'9px', opacity:0.5, alignSelf:'center', marginLeft:'8px'}}>left click = fg · right click = bg</span>
-                    </div>
-                </div>
-            );
-        }
-
-        function SpreadsheetApp({ theme }) {
-            const SHEET_DATA = {"headers": ["Upload #", "Video name", "Youtube upload date", "Vimeo upload date", "Video length", "Youtube link", "Youtube ID", "Vimeo ID", "Saved quality", "Max quality"], "rows": [["99", "Lick It Like A Kitten (Movie)", "TBA", "", "TBA", "TBA", "TBA", "", "", "TBA"], ["98", "Mars Argo - Lick It Like A Kitten", "2024-06-24", "", "02:48:00", "https://www.youtube.com/watch?v=w7U28aGNQSE", "w7U28aGNQSE", "", "2160p", "2160p"], ["97", "Mars Argo - I Can Only Be Me (Official Music Video)", "2023-04-20", "", "03:32:00", "https://www.youtube.com/watch?v=16YuH7e0UfA", "16YuH7e0UfA", "", "1080p", "1080p"], ["96", "Mars Argo - I Can Only Be Me (Official Lyric Video) [fixed]", "2023-03-22", "", "03:10:00", "https://www.youtube.com/watch?v=KTd18djsR9s", "KTd18djsR9s", "", "2160p", "2160p"], ["95", "Mars Argo - I Can Only Be Me (Official Lyric Video)", "2023-03-20", "", "03:10:00", "https://www.youtube.com/watch?v=6gapL4Ve564", "6gapL4Ve564", "", "2160p", "2160p"], ["94", "Mars Argo - I Can Only Be Me", "2023-03-15", "", "03:05:00", "https://www.youtube.com/watch?v=GDGWUaKzft0", "GDGWUaKzft0", "", "2160p", "2160p"], ["93", "Mars Argo - Angry", "2022-04-25", "", "03:55:00", "https://www.youtube.com/watch?v=2K_c9RGrlXI", "2K_c9RGrlXI", "", "2160p", "2160p"], ["92", "Mars Argo - Using You (Official)", "2015-01-13", "", "03:43:00", "https://www.youtube.com/watch?v=tp1ZluX4aYs", "tp1ZluX4aYs", "", "550p", "550p"], ["91", "Mars Argo - Using You (with the happy heart image)", "2015-01-03", "", "03:28:00", "https://www.youtube.com/watch?v=_qr-PSvRmQ4", "_qr-PSvRmQ4", "", "No", "1080p"], ["90", "Day of Retribution", "2014-05-30", "", "04:00:00", "https://www.youtube.com/watch?v=lUTQ6A2SzX4", "lUTQ6A2SzX4", "", "720p", "1080p"], ["89", "Delete Your Facebook", "2014-02-11", "", "05:02:00", "https://www.youtube.com/watch?v=KbS-dKD4c9I", "KbS-dKD4c9I", "", "1080p", "1080p"], ["88", "You Can Do This", "2013-12-13", "", "03:10:00", "https://www.youtube.com/watch?v=wwX41xVMZv8", "wwX41xVMZv8", "", "1080p", "1080p"], ["87", "Internet Candy Chips", "2013-08-17", "", "03:43:00", "https://www.youtube.com/watch?v=eii5ffL31oY", "eii5ffL31oY", "", "1080p", "1080p"], ["86", "Mars Argo - Stuck on You (Live at Bedrock Studio)", "2013-06-23", "", "04:40:00", "https://www.youtube.com/watch?v=s99MN1o7ahs", "s99MN1o7ahs", "", "1080p", "1080p"], ["85", "Mars Argo - You Gave Away (Live at Bedrock Studios)", "2013-06-22", "", "03:50:00", "https://www.youtube.com/watch?v=flTLaVVlnSw", "flTLaVVlnSw", "", "720p", "1080p"], ["84", "Digital Imperialists", "2013-06-21", "", "04:35:00", "https://www.youtube.com/watch?v=MSjkmHR5J00", "MSjkmHR5J00", "", "No", "1080p"], ["83", "Mars Argo - Open Up the Door In Your Head (Live at Bedrock Studios)", "2013-06-20", "", "03:28:00", "https://www.youtube.com/watch?v=tiZXNGFDFE0", "tiZXNGFDFE0", "", "720p", "1080p"], ["82", "Mars Argo - Limousine Machine (Live at Bedrock Studios)", "2013-06-19", "", "03:50:00", "https://www.youtube.com/watch?v=br22fM5tp1M", "br22fM5tp1M", "", "720p", "1080p"], ["81", "Mars Argo - Beauty is Empty (Live at Bedrock Studios)", "2013-06-19", "", "03:23:00", "https://www.youtube.com/watch?v=tEIRAEM7SNE", "tEIRAEM7SNE", "", "1080p", "1080p"], ["80", "Mars Argo - Don’t Call Me (Live at Bedrock Studios)", "2013-06-18", "", "02:32:00", "https://www.youtube.com/watch?v=208VXVIVfzU", "208VXVIVfzU", "", "1080p", "1080p"], ["79", "Amanda Bynes", "2013-06-03", "", "02:50:00", "https://www.youtube.com/watch?v=4_nFvzLwpVc", "4_nFvzLwpVc", "", "1080p", "1080p"], ["78", "Chef Boyardee Commercial", "2013-05-15", "", "01:09:00", "https://www.youtube.com/watch?v=o3LB-Ru7nXg", "o3LB-Ru7nXg", "", "No", "1080p"], ["77", "Twitter and Facebook", "2013-05-04", "", "03:59:00", "https://www.youtube.com/watch?v=Jel2hiy1uE8", "Jel2hiy1uE8", "", "1080p", "1080p"], ["76", "Mars Argo - Runaway Runaway (Official)", "2013-02-14", "", "03:54:00", "https://www.youtube.com/watch?v=jbgWXRxlSuQ", "jbgWXRxlSuQ", "", "1080p", "1080p"], ["75", "Guns Should Be Illegal", "2013-02-11", "", "03:02:00", "https://www.youtube.com/watch?v=x6Hu09OJZ-k", "x6Hu09OJZ-k", "", "1080p", "1080p"], ["74", "Road Trip", "2013-01-26", "", "02:38:00", "https://www.youtube.com/watch?v=3hKrFg9CTDk", "3hKrFg9CTDk", "", "1080p", "1080p"], ["73", "Mars Argo - Pls Don’t Forget Me", "2012-12-14", "", "03:18:00", "https://www.youtube.com/watch?v=3y26Xaoqzn0", "3y26Xaoqzn0", "", "1080p", "1080p"], ["72", "Titanic Sinclair (feat. Mars Argo) - Limousine Machine", "2012-12-08", "", "03:24:00", "https://www.youtube.com/watch?v=eQr2-KQesdE", "eQr2-KQesdE", "", "1080p", "1080p"], ["71", "Ouija", "2012-12-02", "", "05:08:00", "https://www.youtube.com/watch?v=8_IhP24Cbjw", "8_IhP24Cbjw", "", "No", "1080p"], ["70", "The Future is So Old", "2012-11-26", "", "06:06:00", "https://www.youtube.com/watch?v=FsBFpoDCcm0", "FsBFpoDCcm0", "", "1080p", "1080p"], ["69", "Mars Argo - Runaway Runaway (with the sad heart image)", "2012-11-18", "", "04:09:00", "https://www.youtube.com/watch?v=2v1DSvq-PmQ", "2v1DSvq-PmQ", "", "No", "1080p"], ["68", "Mars Argo - Stuck on You (with the sad heart image)", "2012-11-18", "", "04:16:00", "https://www.youtube.com/watch?v=GwYKbRxErkQ", "GwYKbRxErkQ", "", "1080p", "1080p"], ["67", "LA or BUST", "2012-10-08", "", "05:56:00", "https://www.youtube.com/watch?v=aUoqmlKLWbc", "aUoqmlKLWbc", "", "480p", "1080p"], ["66", "Winston In A Hot Dog Suit", "2012-09-28", "", "03:18:00", "https://www.youtube.com/watch?v=8-T171-AU0U", "8-T171-AU0U", "", "1080p", "1080p"], ["65", "Mars Argo - Beauty is Empty", "2012-08-28", "", "03:31:00", "https://www.youtube.com/watch?v=xR62YlFYqrA", "xR62YlFYqrA", "", "1080p", "1080p"], ["64", "Ask Me a Fcking Question", "2012-06-12", "", "04:50:00", "https://www.youtube.com/watch?v=it7GJ6gWJG0", "it7GJ6gWJG0", "", "1080p", "1080p"], ["63", "Facebook", "2012-05-15", "", "02:17:00", "https://www.youtube.com/watch?v=jeCLbC0PCNI", "jeCLbC0PCNI", "", "No", "1080p"], ["62", "Our First Date", "2012-05-03", "", "02:12:00", "https://www.youtube.com/watch?v=e2dUWHbYMaI", "e2dUWHbYMaI", "", "1080p", "1080p"], ["61", "IMG_3545.MOV / Mars Argo Watching concert", "2012-04-15", "", "00:16:00", "https://www.youtube.com/watch?v=Lo_GxNrZ-8s", "Lo_GxNrZ-8s", "", "320p", "320p"], ["60", "Mars Argo Live 2/24/2012 in Chicago", "2012-02-26", "", "04:35:00", "https://www.youtube.com/watch?v=7m4MlP0Ms5w", "7m4MlP0Ms5w", "", "1080p", "1080p"], ["59", "Mars Argo - Whats Your Name (Part 3)", "2012-02-15", "", "05:52:00", "https://www.youtube.com/watch?v=PqQi5LxV278", "PqQi5LxV278", "", "No", "1080p"], ["58", "Mars Argo - Everything Turns to Gold", "2012-02-09", "", "04:11:00", "https://www.youtube.com/watch?v=mtAls9HPkaU", "mtAls9HPkaU", "", "1080p", "1080p"], ["57", "What I Want For Christmas", "2011-12-22", "", "03:23:00", "https://www.youtube.com/watch?v=XdRMHA9z0zk", "XdRMHA9z0zk", "", "No", "1080p"], ["56", "What Do You Love?", "2011-11-11", "", "03:28:00", "https://www.youtube.com/watch?v=hYqTIpPe20s", "hYqTIpPe20s", "", "720p", "1080p"], ["55", "Rejected Mountain Dew Commercial", "2011-09-21", "", "02:01:00", "https://www.youtube.com/watch?v=148ZUGi-sgU", "148ZUGi-sgU", "", "480p", "1080p"], ["54", "Beyonce is Pregnant", "2011-08-29", "", "02:03:00", "https://www.youtube.com/watch?v=1mqA9SJcgnY", "1mqA9SJcgnY", "", "1080p", "1080p"], ["53", "I Shaved My Pussy", "2011-08-17", "", "02:39:00", "https://www.youtube.com/watch?v=MvYFbFv6Wdg", "MvYFbFv6Wdg", "", "1080p", "1080p"], ["52", "Lost at home", "2011-07-08", "", "01:30:00", "https://www.youtube.com/watch?v=6dYyN_SD8ZM", "6dYyN_SD8ZM", "", "1080p", "1080p"], ["51", "Vince Dynamic Makes Magic", "2011-06-30", "", "01:00:00", "https://www.youtube.com/watch?v=OHXt9vUEtlI", "OHXt9vUEtlI", "", "No", "1080p"], ["50", "Mars Argo - Whats Your Name (Part 2)", "2011-06-26", "", "05:01:00", "https://www.youtube.com/watch?v=42G25Gtoh0o", "42G25Gtoh0o", "", "360p", "1080p"], ["49", "Mars Argo - Nothing Without You", "2011-06-19", "", "04:30:00", "https://www.youtube.com/watch?v=SfjoCnX74oA", "SfjoCnX74oA", "", "1080p", "1080p"], ["48", "Mars Argo - Love in Black and White (Official)", "2011-06-06", "", "03:43:00", "https://www.youtube.com/watch?v=Sw0YMlbS7fM", "Sw0YMlbS7fM", "", "1080p", "1080p"], ["47", "Mars Argo - Using You (Acoustic)", "2011-05-26", "", "04:32:00", "https://www.youtube.com/watch?v=xfmz-ytgNXg", "xfmz-ytgNXg", "", "1080p", "1080p"], ["46", "Mars Argo - Whats Your Name (Part 1)", "2011-04-22", "", "06:44:00", "https://www.youtube.com/watch?v=1luqjPwdhUQ", "1luqjPwdhUQ", "", "No", "1080p"], ["45", "Soon.", "2011-04-08", "", "01:14:00", "https://www.youtube.com/watch?v=iL6XnInUO84", "iL6XnInUO84", "", "No", "1080p"], ["44", "Mars Argo - Using You (Mars Argo image)", "2011-03-21", "", "03:47:00", "https://www.youtube.com/watch?v=JGdqDkCUg2Q", "JGdqDkCUg2Q", "", "720p", "1080p"], ["43", "Mars Argo - Formal Girl (Mars Argo image)", "2011-03-21", "", "03:58:00", "https://www.youtube.com/watch?v=byjt-i9PWK4", "byjt-i9PWK4", "", "720p", "1080p"], ["42", "Mars Argo - A-Okay (Mars Argo image)", "2011-03-21", "", "02:46:00", "https://www.youtube.com/watch?v=dKcr2awiUOE", "dKcr2awiUOE", "", "720p", "1080p"], ["41", "Mars Argo - Beauty is Empty (Mars Argo image)", "2011-03-21", "", "03:51:00", "https://www.youtube.com/watch?v=qSZ1puGvHWA", "qSZ1puGvHWA", "", "720p", "1080p"], ["40", "Tucker Woodley Interviews Mars Argo", "2011-03-08", "", "2:03", "https://www.youtube.com/watch?v=7-TnV1tjU7I", "7-TnV1tjU7I", "", "No", "1080p"], ["39", "Do You Ever Feel Empty?", "2011-01-29", "", "01:52:00", "https://www.youtube.com/watch?v=BiHiI2bbN-0", "BiHiI2bbN-0", "", "720p", "1080p"], ["38", "Art is Easy", "2011-01-20", "", "00:37:00", "https://www.youtube.com/watch?v=cTWFBASTz6Q", "cTWFBASTz6Q", "", "480p", "1080p"], ["37", "Mars Argo - Mrs. Stadler (Official)", "2010-11-11", "", "03:33:00", "https://www.youtube.com/watch?v=lsTaZ8K2k6g", "lsTaZ8K2k6g", "", "1080p", "1080p"], ["36", "Mars Argo - Spider in My Bathtub", "2010-09-24", "", "04:08:00", "https://www.youtube.com/watch?v=qdQl3qRbGIo", "qdQl3qRbGIo", "", "720p", "720p"], ["35", "It’s a Global Conspiracy!", "2010-09-06", "", "00:05:00", "https://www.youtube.com/watch?v=HCpWOqjMXTk", "HCpWOqjMXTk", "", "720p", "720p"], ["34", "How to Pronounce Washington", "2010-08-10", "", "01:18:00", "https://www.youtube.com/watch?v=8Aq_Ks7ndBM", "8Aq_Ks7ndBM", "", "720p", "720p"], ["33", "Mars Argo from the Future", "2010-07-14", "", "00:36:00", "https://www.youtube.com/watch?v=pzL2qIVKzFg", "pzL2qIVKzFg", "", "720p", "720p"], ["32", "Mars Argo - Technology is a Dead Bird (Acoustic)", "2010-06-08", "", "04:14:00", "https://www.youtube.com/watch?v=nkFBMnHkVDE", "nkFBMnHkVDE", "", "720p", "720p"], ["31", "Mars Argo - Electric Car (Live Acoustic)", "2010-06-05", "", "03:49:00", "https://www.youtube.com/watch?v=mhSIiYHJAms", "mhSIiYHJAms", "", "720p", "720p"], ["30", "Reality is a Dream / Mars Argo episode 1", "2010-05-10", "", "03:59:00", "https://www.youtube.com/watch?v=0_MAQE_t5J0", "0_MAQE_t5J0", "", "720p", "720p"], ["29", "Mars Argo", "2010-05-05", "", "00:31:00", "https://www.youtube.com/watch?v=4mr9lDb1Ddk", "4mr9lDb1Ddk", "", "No", "720p"], ["28", "LoveEveryOne", "2009-01-23", "", "02:13:00", "https://www.youtube.com/watch?v=intuZLehfgo", "intuZLehfgo", "", "720p", "720p"], ["27", "Suicide Birds", "2009-12-17", "", "03:20:00", "https://www.youtube.com/watch?v=HwqJg3OpUqs", "HwqJg3OpUqs", "", "720p", "720p"], ["26", "Our Songs in Your Videos", "2009-12-11", "", "00:36:00", "https://www.youtube.com/watch?v=9TjbQ_WOV6g", "9TjbQ_WOV6g", "", "360p", "720p"], ["25", "Over 9000 Years", "2009-12-04", "", "02:40:00", "https://www.youtube.com/watch?v=AAeCt9ZE3ZI", "AAeCt9ZE3ZI", "", "720p", "720p"], ["24", "Culturally Relevant", "2009-11-20", "", "01:30:00", "https://www.youtube.com/watch?v=Teuv-Os4qmw", "Teuv-Os4qmw", "", "720p", "720p"], ["23", "MARSARGO DOT BANDCAMP DOT COM", "2009-11-06", "", "00:58:00", "https://www.youtube.com/watch?v=Uop2EMS5lAE", "Uop2EMS5lAE", "", "720p", "720p"], ["22", "Playing in a Cemetery with Mars Argo", "2009-10-22", "", "00:39:00", "https://www.youtube.com/watch?v=0X5Ff3cij-Q", "0X5Ff3cij-Q", "", "720p", "720p"], ["21", "Machine Machine Machine", "2009-10-14", "", "02:16:00", "https://www.youtube.com/watch?v=o2ZikdQ4HRo", "o2ZikdQ4HRo", "", "720p", "720p"], ["20", "Life in the Year 2009", "2009-10-03", "", "01:08:00", "https://www.youtube.com/watch?v=MehekoPGh4Q", "MehekoPGh4Q", "", "720p", "720p"], ["19", "The Internet = Kaleidoscope + Lava x Mars Argo", "2009-09-23", "", "03:30:00", "https://www.youtube.com/watch?v=XdyaeZG2BOA", "XdyaeZG2BOA", "", "720p", "720p"], ["18", "Monsters Under My Bed", "2009-09-09", "", "01:06:00", "https://www.youtube.com/watch?v=AkLjw8ocspo", "AkLjw8ocspo", "", "720p", "720p"], ["17", "What inspires you?", "2009-09-03", "", "02:03:00", "https://www.youtube.com/watch?v=niupSyR3n5c", "niupSyR3n5c", "", "720p", "720p"], ["16", "Would you live forever?", "*-9-2009", "", "02:14:00", "https://www.youtube.com/watch?v=RnRba__Kr0Q", "RnRba__Kr0Q", "", "720p", "720p"], ["15", "Vince Dynamic “Young Jersey Friend”", "2009-08-14", "", "05:00:00", "https://www.youtube.com/watch?v=vKSESQKlgkI", "vKSESQKlgkI", "", "720p", "720p"], ["14", "Vlogvetica", "*-8-2009", "", "00:09:00", "https://www.youtube.com/watch?v=n5l8lgiOz1c", "n5l8lgiOz1c", "", "No", "720p"], ["13", "Technology is a Dead Bird Promo / The Singularity is Near", "2009-07-10", "2009-07-10", "01:22:00", "https://www.youtube.com/watch?v=p5zj3dHM3Ao", "p5zj3dHM3Ao", "5534594", "720p", "720p"], ["12", "Memories Fade", "*-6-2009", "*-6-2009", "", "https://www.youtube.com/watch?v=WOgAbtSqm28", "WOgAbtSqm28", "5416736", "No", "720p"], ["11", "A film. A record.", "*-6-2009", "*-6-2009", "01:19:00", "https://www.youtube.com/watch?v=ZN_fBwQpy8A", "ZN_fBwQpy8A", "5297389", "No", "720p"], ["10", "Ask me a question.", "*-5-2009", "*-5-2009", "00:06:00", "https://www.youtube.com/watch?v=rfBRNPCHOyk", "rfBRNPCHOyk", "4558239", "720p", "720p"], ["9", "A small conversation.", "*-5-2009", "*-5-2009", "04:50:00", "https://www.youtube.com/watch?v=QCfGPHRiavk", "QCfGPHRiavk", "4526378", "720p", "720p"], ["8", "Kites", "*-5-2009", "*-5-2009", "01:23:00", "https://www.youtube.com/watch?v=-qQEMX6j9iU", "-qQEMX6j9iU", "4525538", "720p", "720p"], ["7", "Sunday", "2009-03-22", "2009-03-22", "01:19:00", "https://www.youtube.com/watch?v=vzFThkvYAMw", "vzFThkvYAMw", "3812400", "720p", "720p"], ["6", "“Tired Today” Original Song", "2009-03-18", "2009-03-18", "01:34:00", "https://www.youtube.com/watch?v=QqgmPbB7p1c", "QqgmPbB7p1c", "3738133", "720p", "720p"], ["5", "Art School", "2009-03-13", "2009-03-13", "01:03:00", "https://www.youtube.com/watch?v=E3Y_2FwlEN8", "E3Y_2FwlEN8", "3618963", "720p", "720p"], ["4", "Paper Airplane / How Do You Fold a Paper Airplane?", "2009-03-12", "2009-03-12", "00:50:00", "https://www.youtube.com/watch?v=DoG__a0pdHc", "DoG__a0pdHc", "3592234", "720p", "720p"], ["3", "Our Neighborhood", "2009-02-16", "2009-02-16", "00:54:00", "https://www.youtube.com/watch?v=kqOFnB9ebrA", "kqOFnB9ebrA", "3269638", "720p", "720p"], ["2", "Lets Play Some Music / Moot", "2009-02-12", "2009-02-12", "01:28:00", "https://www.youtube.com/watch?v=FixhffgLB1Q", "FixhffgLB1Q", "3246322", "720p", "720p"], ["1", "Our first video / GROCERYBAG.TV VIDEO BLOG - #001", "2009-01-29", "2009-01-29", "00:51:00", "https://www.youtube.com/watch?v=n5ZEJrIdK-g", "n5ZEJrIdK-g", "3007108", "720p", "720p"]]};
-            const [search, setSearch] = React.useState('');
-            const [sortCol, setSortCol] = React.useState(null);
-            const [sortDir, setSortDir] = React.useState(1);
-
-            const headers = SHEET_DATA.headers;
-            const rows = SHEET_DATA.rows;
-
-            const filtered = rows.filter(r =>
-                search === '' || r.some(c => c.toLowerCase().includes(search.toLowerCase()))
-            );
-
-            const sorted = sortCol === null ? filtered : [...filtered].sort((a, b) => {
-                const av = a[sortCol] || '', bv = b[sortCol] || '';
-                return av.localeCompare(bv, undefined, {numeric: true}) * sortDir;
-            });
-
-            const handleSort = (i) => {
-                if (sortCol === i) setSortDir(d => d * -1);
-                else { setSortCol(i); setSortDir(1); }
-            };
-
-            const cellStyle = (val, colIdx) => {
-                const base = { padding: '4px 10px', whiteSpace: 'nowrap', fontSize: '11px', maxWidth: '260px', overflow: 'hidden', textOverflow: 'ellipsis', borderBottom: '1px solid rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.04)' };
-                // link col
-                if (colIdx === 5 && val.startsWith('http')) return {...base, color: '#74c0fc', cursor: 'pointer'};
-                if (val === 'TBA') return {...base, color: 'rgba(255,255,255,0.3)'};
-                if (val === 'No') return {...base, color: 'rgba(255,80,80,0.7)'};
-                if (val === 'Saved' || val.startsWith('Saved')) return {...base, color: '#6bcb77'};
-                return base;
-            };
-
-            return (
-                <div style={{display:'flex', flexDirection:'column', height:'100%', background:'#0d0d0d', fontFamily:"'Courier New', monospace", color:'rgba(255,255,255,0.85)'}}>
-                    <div style={{padding:'10px 14px', borderBottom:'1px solid rgba(255,255,255,0.08)', display:'flex', alignItems:'center', gap:'10px', background:'rgba(255,255,255,0.03)'}}>
-                        <div style={{fontSize:'10px', color:'rgba(255,255,255,0.35)', letterSpacing:'0.08em', textTransform:'uppercase'}}>ANGELS OF SICMR 💕 — Mars Argo YouTube Uploads</div>
-                        <input
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            placeholder="search..."
-                            style={{marginLeft:'auto', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'6px', padding:'4px 10px', color:'#fff', fontSize:'11px', outline:'none', fontFamily:"'Courier New', monospace", width:'180px'}}
-                        />
-                        <div style={{fontSize:'10px', color:'rgba(255,255,255,0.25)'}}>{sorted.length} rows</div>
-                    </div>
-                    <div style={{overflowX:'auto', overflowY:'auto', flex:1}}>
-                        <table style={{borderCollapse:'collapse', width:'100%', minWidth:'900px'}}>
-                            <thead>
-                                <tr style={{background:'rgba(255,255,255,0.05)', position:'sticky', top:0, zIndex:1}}>
-                                    {headers.map((h, i) => (
-                                        <th key={i} onClick={() => handleSort(i)} style={{padding:'6px 10px', fontSize:'10px', fontWeight:'600', textAlign:'left', letterSpacing:'0.06em', textTransform:'uppercase', color: sortCol===i ? '#fff' : 'rgba(255,255,255,0.5)', cursor:'pointer', whiteSpace:'nowrap', borderBottom:'1px solid rgba(255,255,255,0.1)', borderRight:'1px solid rgba(255,255,255,0.05)', userSelect:'none'}}>
-                                            {h.trim()} {sortCol===i ? (sortDir===1?'↑':'↓') : ''}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {sorted.map((row, ri) => (
-                                    <tr key={ri} style={{background: ri%2===0 ? 'transparent' : 'rgba(255,255,255,0.02)', transition:'background 0.1s'}}
-                                        onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,0.06)'}
-                                        onMouseLeave={e => e.currentTarget.style.background=ri%2===0?'transparent':'rgba(255,255,255,0.02)'}>
-                                        {row.map((cell, ci) => (
-                                            <td key={ci} style={{...cellStyle(cell, ci)}}
-                                                onClick={ci===5 && cell.startsWith('http') ? ()=>window.open(cell,'_blank') : undefined}
-                                                title={cell}>
-                                                {cell || '—'}
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            );
-        }
-
-        function AgarIO() {
-            const canvasRef = useRef(null);
-            const stateRef = useRef({});
-            const rafRef = useRef(null);
-
-            useEffect(() => {
-                const canvas = canvasRef.current;
-                const ctx = canvas.getContext('2d');
-                const W = 2400, H = 2400;
-                const COLORS = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff922b','#cc5de8','#20c997','#f06595','#74c0fc','#a9e34b'];
-                const NAMES = ['brad','greg','unnamed','void creature','thing','entity','yapper','cell 7','unknown','placeholder'];
-                const ri=(a,b)=>Math.floor(Math.random()*(b-a))+a;
-                const rf=(a,b)=>Math.random()*(b-a)+a;
-                const dst=(a,b)=>Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2);
-                const lerp=(a,b,t)=>a+(b-a)*t;
-
-                function resize(){
-                    const p=canvas.parentElement; canvas.width=p.offsetWidth; canvas.height=p.offsetHeight;
-                    s.VW=canvas.width; s.VH=canvas.height;
-                }
-
-                class Blob {
-                    constructor(x,y,r,color,name,isP=false){
-                        this.x=x;this.y=y;this.r=r;this.color=color;this.name=name;this.isPlayer=isP;
-                        this.vx=0;this.vy=0;this.wobble=rf(0,Math.PI*2);this.wobbleSpeed=rf(0.04,0.09);
-                        this.blinkTimer=ri(80,200);this.blinking=false;this.blinkFrame=0;
-                        this.targetX=rf(50,W-50);this.targetY=rf(50,H-50);this.aiTimer=0;
-                        this.eatFlash=0;
-                    }
-                    get mass(){return Math.PI*this.r*this.r;}
-                    grow(m){this.r=Math.sqrt((this.mass+m)/Math.PI);}
-                }
-
-                const s = stateRef.current;
-                s.mouse={x:200,y:150};s.dead=false;s.score=0;s.frame=0;s.VW=400;s.VH=300;
-                s.zoom=1;s.targetZoom=1;s.particles=[];s.ripples=[];
-
-                function spawnFood(){return{x:rf(20,W-20),y:rf(20,H-20),r:rf(4,8),color:COLORS[ri(0,COLORS.length)],pulse:rf(0,Math.PI*2)};}
-
-                function spawnParticles(wx,wy,color,count=8){
-                    for(let i=0;i<count;i++){
-                        const angle=Math.random()*Math.PI*2;
-                        const spd=rf(1.5,4.5);
-                        s.particles.push({x:wx,y:wy,vx:Math.cos(angle)*spd,vy:Math.sin(angle)*spd,r:rf(2,5),color,life:1,decay:rf(0.04,0.08)});
-                    }
-                }
-
-                function spawnRipple(wx,wy,color){
-                    s.ripples.push({x:wx,y:wy,r:0,maxR:rf(30,60),color,life:1});
-                }
-
-                function init(){
-                    resize();
-                    s.player=new Blob(W/2,H/2,30,'#ffffff','winston',true);
-                    s.camera={x:W/2,y:H/2};s.score=0;s.dead=false;
-                    s.zoom=1;s.targetZoom=1;s.particles=[];s.ripples=[];
-                    s.blobs=[];
-                    for(let i=0;i<14;i++){const r=rf(15,50);s.blobs.push(new Blob(rf(r,W-r),rf(r,H-r),r,COLORS[i%COLORS.length],NAMES[i%NAMES.length]));}
-                    s.food=[];for(let i=0;i<300;i++)s.food.push(spawnFood());
-                }
-
-                function drawBlob(b,ox,oy,zoom){
-                    const cx=(b.x-ox)*zoom+s.VW/2*(1-zoom),cy=(b.y-oy)*zoom+s.VH/2*(1-zoom);
-                    const r=b.r*zoom,w=b.wobble;
-                    ctx.save();ctx.translate(cx,cy);
-                    if(b.eatFlash>0){ctx.shadowColor='#fff';ctx.shadowBlur=r*0.6*b.eatFlash;}
-                    ctx.beginPath();
-                    for(let i=0;i<=20;i++){const a=(i/20)*Math.PI*2,wm=1+0.07*Math.sin(a*3+w)+0.04*Math.sin(a*5-w*1.3);const rx=Math.cos(a)*r*wm,ry=Math.sin(a)*r*wm;i===0?ctx.moveTo(rx,ry):ctx.lineTo(rx,ry);}
-                    ctx.closePath();ctx.fillStyle=b.color;ctx.fill();
-                    ctx.shadowBlur=0;
-                    if(b.isPlayer){ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=2;ctx.stroke();}
-                    const er=r*0.13;
-                    [{ox:.3,oy:-.25},{ox:-.3,oy:-.25}].forEach(e=>{
-                        const ex=e.ox*r*.6,ey=e.oy*r*.6;
-                        ctx.beginPath();ctx.arc(ex,ey,er,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
-                        if(!b.blinking){ctx.beginPath();ctx.arc(ex+er*.2,ey+er*.2,er*.55,0,Math.PI*2);ctx.fillStyle='#111';ctx.fill();}
-                        else{ctx.beginPath();ctx.strokeStyle='#111';ctx.lineWidth=er*.6;ctx.moveTo(ex-er*.6,ey);ctx.lineTo(ex+er*.6,ey);ctx.stroke();}
-                    });
-                    const mw=r*.28,my=r*.25;ctx.beginPath();ctx.arc(0,my,mw,0,Math.PI);ctx.strokeStyle='#111';ctx.lineWidth=Math.max(1.5,r*.05);ctx.stroke();
-                    ctx.restore();
-                    if(b.r*zoom>18){
-                        const tx=(b.x-ox)*zoom+s.VW/2*(1-zoom);
-                        const ty=(b.y-oy)*zoom+s.VH/2*(1-zoom);
-                        ctx.save();ctx.font=`${Math.max(9,Math.min(13,r*.3))}px 'Courier New'`;ctx.textAlign='center';
-                        ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillText(b.name,tx+1,ty+r*.62+1);
-                        ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillText(b.name,tx,ty+r*.6);ctx.restore();
-                    }
-                }
-
-                function loop(){
-                    s.frame++;
-                    const p=s.player;
-                    if(!p||s.dead){
-                        ctx.clearRect(0,0,s.VW,s.VH);
-                        ctx.fillStyle='rgba(0,0,0,0.88)';ctx.fillRect(0,0,s.VW,s.VH);
-                        ctx.fillStyle='#fff';ctx.font="bold 18px 'Courier New'";ctx.textAlign='center';
-                        ctx.fillText('you got ate',s.VW/2,s.VH/2-20);
-                        ctx.fillStyle='#666';ctx.font="11px 'Courier New'";
-                        ctx.fillText('score: '+s.score,s.VW/2,s.VH/2+5);
-                        ctx.fillStyle='#fff';ctx.fillRect(s.VW/2-40,s.VH/2+20,80,28);
-                        ctx.fillStyle='#000';ctx.font="11px 'Courier New'";ctx.fillText('try again',s.VW/2,s.VH/2+38);
-                        rafRef.current=requestAnimationFrame(loop);return;
-                    }
-
-                    // target zoom based on player size — zooms out as you grow
-                    s.targetZoom = Math.max(0.3, Math.min(1, 60/p.r));
-                    s.zoom = lerp(s.zoom, s.targetZoom, 0.04);
-
-                    const zoom=s.zoom;
-                    // convert mouse to world coords accounting for zoom
-                    const worldMX = (s.mouse.x - s.VW/2)/zoom + s.camera.x;
-                    const worldMY = (s.mouse.y - s.VH/2)/zoom + s.camera.y;
-                    const ang=Math.atan2(worldMY-p.y,worldMX-p.x),spd=Math.max(1,8-p.r*.06);
-                    p.vx+=Math.cos(ang)*spd*.15;p.vy+=Math.sin(ang)*spd*.15;p.vx*=.82;p.vy*=.82;
-                    p.x=Math.max(p.r,Math.min(W-p.r,p.x+p.vx));p.y=Math.max(p.r,Math.min(H-p.r,p.y+p.vy));
-                    s.camera.x=lerp(s.camera.x,p.x,.08);s.camera.y=lerp(s.camera.y,p.y,.08);
-                    p.wobble+=p.wobbleSpeed;p.blinkTimer--;
-                    if(p.blinkTimer<=0){p.blinking=true;p.blinkFrame=0;p.blinkTimer=ri(100,220);}
-                    if(p.blinking){p.blinkFrame++;if(p.blinkFrame>6)p.blinking=false;}
-                    if(p.eatFlash>0)p.eatFlash=Math.max(0,p.eatFlash-0.08);
-
-                    s.blobs.forEach(b=>{
-                        b.wobble+=b.wobbleSpeed;b.blinkTimer--;
-                        if(b.blinkTimer<=0){b.blinking=true;b.blinkFrame=0;b.blinkTimer=ri(80,200);}
-                        if(b.blinking){b.blinkFrame++;if(b.blinkFrame>6)b.blinking=false;}
-                        if(b.eatFlash>0)b.eatFlash=Math.max(0,b.eatFlash-0.08);
-                        b.aiTimer++;
-                        if(b.aiTimer>60||dst(b,{x:b.targetX,y:b.targetY})<60){
-                            b.aiTimer=0;b.targetX=rf(50,W-50);b.targetY=rf(50,H-50);
-                            const nb=[...s.blobs,p].filter(o=>o!==b);
-                            const dng=nb.find(o=>o.r>b.r*1.1&&dst(o,b)<200);
-                            const pry=nb.find(o=>o.r<b.r*.85&&dst(o,b)<250);
-                            if(dng){b.targetX=b.x-(dng.x-b.x)*3;b.targetY=b.y-(dng.y-b.y)*3;}
-                            else if(pry){b.targetX=pry.x;b.targetY=pry.y;}
-                        }
-                        const ba=Math.atan2(b.targetY-b.y,b.targetX-b.x),bs=Math.max(1,7-b.r*.05);
-                        b.vx+=Math.cos(ba)*bs*.12;b.vy+=Math.sin(ba)*bs*.12;b.vx*=.82;b.vy*=.82;
-                        b.x=Math.max(b.r,Math.min(W-b.r,b.x+b.vx));b.y=Math.max(b.r,Math.min(H-b.r,b.y+b.vy));
-                    });
-
-                    s.food.forEach((f,i)=>{
-                        f.pulse+=.07;
-                        if(dst(p,f)<p.r+f.r){
-                            spawnParticles(f.x,f.y,f.color,5);
-                            p.grow(Math.PI*f.r*f.r*.5);s.food[i]=spawnFood();s.score++;
-                        }
-                        s.blobs.forEach(b=>{if(dst(b,f)<b.r+f.r){b.grow(Math.PI*f.r*f.r*.5);s.food[i]=spawnFood();}});
-                    });
-
-                    for(let i=s.blobs.length-1;i>=0;i--){
-                        const b=s.blobs[i];
-                        if(dst(p,b)<Math.max(p.r,b.r)){
-                            if(p.r>b.r*1.1){
-                                spawnParticles(b.x,b.y,b.color,14);
-                                spawnRipple(b.x,b.y,b.color);
-                                p.grow(b.mass*.7);p.eatFlash=1;
-                                s.blobs.splice(i,1);s.score+=Math.floor(b.r);
-                                const nr=rf(15,45);s.blobs.push(new Blob(rf(nr,W-nr),rf(nr,H-nr),nr,COLORS[ri(0,COLORS.length)],NAMES[ri(0,NAMES.length)]));
-                            } else if(b.r>p.r*1.1){s.dead=true;}
-                        }
-                        for(let j=s.blobs.length-1;j>=0;j--){
-                            if(i===j)continue;const a=s.blobs[i],bb=s.blobs[j];
-                            if(a&&bb&&dst(a,bb)<Math.max(a.r,bb.r)&&a.r>bb.r*1.15){
-                                spawnParticles(bb.x,bb.y,bb.color,10);
-                                a.grow(bb.mass*.7);a.eatFlash=1;s.blobs.splice(j,1);if(j<i)i--;
-                                const nr=rf(15,45);s.blobs.push(new Blob(rf(nr,W-nr),rf(nr,H-nr),nr,COLORS[ri(0,COLORS.length)],NAMES[ri(0,NAMES.length)]));break;
-                            }
-                        }
-                    }
-
-                    // update particles
-                    for(let i=s.particles.length-1;i>=0;i--){
-                        const pt=s.particles[i];
-                        pt.x+=pt.vx;pt.y+=pt.vy;pt.vx*=0.88;pt.vy*=0.88;
-                        pt.life-=pt.decay;if(pt.life<=0){s.particles.splice(i,1);}
-                    }
-                    // update ripples
-                    for(let i=s.ripples.length-1;i>=0;i--){
-                        const rp=s.ripples[i];
-                        rp.r+=3;rp.life-=0.05;if(rp.life<=0){s.ripples.splice(i,1);}
-                    }
-
-                    // DRAW
-                    const ox=s.camera.x-s.VW/2/zoom,oy=s.camera.y-s.VH/2/zoom;
-                    ctx.clearRect(0,0,s.VW,s.VH);
-                    ctx.fillStyle='#0a0a0a';ctx.fillRect(0,0,s.VW,s.VH);
-
-                    // grid with zoom
-                    ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=1;
-                    const sp=80*zoom,sxg=-(ox*zoom%sp),syg=-(oy*zoom%sp);
-                    for(let x=sxg;x<s.VW;x+=sp){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,s.VH);ctx.stroke();}
-                    for(let y=syg;y<s.VH;y+=sp){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(s.VW,y);ctx.stroke();}
-
-                    // ripples (world space → screen)
-                    s.ripples.forEach(rp=>{
-                        const sx=(rp.x-ox)*zoom,sy=(rp.y-oy)*zoom;
-                        ctx.beginPath();ctx.arc(sx,sy,rp.r*zoom,0,Math.PI*2);
-                        ctx.strokeStyle=rp.color;ctx.globalAlpha=rp.life*0.5;ctx.lineWidth=2;ctx.stroke();ctx.globalAlpha=1;
-                    });
-
-                    // food
-                    s.food.forEach(f=>{
-                        const fx=(f.x-ox)*zoom,fy=(f.y-oy)*zoom;
-                        if(fx<-20||fx>s.VW+20||fy<-20||fy>s.VH+20)return;
-                        ctx.beginPath();ctx.arc(fx,fy,(f.r+Math.sin(f.pulse)*1.5)*zoom,0,Math.PI*2);
-                        ctx.fillStyle=f.color;ctx.globalAlpha=.85;ctx.fill();ctx.globalAlpha=1;
-                    });
-
-                    // particles
-                    s.particles.forEach(pt=>{
-                        const px=(pt.x-ox)*zoom,py=(pt.y-oy)*zoom;
-                        ctx.beginPath();ctx.arc(px,py,pt.r*zoom,0,Math.PI*2);
-                        ctx.fillStyle=pt.color;ctx.globalAlpha=pt.life*0.9;ctx.fill();ctx.globalAlpha=1;
-                    });
-
-                    // blobs — pass ox/oy in world units, drawBlob handles zoom internally
-                    [...s.blobs,p].sort((a,b)=>a.r-b.r).forEach(b=>{
-                        const bsx=(b.x-ox)*zoom,bsy=(b.y-oy)*zoom;
-                        if(bsx<-b.r*zoom*2||bsx>s.VW+b.r*zoom*2||bsy<-b.r*zoom*2||bsy>s.VH+b.r*zoom*2)return;
-                        drawBlob(b,ox,oy,zoom);
-                    });
-
-                    ctx.save();ctx.font="9px 'Courier New'";ctx.fillStyle='rgba(255,255,255,0.2)';
-                    ctx.textAlign='left';ctx.fillText('winstonwobbles',8,s.VH-8);
-                    ctx.textAlign='right';ctx.fillText('score:'+s.score,s.VW-8,s.VH-8);ctx.restore();
-                    rafRef.current=requestAnimationFrame(loop);
-                }
-
-                init();loop();
-
-                const onMove=e=>{const r=canvas.getBoundingClientRect();s.mouse.x=e.clientX-r.left;s.mouse.y=e.clientY-r.top;};
-                const onClick=e=>{if(s.dead){init();}};
-                const onTouch=e=>{e.preventDefault();const r=canvas.getBoundingClientRect();const t=e.touches[0];s.mouse.x=t.clientX-r.left;s.mouse.y=t.clientY-r.top;};
-                canvas.addEventListener('mousemove',onMove);
-                canvas.addEventListener('click',onClick);
-                canvas.addEventListener('touchmove',onTouch,{passive:false});
-                window.addEventListener('resize',resize);
-
-                return()=>{cancelAnimationFrame(rafRef.current);canvas.removeEventListener('mousemove',onMove);canvas.removeEventListener('click',onClick);canvas.removeEventListener('touchmove',onTouch);window.removeEventListener('resize',resize);};
-            },[]);
-
-            return (
-                <div style={{position:'relative',width:'100%',height:'100%'}}>
-                    <canvas ref={canvasRef} style={{display:'block',width:'100%',height:'100%',cursor:'none'}} />
-                    <div
-                        style={{position:'absolute',bottom:24,left:24,width:90,height:90,borderRadius:'50%',background:'rgba(255,255,255,0.08)',border:'2px solid rgba(255,255,255,0.2)',touchAction:'none',userSelect:'none'}}
-                        onTouchStart={e=>{
-                            const s=stateRef.current;
-                            const r=e.currentTarget.getBoundingClientRect();
-                            const cx=r.left+r.width/2, cy=r.top+r.height/2;
-                            s._joyCenter={cx,cy};
-                            const t=e.touches[0];
-                            s.mouse.x=s.VW/2+(t.clientX-cx)*3;
-                            s.mouse.y=s.VH/2+(t.clientY-cy)*3;
-                            e.preventDefault();
-                        }}
-                        onTouchMove={e=>{
-                            const s=stateRef.current;
-                            if(!s._joyCenter) return;
-                            const {cx,cy}=s._joyCenter;
-                            const t=e.touches[0];
-                            s.mouse.x=s.VW/2+(t.clientX-cx)*3;
-                            s.mouse.y=s.VH/2+(t.clientY-cy)*3;
-                            e.preventDefault();
-                        }}
-                        onTouchEnd={e=>{
-                            const s=stateRef.current;
-                            s._joyCenter=null;
-                        }}
-                    >
-                        <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:36,height:36,borderRadius:'50%',background:'rgba(255,255,255,0.18)',border:'1px solid rgba(255,255,255,0.3)'}} />
-                    </div>
-                </div>
-            );
-        }
-
-        function MobileIcon({ icon, label, onClick, theme }) {
-            return (
-                <div onClick={onClick} className="flex flex-col items-center gap-1 active:scale-90 transition-transform cursor-pointer">
-                    <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-2xl border border-white/10 shadow-lg">{icon}</div>
-                    <span className={`text-[9px] font-bold ${theme.mobileText}`}>{label}</span>
-                </div>
-            );
-        }
-
-        function Window({ title, children, onClose, theme, zIndex, initialX, initialY, isWinston, width, height }) {
-            const w = width||400, h = height||480;
-            const [pos, setPos] = React.useState({ x: Math.min(initialX, window.innerWidth - w), y: Math.min(initialY, window.innerHeight - h) });
-            const dragging = React.useRef(false);
-            const dragStart = React.useRef({mx:0, my:0, wx:0, wy:0});
-
-            const onTitleMouseDown = (e) => {
-                if (e.target.classList.contains('traffic-light')) return;
-                dragging.current = true;
-                dragStart.current = { mx: e.clientX, my: e.clientY, wx: pos.x, wy: pos.y };
-                e.preventDefault();
-            };
-            React.useEffect(() => {
-                const onMove = (e) => {
-                    if (!dragging.current) return;
-                    const dx = e.clientX - dragStart.current.mx;
-                    const dy = e.clientY - dragStart.current.my;
-                    setPos({
-                        x: Math.max(0, Math.min(window.innerWidth - w, dragStart.current.wx + dx)),
-                        y: Math.max(0, Math.min(window.innerHeight - h, dragStart.current.wy + dy)),
-                    });
-                };
-                const onUp = () => { dragging.current = false; };
-                window.addEventListener('mousemove', onMove);
-                window.addEventListener('mouseup', onUp);
-                return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
-            }, [w, h]);
-
-            return (
-                <div style={{ zIndex, position: 'absolute', left: pos.x, top: pos.y, width: w, height: h, borderRadius: '24px', overflow: 'hidden', display:'flex', flexDirection:'column' }} className={`border ${theme.winBg} border-white/10 shadow-2xl`}>
-                    <div className={`window-titlebar p-4 flex justify-between items-center ${theme.titleBar} cursor-grab active:cursor-grabbing`} style={{flexShrink:0}} onMouseDown={onTitleMouseDown}>
-                        <div className="flex gap-2">
-                            <div onClick={onClose} className="traffic-light close-btn"></div>
-                            <div className="traffic-light minimize-btn"></div>
-                            <div className="traffic-light expand-btn"></div>
-                        </div>
-                        <span className="text-[9px] font-bold opacity-50 uppercase tracking-widest">{title}</span>
-                        <div className="w-12"></div>
-                    </div>
-                    <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white text-black' : ''}`}>{children}</div>
-                </div>
-            );
-        }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+
+<header>
+  <h1>Apple <span class="red">Artwork</span> Ripper</h1>
+  <p>High-res covers from Apple's servers — no key needed</p>
+</header>
+
+<div class="search-wrap">
+  <div class="type-tabs" id="type-tabs">
+    <button class="type-tab active" data-type="tvSeason"     data-media="video"  data-label="TV Show">📺 TV Show</button>
+    <button class="type-tab"        data-type="movie"        data-media="video"  data-label="Movie">🎬 Movie</button>
+    <button class="type-tab"        data-type="ebook"        data-media="ebook"  data-label="iBook">📖 iBook</button>
+    <button class="type-tab"        data-type="album"        data-media="music"  data-label="Album">💿 Album</button>
+    <button class="type-tab"        data-type="software"     data-media="software" data-label="App (iPhone/Universal)" data-device="iPhone">📱 App (iPhone)</button>
+    <button class="type-tab"        data-type="iPadSoftware" data-media="software" data-label="App (iPad)" data-device="iPad">📲 App (iPad)</button>
+    <button class="type-tab"        data-type="macSoftware"  data-media="software" data-label="App (macOS)" data-device="desktop">💻 App (macOS)</button>
+    <button class="type-tab"        data-type="audiobook"    data-media="audiobook" data-label="Audiobook">🎧 Audiobook</button>
+    <button class="type-tab"        data-type="podcast"      data-media="podcast" data-label="Podcast">🎙 Podcast</button>
+    <button class="type-tab"        data-type="musicVideo"   data-media="musicVideo" data-label="Music Video">🎥 Music Video</button>
+    <button class="type-tab id-mode" data-type="movieId"    data-label="Movie ID" data-id="true">🔢 Movie ID</button>
+    <button class="type-tab id-mode" data-type="albumId"    data-label="Album ID" data-id="true">🔢 Album ID</button>
+    <button class="type-tab"        data-type="shortFilm"    data-media="shortFilm" data-label="Short Film">🎞 Short Film</button>
+  </div>
+  <div class="hint" id="search-hint">Search by title, show name, or keywords</div>
+  <div class="search-row">
+    <input type="text" id="main-query" placeholder="Search…" onkeydown="if(event.key==='Enter')doSearch()">
+    <select class="size-select" id="main-size">
+      <option value="3000">3000px</option>
+      <option value="1200">1200px</option>
+      <option value="600">600px</option>
+      <option value="200">200px</option>
+    </select>
+    <button class="btn" id="search-btn" onclick="doSearch()">Search</button>
+  </div>
+</div>
+
+<div class="status" id="main-status"></div>
+<div class="results" id="main-results">
+  <div class="empty">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <div>Pick a type above and search</div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="close-modal" onclick="closeModal()">×</button>
+    <img id="modal-img" src="" alt="">
+    <div class="modal-footer">
+      <div class="modal-info">
+        <div class="modal-title" id="modal-title"></div>
+        <div class="modal-sub" id="modal-sub"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-ghost" onclick="copyImgUrl()">Copy URL</button>
+        <button class="btn btn-sm" id="modal-dl" onclick="downloadArtwork()">Download</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── state ──────────────────────────────────────────────────────────────────
+let currentArtworkUrl = '';
+let currentTitle = '';
+let activeBtn = document.querySelector('.type-tab.active');
+
+// ── type tab switching ─────────────────────────────────────────────────────
+document.querySelectorAll('.type-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.type-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeBtn = btn;
+
+    const isId = btn.dataset.id === 'true';
+    const isIdMode = btn.classList.contains('id-mode');
+    document.getElementById('main-query').placeholder = isId
+      ? `Enter ${btn.dataset.label.replace(' ID','')} ID (e.g. 123456789)`
+      : `Search ${btn.dataset.label} title…`;
+    document.getElementById('search-hint').textContent = isId
+      ? 'Enter the numeric Apple ID to look up artwork directly'
+      : 'Search by title, name, or keywords';
+    document.getElementById('search-btn').className = 'btn' + (isIdMode ? ' id-btn' : '');
+    document.getElementById('main-size').style.display = isId ? 'none' : '';
+  });
+});
+
+// ── helpers ────────────────────────────────────────────────────────────────
+function artworkUrl(raw, size) {
+  if (!raw) return '';
+  return raw
+    .replace(/\d+x\d+bb(\.\w+)$/, `${size}x${size}bb$1`)
+    .replace(/\d+x\d+(\.\w+)$/, `${size}x${size}$1`);
+}
+
+function setStatus(msg, type='') {
+  const el = document.getElementById('main-status');
+  el.className = 'status' + (type ? ' ' + type : '');
+  el.innerHTML = type === 'loading' ? `<span class="spinner"></span>${msg}` : msg;
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s) { return (s||'').replace(/"/g,'&quot;'); }
+function escStr(s) { return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' '); }
+
+// ── aspect ratio by type ───────────────────────────────────────────────────
+function imgClass(type) {
+  if (type === 'tvSeason' || type === 'movie' || type === 'shortFilm' || type === 'movieId') return 'wide'; // portrait 2:3
+  return '';
+}
+
+// ── main search dispatcher ─────────────────────────────────────────────────
+async function doSearch() {
+  const q = document.getElementById('main-query').value.trim();
+  if (!q) return;
+  const btn = document.getElementById('search-btn');
+  btn.disabled = true;
+  document.getElementById('main-results').innerHTML = '';
+
+  const type = activeBtn.dataset.type;
+  const isId = activeBtn.dataset.id === 'true';
+
+  if (isId) {
+    await lookupById(q, type);
+  } else {
+    await searchByTerm(q, type);
+  }
+
+  btn.disabled = false;
+}
+
+// ── search by term ─────────────────────────────────────────────────────────
+async function searchByTerm(q, type) {
+  const media = activeBtn.dataset.media || 'all';
+  setStatus('Searching…', 'loading');
+
+  // Special mapping for entity types that need different media params
+  const mediaMap = {
+    tvSeason:     'video',
+    movie:        'video',
+    shortFilm:    'shortFilm',
+    album:        'music',
+    software:     'software',
+    iPadSoftware: 'software',
+    macSoftware:  'software',
+    audiobook:    'audiobook',
+    podcast:      'podcast',
+    musicVideo:   'musicVideo',
+    ebook:        'ebook',
+  };
+  const useMedia = mediaMap[type] || media;
+
+  // device filter for apps
+  let extra = '';
+  if (activeBtn.dataset.device) extra = `&device=${activeBtn.dataset.device}`;
+
+  try {
+    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=${type}&media=${useMedia}&limit=30${extra}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    renderResults(data.results || [], type);
+  } catch(e) {
+    setStatus('Search failed — check your connection.', 'error');
+  }
+}
+
+// ── lookup by numeric ID ───────────────────────────────────────────────────
+async function lookupById(id, type) {
+  setStatus('Looking up ID…', 'loading');
+  // type is 'movieId' or 'albumId' — strip the 'Id' suffix for the entity
+  const entity = type === 'movieId' ? 'movie' : 'album';
+  try {
+    const url = `https://itunes.apple.com/lookup?id=${encodeURIComponent(id)}&entity=${entity}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    renderResults(data.results || [], entity);
+  } catch(e) {
+    setStatus('Lookup failed — check your connection.', 'error');
+  }
+}
+
+// ── render ─────────────────────────────────────────────────────────────────
+function renderResults(results, type) {
+  const size = document.getElementById('main-size').value || '3000';
+  const container = document.getElementById('main-results');
+  const label = activeBtn.dataset.label || '';
+
+  // filter out wrapperType=artist stubs which have no real artwork
+  const filtered = results.filter(r => r.artworkUrl100 || r.artworkUrl60);
+
+  if (!filtered.length) {
+    setStatus('No results found.', 'error');
+    container.innerHTML = `<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><div>Nothing found — try different terms</div></div>`;
+    return;
+  }
+
+  setStatus(`${filtered.length} result${filtered.length !== 1 ? 's' : ''}`);
+
+  const imgCls = imgClass(type);
+  const isWide = (type === 'tvSeason' || type === 'movie' || type === 'shortFilm');
+  container.className = 'results' + (isWide ? ' wide-grid' : '');
+
+  container.innerHTML = filtered.map(r => {
+    const rawArt = r.artworkUrl100 || r.artworkUrl60 || '';
+    const bigUrl = artworkUrl(rawArt, size);
+    const thumb = artworkUrl(rawArt, 300);
+
+    const title = r.collectionName || r.trackName || r.artistName || r.name || 'Unknown';
+    let sub = '';
+    if (r.artistName && r.artistName !== title) sub = r.artistName;
+    if (r.primaryGenreName) sub += (sub ? ' · ' : '') + r.primaryGenreName;
+    if (r.releaseDate) sub += (sub ? ' · ' : '') + r.releaseDate.slice(0,4);
+
+    return `
+      <div class="result-card" onclick="openModal('${escStr(bigUrl)}','${escStr(title)}','${escStr(sub)}')">
+        <img src="${thumb}" loading="lazy" class="${imgCls}" alt="${escAttr(title)}" onerror="this.style.opacity=0.3">
+        <div class="dl-overlay">↓ Download</div>
+        <div class="size-badge">${size}px</div>
+        <div class="type-badge">${esc(label)}</div>
+        <div class="card-info">
+          <div class="card-title">${esc(title)}</div>
+          <div class="card-sub">${esc(sub)}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── modal ──────────────────────────────────────────────────────────────────
+function openModal(url, title, sub) {
+  currentArtworkUrl = url;
+  currentTitle = title;
+  document.getElementById('modal-img').src = url;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-sub').textContent = sub;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal') || e.currentTarget?.classList?.contains('close-modal')) {
+    document.getElementById('modal').classList.remove('open');
+    document.getElementById('modal-img').src = '';
+  }
+}
+
+async function downloadArtwork() {
+  if (!currentArtworkUrl) return;
+  try {
+    const res = await fetch(currentArtworkUrl);
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (currentTitle || 'artwork').replace(/[^a-z0-9]/gi,'_') + '.jpg';
+    a.click();
+  } catch {
+    window.open(currentArtworkUrl, '_blank');
+  }
+}
+
+function copyImgUrl() {
+  navigator.clipboard.writeText(currentArtworkUrl).then(() => {
+    const btn = document.querySelector('.btn-ghost');
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+</script>
 </body>
 </html>
