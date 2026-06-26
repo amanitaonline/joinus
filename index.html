@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>✶ FUCK SICMR ✶</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/framer-motion@10.16.4/dist/framer-motion.js"></script>
     <style>
@@ -76,12 +76,30 @@
 </head>
 <body>
     <div id="root"></div>
+    <div id="error-display" style="display:none;position:fixed;inset:0;background:#000;color:#ff4444;font-family:monospace;padding:20px;z-index:999999;font-size:13px;white-space:pre-wrap;overflow:auto;"></div>
+    <script>
+        window.addEventListener('error', function(e) {
+            var el = document.getElementById('error-display');
+            if (el) { el.style.display='block'; el.textContent = 'JS ERROR:\n' + e.message + '\n\n' + (e.filename||'') + ':' + e.lineno; }
+        });
+    </script>
 
-    <script type="text/babel">
+    <script>
+// Safety fallback if framer-motion fails to load
+if (typeof window.Motion === 'undefined') {
+    window.Motion = {
+        motion: {
+            div: function(props) { return React.createElement('div', props); }
+        },
+        AnimatePresence: function(props) { return props.children || null; }
+    };
+}
+</script>
+<script type="text/babel">
         const { useState, useEffect, useRef } = React;
-        const _fm = window.Motion || window.FramerMotion || {};
-        const motion = _fm.motion || {};
-        const AnimatePresence = _fm.AnimatePresence || (({children}) => children);
+        const _Motion = window.Motion || {};
+        const motion = _Motion.motion || { div: (p) => React.createElement('div', p) };
+        const AnimatePresence = _Motion.AnimatePresence || (({ children }) => children);
 
         const videoLinks = [
             'https://www.youtube.com/embed/xQxOU-CQnDo',
@@ -122,9 +140,9 @@
             const handleCtx = (e) => { e.preventDefault(); setCtxMenu({x: e.clientX, y: e.clientY}); };
             const closeCtx = () => setCtxMenu(null);
             
-            const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false, XXXO: false, AGARIO: false, SHEETS: false, PAINT: false, SPECTROGRAM: false, RIPPER: false });
+            const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false, XXXO: false, AGARIO: false, SHEETS: false, PAINT: false, SPECTRO: false, ARTWORK: false });
             const [activeMobileApp, setActiveMobileApp] = useState(null);
-            const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10, XXXO: 10, AGARIO: 10, SHEETS: 10, PAINT: 10, SPECTROGRAM: 10, RIPPER: 10 });
+            const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10, XXXO: 10, AGARIO: 10, SHEETS: 10, PAINT: 10, SPECTRO: 10, ARTWORK: 10 });
             const [topZ, setTopZ] = useState(20);
             
             const [chatMessages, setChatMessages] = useState([
@@ -224,8 +242,8 @@
                                 <MobileIcon icon="📋" label="Uploads" onClick={() => setActiveMobileApp('SHEETS')} theme={theme} />
                                 <MobileIcon icon="⚙️" label="Settings" onClick={() => setActiveMobileApp('SETTINGS')} theme={theme} />
                                 <MobileIcon icon="🎨" label="Paint" onClick={() => setActiveMobileApp('PAINT')} theme={theme} />
-                                <MobileIcon icon="💕" label="Spectrogram" onClick={() => setActiveMobileApp('SPECTROGRAM')} theme={theme} />
-                                <MobileIcon icon="❄️" label="Art Ripper" onClick={() => setActiveMobileApp('RIPPER')} theme={theme} />
+                                <MobileIcon icon="〰️" label="Spectro" onClick={() => setActiveMobileApp('SPECTRO')} theme={theme} />
+                                <MobileIcon icon="🎨" label="Art Ripper" onClick={() => setActiveMobileApp('ARTWORK')} theme={theme} />
                             </div>
                             <AnimatePresence>
                                 {activeMobileApp && (
@@ -273,18 +291,14 @@
                                                 <PaintApp mobile={true} />
                                             </div>
                                         )}
-                                        {activeMobileApp === 'SPECTROGRAM' && (
-                                            <div style={{width:'100%',height:'100%',position:'relative',background:'#0a0a0a',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:'12px',color:'white',textAlign:'center',padding:'20px'}}>
-                                                <div style={{fontSize:'40px'}}>💕</div>
-                                                <div style={{fontFamily:"'Courier New',monospace",fontSize:'11px',opacity:0.6,letterSpacing:'0.1em'}}>SPECTROGRAM VIEWER</div>
-                                                <div style={{fontFamily:"'Courier New',monospace",fontSize:'9px',opacity:0.4}}>best on desktop</div>
+                                        {activeMobileApp === 'SPECTRO' && (
+                                            <div style={{width:'100%',height:'100%',overflow:'hidden',position:'relative'}}>
+                                                <iframe src="spectro_app.html" style={{width:'100%',height:'100%',border:'none'}} title="Spectrogram Viewer" />
                                             </div>
                                         )}
-                                        {activeMobileApp === 'RIPPER' && (
-                                            <div style={{width:'100%',height:'100%',position:'relative',background:'#0a0a0f',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:'12px',color:'white',textAlign:'center',padding:'20px'}}>
-                                                <div style={{fontSize:'40px'}}>❄️</div>
-                                                <div style={{fontFamily:"'Courier New',monospace",fontSize:'11px',opacity:0.6,letterSpacing:'0.1em'}}>ARTWORK RIPPER</div>
-                                                <div style={{fontFamily:"'Courier New',monospace",fontSize:'9px',opacity:0.4}}>best on desktop</div>
+                                        {activeMobileApp === 'ARTWORK' && (
+                                            <div style={{width:'100%',height:'100%',overflow:'hidden',position:'relative'}}>
+                                                <iframe src="artwork_app.html" style={{width:'100%',height:'100%',border:'none'}} title="Artwork Ripper" />
                                             </div>
                                         )}
                                         {activeMobileApp === 'SETTINGS' && (
@@ -316,9 +330,7 @@
                                 {label:'📽️  Videos', action:()=>{toggleApp('VIDEOS');setCtxMenu(null);}},
                                 {label:'💬  Chat', action:()=>{toggleApp('CHAT');setCtxMenu(null);}},
                                 {label:'👾  Wobbles', action:()=>{toggleApp('AGARIO');setCtxMenu(null);}},
-                                {label:'🎨  Paint', action:()=>{toggleApp('PAINT');setCtxMenu(null);}},
-                                {label:'💕  Spectrogram', action:()=>{toggleApp('SPECTROGRAM');setCtxMenu(null);}},
-                                {label:'❄️  Art Ripper', action:()=>{toggleApp('RIPPER');setCtxMenu(null);}},
+                                {label:'📋  Uploads', action:()=>{toggleApp('SHEETS');setCtxMenu(null);}},
                                 wallpaper ? null : null,
                                 wallpaper ? {label:'✕  Clear Wallpaper', action:()=>{setWallpaper(null);setCtxMenu(null);}} : null,
                             ].filter(Boolean).map((item,i) => item === null ? (
@@ -424,15 +436,15 @@
                             </Window>
                         )}
 
-                        {openApps.SPECTROGRAM && (
-                            <Window title="💕 SPECTROGRAM_VIEWER" theme={theme} onClose={() => toggleApp('SPECTROGRAM')} zIndex={zIndices.SPECTROGRAM} initialX={100} initialY={50} width={900} height={600}>
-                                <iframe src="spectrogram-viewer.html" style={{width:'100%',height:'100%',border:'none',display:'block'}} />
+                        {openApps.SPECTRO && (
+                            <Window title="SPECTRO.EXE 〰️" theme={theme} onClose={() => toggleApp('SPECTRO')} zIndex={zIndices.SPECTRO} initialX={100} initialY={60} width={900} height={600}>
+                                <iframe src="spectro_app.html" style={{width:'100%',height:'100%',border:'none',background:'#130f0f'}} title="Spectrogram Viewer" />
                             </Window>
                         )}
 
-                        {openApps.RIPPER && (
-                            <Window title="❄️ ARTWORK_RIPPER" theme={theme} onClose={() => toggleApp('RIPPER')} zIndex={zIndices.RIPPER} initialX={140} initialY={70} width={900} height={600}>
-                                <iframe src="artwork-ripper.html" style={{width:'100%',height:'100%',border:'none',display:'block'}} />
+                        {openApps.ARTWORK && (
+                            <Window title="ARTWORK_RIPPER 🎨" theme={theme} onClose={() => toggleApp('ARTWORK')} zIndex={zIndices.ARTWORK} initialX={120} initialY={70} width={820} height={600}>
+                                <iframe src="artwork_app.html" style={{width:'100%',height:'100%',border:'none',background:'#0a0a0f'}} title="Artwork Ripper" />
                             </Window>
                         )}
 
@@ -459,8 +471,8 @@
                             {icon:'👾',label:'Wobbles',app:'AGARIO'},
                             {icon:'📋',label:'Uploads',app:'SHEETS'},
                             {icon:'🎨',label:'Paint',app:'PAINT'},
-                            {icon:'💕',label:'Spectrogram',app:'SPECTROGRAM'},
-                            {icon:'❄️',label:'Art Ripper',app:'RIPPER'},
+                            {icon:'〰️',label:'Spectro',app:'SPECTRO'},
+                            {icon:'🎨',label:'Art Ripper',app:'ARTWORK'},
                         ].map(({icon,label,app}) => (
                             <div key={app} className="dock-item" onClick={() => toggleApp(app)}>
                                 <span className="dock-label">{label}</span>
