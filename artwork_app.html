@@ -579,8 +579,10 @@ document.querySelectorAll('.type-tab').forEach(btn => {
 // Strip dimension suffix to get original quality URL from Apple CDN
 function ogUrl(raw) {
   if (!raw) return '';
-  // Remove /NNNxNNN.ext or /NNNxNNNbb.ext suffixes — Apple CDN returns original if omitted
-  return raw.replace(/\/\d+x\d+(bb)?(\.\w+)$/, (_, bb, ext) => ext || '');
+  // Replace dimension segment with max size — Apple returns largest available
+  return raw
+    .replace(/\/\d+x\d+bb(\.\w+)$/, '/10000x10000bb$1')
+    .replace(/\/\d+x\d+(\.\w+)$/, '/10000x10000$1');
 }
 
 // For thumbnails only — keep small
