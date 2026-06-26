@@ -10,14 +10,14 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0a0007;
-    --surface: #110011;
-    --border: #200020;
-    --accent: #cc1a1a;
-    --accent2: #8b1a1a;
-    --text: #f0e8f0;
-    --muted: #6a4a6a;
-    --card: #130013;
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #fc3c44;
+    --accent2: #1a73e8;
+    --text: #e8e8f0;
+    --muted: #5a5a72;
+    --card: #14141e;
   }
 
   body {
@@ -470,10 +470,10 @@
 
 <div class="search-wrap">
   <div class="type-tabs" id="type-tabs">
-    <button class="type-tab active" data-type="tvSeason"     data-media="video"     data-label="TV Show">📺 TV Show</button>
+    <button class="type-tab" data-type="tvSeason"     data-media="video"     data-label="TV Show">📺 TV Show</button>
     <button class="type-tab movie-tab" data-type="movie"    data-media="video"     data-label="Movie">🎬 Movie</button>
     <button class="type-tab"        data-type="ebook"        data-media="ebook"     data-label="iBook">📖 iBook</button>
-    <button class="type-tab"        data-type="album"        data-media="music"     data-label="Album">💿 Album</button>
+    <button class="type-tab active" data-type="album"        data-media="music"     data-label="Album">💿 Album</button>
     <button class="type-tab"        data-type="software"     data-media="software"  data-label="App (iPhone)" data-device="iPhone">📱 App (iPhone)</button>
     <button class="type-tab"        data-type="iPadSoftware" data-media="software"  data-label="App (iPad)"   data-device="iPad">📲 App (iPad)</button>
     <button class="type-tab"        data-type="macSoftware"  data-media="software"  data-label="App (macOS)"  data-device="desktop">💻 App (macOS)</button>
