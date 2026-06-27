@@ -837,14 +837,10 @@ function renderAssetRow(a) {
     ? `<img class="asset-thumb ${a.thumbClass||''}" src="${escAttr(a.thumbUrl)}" alt="" onerror="this.style.opacity=0.2">`
     : `<div class="asset-thumb ${a.thumbClass||''}" style="background:#08080f;border-radius:4px;"></div>`;
 
-  let btns = '';
-  if (a.isLsr) {
-    btns = `<button class="btn-xs lsr" onclick="downloadFile('${escAttr(a.url)}','${escAttr(a.safeName)}.lsr')">↓ LSR</button>`;
-  } else {
-    btns = `
-      <button class="btn-xs ghost" onclick="navigator.clipboard.writeText('${escAttr(a.url)}').then(()=>showCopied(this))">Copy URL</button>
-      <button class="btn-xs" onclick="downloadFile('${escAttr(a.url)}','${escAttr(a.safeName)}.${a.ext||'jpg'}')">↓ ${(a.ext||'jpg').toUpperCase()}</button>`;
-  }
+  const ext = a.ext || (a.isLsr ? 'lsr' : 'jpg');
+  const btns = `
+    <button class="btn-xs ghost" onclick="navigator.clipboard.writeText('${escAttr(a.url)}').then(()=>showCopied(this))">Copy URL</button>
+    <button class="btn-xs${a.isLsr ? ' lsr' : ''}" onclick="downloadFile('${escAttr(a.url)}','${escAttr(a.safeName)}.${ext}')">↓ ${ext.toUpperCase()}</button>`;
 
   return `
     <div class="asset-row">
