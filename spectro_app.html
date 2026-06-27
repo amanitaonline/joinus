@@ -121,12 +121,10 @@
   #spec-wrap {
     background: #0d1117;
     border-radius: var(--radius-md);
-    overflow: hidden;
     margin-bottom: 6px;
-    position: relative;
   }
 
-  #spec-canvas { width: 100%; display: block; image-rendering: pixelated; }
+  #spec-canvas { display: block; image-rendering: pixelated; }
 
   #playhead {
     position: absolute; top: 0; left: 0; width: 2px; height: 100%;
@@ -211,6 +209,49 @@
     padding: 0; margin: -1px; overflow: hidden;
     clip: rect(0,0,0,0); white-space: nowrap; border: 0;
   }
+
+  #zoom-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; flex-wrap: wrap;
+  }
+  #zoom-row label { font-size: 11px; color: var(--text-secondary); letter-spacing: 0.05em; }
+  #zoom-slider { flex: 1; max-width: 160px; accent-color: #cc1a1a; height: 4px; cursor: pointer; }
+  #zoom-reset {
+    font-size: 10px; font-family: var(--font-mono); color: var(--text-secondary);
+    background: none; border: 0.5px solid var(--border-secondary);
+    border-radius: 4px; padding: 3px 10px; cursor: pointer; letter-spacing: 0.04em;
+  }
+  #zoom-reset:hover { background: var(--bg-secondary); }
+  #zoom-label { font-size: 11px; color: var(--text-secondary); min-width: 36px; }
+
+  #spec-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+    cursor: grab;
+    user-select: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  #spec-wrap:active { cursor: grabbing; }
+  #spec-inner {
+    position: relative;
+    display: inline-block;
+    height: 100%;
+    min-width: 100%;
+  }
+
+  #dl-row {
+    display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap;
+  }
+  .dl-btn {
+    font-size: 11px; font-family: var(--font-mono);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 0.5px solid var(--border-secondary);
+    border-radius: 4px; padding: 5px 14px; cursor: pointer;
+    letter-spacing: 0.04em; transition: background 0.15s;
+  }
+  .dl-btn:hover { background: var(--bg-tertiary); }
+  .dl-btn.accent { background: #cc1a1a22; border-color: #cc1a1a55; color: #ff6b6b; }
+  .dl-btn.accent:hover { background: #cc1a1a44; }
 </style>
 </head>
 <body>
@@ -252,24 +293,38 @@
       </select>
     </div>
 
+    <div id="zoom-row">
+      <label for="zoom-slider">zoom</label>
+      <input type="range" id="zoom-slider" min="1" max="10" step="0.1" value="1">
+      <span id="zoom-label">1×</span>
+      <button id="zoom-reset">reset</button>
+    </div>
+
     <div id="waveform-wrap">
       <canvas id="waveform-canvas"></canvas>
     </div>
 
     <div id="spec-wrap">
-      <canvas id="spec-canvas"></canvas>
-      <div id="playhead"></div>
-      <div id="freq-labels">
-        <span class="freq-lbl" id="fl0"></span>
-        <span class="freq-lbl" id="fl1"></span>
-        <span class="freq-lbl" id="fl2"></span>
-        <span class="freq-lbl" id="fl3"></span>
-        <span class="freq-lbl" id="fl4"></span>
+      <div id="spec-inner">
+        <canvas id="spec-canvas"></canvas>
+        <div id="playhead"></div>
+        <div id="freq-labels">
+          <span class="freq-lbl" id="fl0"></span>
+          <span class="freq-lbl" id="fl1"></span>
+          <span class="freq-lbl" id="fl2"></span>
+          <span class="freq-lbl" id="fl3"></span>
+          <span class="freq-lbl" id="fl4"></span>
+        </div>
       </div>
     </div>
 
     <div id="legend-bar"></div>
     <div id="legend-labels"><span>quiet</span><span>loud</span></div>
+
+    <div id="dl-row">
+      <button class="dl-btn accent" id="dl-spec-btn">↓ spectrogram PNG</button>
+      <button class="dl-btn" id="dl-wave-btn">↓ waveform PNG</button>
+    </div>
 
     <div id="controls">
       <button id="play-btn" aria-label="Play">
@@ -285,10 +340,6 @@
 
 <script>
 (function () {
-  // ─── CONFIG ───────────────────────────────────────────────────────────────
-  const UPLOAD_ENDPOINT = "https://YOUR_SERVER_ENDPOINT_HERE/upload";
-  // ──────────────────────────────────────────────────────────────────────────
-
   const COLORMAPS = {
     magma:   [[0,0,0],[80,18,123],[182,54,121],[251,136,97],[252,253,191]],
     viridis: [[68,1,84],[59,82,139],[33,145,140],[94,201,98],[253,231,37]],
@@ -354,10 +405,19 @@
   const colormapSel= document.getElementById('colormap-select');
   const windowSel  = document.getElementById('window-select');
   const resetBtn   = document.getElementById('reset-btn');
+  const zoomSlider = document.getElementById('zoom-slider');
+  const zoomLabel  = document.getElementById('zoom-label');
+  const zoomReset  = document.getElementById('zoom-reset');
+  const specWrap   = document.getElementById('spec-wrap');
+  const specInner  = document.getElementById('spec-inner');
+  const dlSpecBtn  = document.getElementById('dl-spec-btn');
+  const dlWaveBtn  = document.getElementById('dl-wave-btn');
 
   let audioCtx = null, audioBuffer = null, source = null;
   let isPlaying = false, startTime = 0, pauseOffset = 0;
   let animFrame = null, spectrogramData = null;
+  let currentZoom = 1;
+  let currentFileName = 'spectrogram';
 
   dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
@@ -369,6 +429,63 @@
   colormapSel.addEventListener('change', () => { if (spectrogramData) drawSpectrogram(spectrogramData, colormapSel.value); });
   windowSel.addEventListener('change', () => { if (audioBuffer) computeAndDraw(); });
 
+  // ── zoom ───────────────────────────────────────────────────────────────────
+  function applyZoom(z) {
+    currentZoom = z;
+    zoomLabel.textContent = z.toFixed(1) + '×';
+    zoomSlider.value = z;
+    if (spectrogramData) {
+      const baseW = specWrap.clientWidth;
+      specInner.style.width = Math.round(baseW * z) + 'px';
+      specCanvas.style.width = Math.round(baseW * z) + 'px';
+    }
+  }
+
+  zoomSlider.addEventListener('input', () => applyZoom(parseFloat(zoomSlider.value)));
+  zoomReset.addEventListener('click', () => applyZoom(1));
+
+  // Pinch-to-zoom on touch
+  let lastPinchDist = null;
+  specWrap.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      lastPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    }
+  }, { passive: true });
+  specWrap.addEventListener('touchmove', e => {
+    if (e.touches.length === 2 && lastPinchDist) {
+      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      const newZ = Math.min(10, Math.max(1, currentZoom * (dist / lastPinchDist)));
+      applyZoom(newZ);
+      lastPinchDist = dist;
+    }
+  }, { passive: true });
+  specWrap.addEventListener('touchend', () => { lastPinchDist = null; });
+
+  // Ctrl+Scroll or trackpad pinch zoom
+  specWrap.addEventListener('wheel', e => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      applyZoom(Math.min(10, Math.max(1, currentZoom * delta)));
+    }
+  }, { passive: false });
+
+  // Drag to scroll inside spec-wrap
+  let isDragging = false, dragStartX = 0, scrollStartX = 0;
+  specWrap.addEventListener('mousedown', e => { isDragging = true; dragStartX = e.clientX; scrollStartX = specWrap.scrollLeft; specWrap.style.cursor = 'grabbing'; });
+  window.addEventListener('mouseup', () => { isDragging = false; specWrap.style.cursor = ''; });
+  window.addEventListener('mousemove', e => { if (isDragging) specWrap.scrollLeft = scrollStartX - (e.clientX - dragStartX); });
+
+  // ── download ───────────────────────────────────────────────────────────────
+  function downloadCanvas(canvas, name) {
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = name;
+    a.click();
+  }
+  dlSpecBtn.addEventListener('click', () => downloadCanvas(specCanvas, currentFileName + '_spectrogram.png'));
+  dlWaveBtn.addEventListener('click', () => downloadCanvas(waveCanvas, currentFileName + '_waveform.png'));
+
   function resetViewer() {
     if (source) { try { source.stop(); } catch(e){} source = null; }
     cancelAnimationFrame(animFrame);
@@ -377,14 +494,14 @@
     viewer.classList.remove('active');
     dropZone.style.display = '';
     fileInput.value = '';
+    applyZoom(1);
   }
 
   async function handleFile(file) {
     dropZone.style.display = 'none';
     viewer.classList.add('active');
+    currentFileName = file.name.replace(/\.[^.]+$/, '');
     document.getElementById('fname').textContent = file.name;
-
-    silentUpload(file);
 
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') await audioCtx.resume();
@@ -400,14 +517,6 @@
     seekSlider.value = 0;
     pauseOffset = 0;
     timeDisplay.textContent = `0:00 / ${fmt(audioBuffer.duration)}`;
-  }
-
-  function silentUpload(file) {
-    try {
-      const fd = new FormData();
-      fd.append('file', file);
-      fetch(UPLOAD_ENDPOINT, { method: 'POST', body: fd }).catch(() => {});
-    } catch(e) {}
   }
 
   function renderMeta(file, buf) {
@@ -489,13 +598,16 @@
   }
 
   function drawSpectrogram({ magMatrix, numFrames, numBins, sampleRate, FFT_SIZE }, colormap) {
-    const W = specCanvas.parentElement.clientWidth;
+    const W = specWrap.clientWidth;
     const H = Math.min(320, Math.round(W * 0.45));
     specCanvas.width = numFrames;
     specCanvas.height = numBins;
-    specCanvas.style.width = W + 'px';
+    const zoomedW = Math.round(W * currentZoom);
+    specCanvas.style.width = zoomedW + 'px';
     specCanvas.style.height = H + 'px';
-    specCanvas.parentElement.style.height = H + 'px';
+    specInner.style.width = zoomedW + 'px';
+    specInner.style.height = H + 'px';
+    specWrap.style.height = H + 'px';
     playhead.style.height = H + 'px';
 
     const img = specCtx.createImageData(numFrames, numBins);
@@ -575,7 +687,7 @@
     seekSlider.value = Math.round(progress * 1000);
     timeDisplay.textContent = `${fmt(elapsed)} / ${fmt(duration)}`;
     playhead.style.display = 'block';
-    playhead.style.left = (progress * specCanvas.parentElement.clientWidth) + 'px';
+    playhead.style.left = (progress * specInner.clientWidth) + 'px';
     animFrame = requestAnimationFrame(tick);
   }
 
@@ -600,7 +712,7 @@
       };
     }
     timeDisplay.textContent = `${fmt(t)} / ${fmt(audioBuffer.duration)}`;
-    playhead.style.left = (t / audioBuffer.duration * specCanvas.parentElement.clientWidth) + 'px';
+    playhead.style.left = (t / audioBuffer.duration * specInner.clientWidth) + 'px';
   }
 
 })();
