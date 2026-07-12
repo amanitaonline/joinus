@@ -588,7 +588,18 @@
 
 <header>
   <div class="wordmark">AOS<span> Cover Ripper</span></div>
-  <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">[ light ]</button>
+  <div style="display:flex;gap:8px;align-items:center;position:relative;">
+    <button class="theme-toggle" id="color-btn" onclick="toggleColorPopout()">⬤ color</button>
+    <div id="color-popout" style="display:none;position:absolute;top:calc(100% + 8px);right:0;z-index:300;background:var(--drop-bg);border:1.5px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:14px;min-width:200px;">
+      <div style="font-size:0.68rem;color:var(--text-dim);margin-bottom:8px;letter-spacing:0.04em;text-transform:uppercase;">custom accent</div>
+      <input type="color" id="color-picker" value="#7c3aed" oninput="onCustomColor(this.value)" style="width:100%;height:36px;border:1.5px solid var(--border);border-radius:10px;background:transparent;cursor:pointer;padding:2px;">
+      <div style="display:flex;gap:6px;margin-top:10px;">
+        <button class="theme-toggle" style="flex:1;font-size:0.65rem;" onclick="randomizeAccent()">shuffle</button>
+        <button class="theme-toggle" style="flex:1;font-size:0.65rem;" onclick="clearCustomAccent()">reset</button>
+      </div>
+    </div>
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">[ light ]</button>
+  </div>
 </header>
 
 <div class="panel">
@@ -741,7 +752,18 @@
   <div class="modal" id="modal-assets-inner">
     <button class="btn-close" onclick="closeModal(null,'modal-assets')">×</button>
     <div class="asset-header" id="asset-header"></div>
+    <div class="asset-tabs" style="display:flex;gap:8px;padding:0 0 12px;">
+      <button class="asset-tab active" id="tab-btn-cover" onclick="switchAssetTab('cover')"
+        style="flex:1;background:var(--surface-solid);border:1.5px solid var(--border);border-radius:980px;color:var(--text-hi);font-family:inherit;font-size:0.72rem;font-weight:500;padding:7px 12px;cursor:pointer;">
+        cover art
+      </button>
+      <button class="asset-tab" id="tab-btn-lsr" onclick="switchAssetTab('lsr')"
+        style="flex:1;background:transparent;border:1.5px solid var(--border);border-radius:980px;color:var(--text-dim);font-family:inherit;font-size:0.72rem;font-weight:500;padding:7px 12px;cursor:pointer;">
+        experimental · LSR (often broken)
+      </button>
+    </div>
     <div class="asset-list" id="asset-list"></div>
+    <div class="asset-list" id="asset-list-lsr" style="display:none;"></div>
   </div>
 </div>
 
@@ -865,8 +887,54 @@ function applyAccent(a, dark) {
   }
 }
 
-// randomize on load
-applyAccent(ACCENTS[Math.floor(Math.random() * ACCENTS.length)], false);
+// ── custom color popout ──────────────────────────────────────────────────
+function toggleColorPopout() {
+  const el = document.getElementById('color-popout');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+document.addEventListener('click', (e) => {
+  const popout = document.getElementById('color-popout');
+  const btn = document.getElementById('color-btn');
+  if (popout && popout.style.display !== 'none' && !popout.contains(e.target) && e.target !== btn) {
+    popout.style.display = 'none';
+  }
+});
+
+function hexToRgb(hex) {
+  return `${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)}`;
+}
+
+function onCustomColor(hex) {
+  const a = { hex, rgb: hexToRgb(hex) };
+  applyAccent(a, isDarkMode);
+  try { localStorage.setItem('aosCoverRipperAccent', hex); } catch {}
+}
+
+function randomizeAccent() {
+  const pick = ACCENTS[Math.floor(Math.random() * ACCENTS.length)];
+  document.getElementById('color-picker').value = pick.hex;
+  applyAccent(pick, isDarkMode);
+  try { localStorage.removeItem('aosCoverRipperAccent'); } catch {}
+}
+
+function clearCustomAccent() {
+  randomizeAccent();
+}
+
+// on load: use a saved custom color if one exists, otherwise randomize
+(function initAccent() {
+  let saved = null;
+  try { saved = localStorage.getItem('aosCoverRipperAccent'); } catch {}
+  if (saved) {
+    document.getElementById('color-picker').value = saved;
+    applyAccent({ hex: saved, rgb: hexToRgb(saved) }, false);
+  } else {
+    const pick = ACCENTS[Math.floor(Math.random() * ACCENTS.length)];
+    document.getElementById('color-picker').value = pick.hex;
+    applyAccent(pick, false);
+  }
+})();
 
 // ── theme ──────────────────────────────────────────────────────────────────
 function toggleTheme() {
@@ -1117,6 +1185,8 @@ function openSimpleModal(url, title, sub) {
 }
 
 // ── movie asset modal ──────────────────────────────────────────────────────
+let currentMovie = { adamId: null, country: null, ogArt: '', lsrLoaded: false };
+
 async function openMovieAssets(adamId, title, sub, ogArt, thumb) {
   const modal = document.getElementById('modal-assets');
   modal.classList.add('open');
@@ -1129,20 +1199,60 @@ async function openMovieAssets(adamId, title, sub, ogArt, thumb) {
       <p>adam-id: ${adamId}</p>
     </div>`;
 
-  document.getElementById('asset-list').innerHTML = `<div class="asset-loading"><span class="spinner"></span> fetching assets…</div>`;
+  currentMovie = { adamId, country: getRegion(), ogArt, lsrLoaded: false };
+  switchAssetTab('cover');
 
-  const country = getRegion();
-  const assets = await fetchAppleTVAssets(adamId, country);
+  // cover art is instant — no network round trip needed, we already have it
+  const ext = ogArt.split('.').pop().toLowerCase() || 'jpg';
+  const dimMatch = ogArt.match(/\/(\d+)x(\d+)(bb)?(\.\w+)$/);
+  const dims = dimMatch ? `${dimMatch[1]}×${dimMatch[2]}px` : 'original quality';
+  document.getElementById('asset-list').innerHTML = renderAssetRow({
+    name: 'CoverArt', url: ogArt, isLsr: false, dims, ext, safeName: sanitize(title) + '_CoverArt'
+  });
+
+  const art16x9 = ogArt.replace(/\/(\d+)x(\d+)(bb)?(\.\w+)$/, '/1712x964.jpg');
+  if (art16x9 !== ogArt) {
+    document.getElementById('asset-list').innerHTML += renderAssetRow({
+      name: 'CoverArt16X9', url: art16x9, thumbUrl: art16x9.replace('/1712x964.jpg','/400x225.jpg'),
+      dims: '1712×964px', ext: 'jpg', safeName: sanitize(title) + '_CoverArt16X9', isLsr: false
+    });
+  }
+}
+
+function switchAssetTab(tab) {
+  const coverBtn = document.getElementById('tab-btn-cover');
+  const lsrBtn = document.getElementById('tab-btn-lsr');
+  const coverList = document.getElementById('asset-list');
+  const lsrList = document.getElementById('asset-list-lsr');
+
+  if (tab === 'cover') {
+    coverBtn.style.background = 'var(--surface-solid)'; coverBtn.style.color = 'var(--text-hi)';
+    lsrBtn.style.background = 'transparent'; lsrBtn.style.color = 'var(--text-dim)';
+    coverList.style.display = ''; lsrList.style.display = 'none';
+  } else {
+    lsrBtn.style.background = 'var(--surface-solid)'; lsrBtn.style.color = 'var(--text-hi)';
+    coverBtn.style.background = 'transparent'; coverBtn.style.color = 'var(--text-dim)';
+    coverList.style.display = 'none'; lsrList.style.display = '';
+    if (!currentMovie.lsrLoaded) loadLsrTab();
+  }
+}
+
+async function loadLsrTab() {
+  currentMovie.lsrLoaded = true;
+  const lsrList = document.getElementById('asset-list-lsr');
+  lsrList.innerHTML = `<div style="padding:6px 0 12px;font-size:0.62rem;color:var(--text-dim);text-align:center">experimental — Apple TV's parallax poster (LSR) sits behind an auth token this tool doesn't have, so this basically never works. left in for tinkering.</div>
+    <div class="asset-loading"><span class="spinner"></span> trying anyway…</div>`;
+
+  const assets = await fetchAppleTVAssetsRaw(currentMovie.adamId, currentMovie.country);
 
   if (!assets || !assets.length) {
-    const ext = ogArt.split('.').pop().toLowerCase() || 'jpg';
-    document.getElementById('asset-list').innerHTML = renderAssetRow({
-      name: 'CoverArt', url: ogArt, isLsr: false, dims: 'original quality', ext
-    }) + `<div style="padding:10px 0;font-size:0.65rem;color:var(--text-dim);text-align:center">apple tv api unavailable — itunes artwork only</div>`;
+    lsrList.innerHTML = `<div style="padding:6px 0 12px;font-size:0.62rem;color:var(--text-dim);text-align:center">experimental — Apple TV's parallax poster (LSR) sits behind an auth token this tool doesn't have, so this basically never works. left in for tinkering.</div>
+      <div style="padding:16px 0;font-size:0.68rem;color:var(--text-dim);text-align:center">no dice — request failed, as expected</div>`;
     return;
   }
 
-  document.getElementById('asset-list').innerHTML = assets.map(a => renderAssetRow(a)).join('');
+  lsrList.innerHTML = `<div style="padding:6px 0 12px;font-size:0.62rem;color:var(--text-dim);text-align:center">experimental — worked this time. token-gated, may break without warning.</div>` +
+    assets.map(a => renderAssetRow(a)).join('');
 }
 
 function renderAssetRow(a) {
@@ -1171,12 +1281,17 @@ function showCopied(btn) {
   setTimeout(() => btn.textContent = orig, 1400);
 }
 
-// ── fetch Apple TV assets ──────────────────────────────────────────────────
-async function fetchAppleTVAssets(adamId, country) {
+// ── fetch Apple TV assets (experimental / LSR tab only) ─────────────────────
+// amp-api.tv.apple.com requires a real bearer token (a JWT Apple's own web
+// player fetches on page load and rotates periodically). Browsers also block
+// JS from setting the `Origin` header, so this call almost always fails —
+// that's expected, not a bug. Kept isolated here so it can only ever affect
+// the experimental tab and never the reliable cover-art tab above.
+async function fetchAppleTVAssetsRaw(adamId, country) {
   if (!adamId) return null;
   try {
     const url = `https://amp-api.tv.apple.com/v1/catalog/${country}/movies/${adamId}?include=images`;
-    const res = await fetch(url, { headers: { 'Origin': 'https://tv.apple.com' } });
+    const res = await fetch(url);
     if (!res.ok) throw new Error('API error');
     const data = await res.json();
     const item = data.data && data.data[0];
@@ -1185,33 +1300,8 @@ async function fetchAppleTVAssets(adamId, country) {
     if (!images.length) return buildAssetsFromAttributes(item.attributes || {}, adamId);
     return buildAssetsFromImages(images, adamId);
   } catch(e) {
-    try { return await fetchAppleTVAssetsAlt(adamId, country); }
-    catch { return null; }
+    return null;
   }
-}
-
-async function fetchAppleTVAssetsAlt(adamId, country) {
-  const url = `https://itunes.apple.com/lookup?id=${adamId}&country=${country}&entity=movie`;
-  const res = await fetch(url);
-  const data = await res.json();
-  const r = (data.results || [])[0];
-  if (!r) return null;
-  const assets = [];
-  const rawArt = r.artworkUrl100 || r.artworkUrl60 || '';
-  const title = r.trackName || 'movie';
-  if (rawArt) {
-    const ogArtUrl = ogUrl(rawArt);
-    const ext = ogArtUrl.split('.').pop().toLowerCase() || 'jpg';
-    const dimMatch = rawArt.match(/\/(\d+)x(\d+)(bb)?(\.\w+)$/);
-    const w = dimMatch ? dimMatch[1] : '?';
-    const h = dimMatch ? dimMatch[2] : '?';
-    assets.push({ name:'CoverArt', url:ogArtUrl, thumbUrl:thumbUrl(rawArt,120), thumbClass:'tall', dims:`${w}×${h}px`, ext, safeName:sanitize(title)+'_CoverArt', isLsr:false });
-    const art16x9 = rawArt.replace(/\/(\d+)x(\d+)(bb)?(\.\w+)$/, '/1712x964.jpg');
-    if (art16x9 !== rawArt) {
-      assets.push({ name:'CoverArt16X9', url:art16x9, thumbUrl:art16x9.replace('/1712x964.jpg','/400x225.jpg'), thumbClass:'', dims:'1712×964px', ext:'jpg', safeName:sanitize(title)+'_CoverArt16X9', isLsr:false });
-    }
-  }
-  return assets.length ? assets : null;
 }
 
 function buildAssetsFromImages(images, adamId) {
