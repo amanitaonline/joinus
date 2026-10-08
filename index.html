@@ -137,6 +137,8 @@
             });
         };
 
+        const APP_ACCENTS = {"VIDEOS": "#fb923c", "PHOTOS": "#e879f9", "CHAT": "#22d3ee", "XXXO": "#ef4444", "WINSTON": "#fde047", "AGARIO": "#4ade80", "SHEETS": "#f472b6", "PAINT": "#60a5fa", "SPECTRO": "#a78bfa", "ARTWORK": "#5eead4", "AUDIO": "#f59e0b", "ALPHA": "#a3e635"};
+
         function App() {
             const [isBooting, setIsBooting] = useState(true);
             const [viewMode, setViewMode] = useState(() => localStorage.getItem('aos_view_mode') || 'choice');
@@ -153,6 +155,7 @@
             const [activeMobileApp, setActiveMobileApp] = useState(null);
             const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10, XXXO: 10, AGARIO: 10, SHEETS: 10, PAINT: 10, SPECTRO: 10, ARTWORK: 10, AUDIO: 10, ALPHA: 10 });
             const [topZ, setTopZ] = useState(20);
+            const [minApps, setMinApps] = useState({});
             
             const [chatMessages, setChatMessages] = useState([
                 { user: "SYSTEM", text: "Welcome to the network." },
@@ -210,11 +213,29 @@
                 bg: "bg-[#d6d2c4]", text: "text-[#4a3f35]", winBg: "bg-[#eceae0]", titleBar: "bg-[#b0ab99]/40", mobileText: "text-black"
             };
 
+            const bringFront = (app) => {
+                const z = topZ + 1;
+                setZIndices(prev => ({ ...prev, [app]: z }));
+                setTopZ(z);
+            };
+            const focusApp = (app) => { if (zIndices[app] < topZ) bringFront(app); };
+            const minimizeApp = (app) => setMinApps(prev => ({ ...prev, [app]: true }));
             const toggleApp = (app) => {
+                // minimized window: bring it back instead of closing it
+                if (openApps[app] && minApps[app]) {
+                    setMinApps(prev => ({ ...prev, [app]: false }));
+                    bringFront(app);
+                    return;
+                }
+                if (openApps[app]) setMinApps(prev => ({ ...prev, [app]: false }));
                 setOpenApps(prev => ({ ...prev, [app]: !prev[app] }));
-                const newZ = topZ + 1;
-                setZIndices(prev => ({ ...prev, [app]: newZ }));
-                setTopZ(newZ);
+                bringFront(app);
+            };
+            // open if closed, otherwise restore + raise (never closes)
+            const openApp = (app) => {
+                if (!openApps[app]) { toggleApp(app); return; }
+                setMinApps(prev => ({ ...prev, [app]: false }));
+                bringFront(app);
             };
 
             const handleLogin = () => {
@@ -376,6 +397,12 @@
                                 {label:'💬  Chat', action:()=>{toggleApp('CHAT');setCtxMenu(null);}},
                                 {label:'👾  Wobbles', action:()=>{toggleApp('AGARIO');setCtxMenu(null);}},
                                 {label:'📋  Uploads', action:()=>{toggleApp('SHEETS');setCtxMenu(null);}},
+                                {label:'🎨  Paint', action:()=>{openApp('PAINT');setCtxMenu(null);}},
+                                null,
+                                {label:'〰️  Spectro', action:()=>{openApp('SPECTRO');setCtxMenu(null);}},
+                                {label:'❄️  Art Ripper', action:()=>{openApp('ARTWORK');setCtxMenu(null);}},
+                                {label:'🎧  Audio Converter', action:()=>{openApp('AUDIO');setCtxMenu(null);}},
+                                {label:'🪄  White to Transparent', action:()=>{openApp('ALPHA');setCtxMenu(null);}},
                                 wallpaper ? null : null,
                                 wallpaper ? {label:'✕  Clear Wallpaper', action:()=>{setWallpaper(null);setCtxMenu(null);}} : null,
                             ].filter(Boolean).map((item,i) => item === null ? (
@@ -416,9 +443,19 @@
                         </button>
                     </motion.div>
 
+                    {/* Desktop alias icons */}
+                    {[
+                        {icon:'〰️',label:'Spectro',app:'SPECTRO'},
+                        {icon:'❄️',label:'Art Ripper',app:'ARTWORK'},
+                        {icon:'🎧',label:"Amy's Audio Converter",app:'AUDIO'},
+                        {icon:'🪄',label:'White to Transparent',app:'ALPHA'},
+                    ].map(({icon,label,app},i) => (
+                        <DesktopIcon key={app} id={app} isOpen={!!openApps[app]} isMin={!!minApps[app]} icon={icon} label={label} constraintsRef={desktopRef} x={28} y={96 + i*104} onOpen={() => openApp(app)} />
+                    ))}
+
                     <AnimatePresence>
                         {openApps.XXXO && (
-                            <Window title="XXXO_CORE" theme={theme} onClose={() => toggleApp('XXXO')} zIndex={zIndices.XXXO} initialX={400} initialY={120}>
+                            <Window key="XXXO" accent={APP_ACCENTS.XXXO} minimized={!!minApps.XXXO} onMinimize={() => minimizeApp('XXXO')} onFocus={() => focusApp('XXXO')} title="XXXO_CORE" theme={theme} onClose={() => toggleApp('XXXO')} zIndex={zIndices.XXXO} initialX={400} initialY={120}>
                                 <div className="xxxo-container h-full">
                                     <div className="xxxo-flash text-sm">YOU WANT ME BE SOMEBODY WHO I'M REALLY NOT</div>
                                     <iframe src="https://www.youtube.com/embed/sfbQ5mHWkOs" className="w-full aspect-video border-none shadow-[0_0_20px_rgba(255,0,0,0.5)]" />
@@ -427,7 +464,7 @@
                             </Window>
                         )}
                         {openApps.PHOTOS && (
-                            <Window title="IMAGE_ARCHIVE" theme={theme} onClose={() => toggleApp('PHOTOS')} zIndex={zIndices.PHOTOS} initialX={150} initialY={150}>
+                            <Window key="PHOTOS" accent={APP_ACCENTS.PHOTOS} minimized={!!minApps.PHOTOS} onMinimize={() => minimizeApp('PHOTOS')} onFocus={() => focusApp('PHOTOS')} title="IMAGE_ARCHIVE" theme={theme} onClose={() => toggleApp('PHOTOS')} zIndex={zIndices.PHOTOS} initialX={150} initialY={150}>
                                 <div className="p-4 space-y-3">
                                     <div className="flex items-center justify-between mb-2">
                                         <span style={{fontSize:'9px',letterSpacing:'0.1em',opacity:0.4,textTransform:'uppercase'}}>click image to set as wallpaper</span>
@@ -438,12 +475,12 @@
                             </Window>
                         )}
                         {openApps.VIDEOS && (
-                            <Window title="ARCHIVE_LIBRARY" theme={theme} onClose={() => toggleApp('VIDEOS')} zIndex={zIndices.VIDEOS} initialX={60} initialY={80}>
+                            <Window key="VIDEOS" accent={APP_ACCENTS.VIDEOS} minimized={!!minApps.VIDEOS} onMinimize={() => minimizeApp('VIDEOS')} onFocus={() => focusApp('VIDEOS')} title="ARCHIVE_LIBRARY" theme={theme} onClose={() => toggleApp('VIDEOS')} zIndex={zIndices.VIDEOS} initialX={60} initialY={80}>
                                 <div className="p-4 space-y-4">{videoLinks.map((url, i) => <iframe key={i} src={url} className="w-full aspect-video rounded-xl" frameBorder="0" />)}</div>
                             </Window>
                         )}
                         {openApps.CHAT && (
-                            <Window title="ENCRYPTED_CHAT" theme={theme} onClose={() => toggleApp('CHAT')} zIndex={zIndices.CHAT} initialX={500} initialY={100}>
+                            <Window key="CHAT" accent={APP_ACCENTS.CHAT} minimized={!!minApps.CHAT} onMinimize={() => minimizeApp('CHAT')} onFocus={() => focusApp('CHAT')} title="ENCRYPTED_CHAT" theme={theme} onClose={() => toggleApp('CHAT')} zIndex={zIndices.CHAT} initialX={500} initialY={100}>
                                 <div className="flex flex-col h-full">
                                     <div className="flex-1 p-4 space-y-3 text-[11px]">{chatMessages.map((m, i) => <div key={i} className="border-l border-current/30 pl-3"><b>[{m.user}]</b><br/>{formatChatText(m.text)}</div>)}</div>
                                     <div className="p-4 border-t border-current/10"><input className="w-full bg-transparent outline-none text-xs" placeholder="Type..." onKeyDown={(e) => { if(e.key==='Enter' && e.target.value){ setChatMessages([...chatMessages, {user: username, text: e.target.value}]); e.target.value=''; }}} /></div>
@@ -451,7 +488,7 @@
                             </Window>
                         )}
                         {openApps.WINSTON && (
-                            <Window title="WINSTON'S FAN CLUB" theme={theme} onClose={() => toggleApp('WINSTON')} zIndex={zIndices.WINSTON} initialX={300} initialY={180} isWinston>
+                            <Window key="WINSTON" accent={APP_ACCENTS.WINSTON} minimized={!!minApps.WINSTON} onMinimize={() => minimizeApp('WINSTON')} onFocus={() => focusApp('WINSTON')} title="WINSTON'S FAN CLUB" theme={theme} onClose={() => toggleApp('WINSTON')} zIndex={zIndices.WINSTON} initialX={300} initialY={180} isWinston>
                                 <div className="p-8 text-center flex flex-col items-center bg-white text-black h-full">
                                     <h2 className="text-3xl font-black mb-6">WINSTON'S FAN CLUB</h2>
                                     <img src="https://grocerybag.tv/media/winston.JPG" className="w-48 h-48 rounded-3xl mb-8 shadow-2xl object-cover" />
@@ -461,8 +498,9 @@
                         )}
                     </AnimatePresence>
 
+                    <AnimatePresence>
                     {openApps.AGARIO && (
-                        <Window title="WINSTONWOBBLES_BETA" theme={theme} onClose={() => toggleApp('AGARIO')} zIndex={zIndices.AGARIO} initialX={80} initialY={60} width={640} height={400}>
+                        <Window key="AGARIO" accent={APP_ACCENTS.AGARIO} minimized={!!minApps.AGARIO} onMinimize={() => minimizeApp('AGARIO')} onFocus={() => focusApp('AGARIO')} title="WINSTONWOBBLES_BETA" theme={theme} onClose={() => toggleApp('AGARIO')} zIndex={zIndices.AGARIO} initialX={80} initialY={60} width={640} height={400}>
                             <div style={{width:'100%',height:'100%',background:'#0a0a0a',position:'relative'}}>
                                 <AgarIO />
                             </div>
@@ -470,50 +508,41 @@
                     )}
 
                     {openApps.SHEETS && (
-                        <Window title="ANGELS OF SICMR 💕" theme={theme} onClose={() => toggleApp('SHEETS')} zIndex={zIndices.SHEETS} initialX={60} initialY={40} width={1000} height={580}>
+                        <Window key="SHEETS" accent={APP_ACCENTS.SHEETS} minimized={!!minApps.SHEETS} onMinimize={() => minimizeApp('SHEETS')} onFocus={() => focusApp('SHEETS')} title="ANGELS OF SICMR 💕" theme={theme} onClose={() => toggleApp('SHEETS')} zIndex={zIndices.SHEETS} initialX={60} initialY={40} width={1000} height={580}>
                             <SpreadsheetApp theme={theme} />
                         </Window>
                     )}
 
                     {openApps.PAINT && (
-                        <Window title="AOS_Paint 🎨" theme={theme} onClose={() => toggleApp('PAINT')} zIndex={zIndices.PAINT} initialX={120} initialY={60} width={820} height={580}>
+                        <Window key="PAINT" accent={APP_ACCENTS.PAINT} minimized={!!minApps.PAINT} onMinimize={() => minimizeApp('PAINT')} onFocus={() => focusApp('PAINT')} title="AOS_Paint 🎨" theme={theme} onClose={() => toggleApp('PAINT')} zIndex={zIndices.PAINT} initialX={120} initialY={60} width={820} height={580}>
                             <PaintApp mobile={false} />
                         </Window>
                     )}
 
-                    {/* Desktop alias icons */}
-                    {[
-                        {icon:'〰️',label:'Spectro',app:'SPECTRO'},
-                        {icon:'❄️',label:'Art Ripper',app:'ARTWORK'},
-                        {icon:'🎧',label:"Amy's Audio Converter",app:'AUDIO'},
-                        {icon:'🪄',label:'White to Transparent',app:'ALPHA'},
-                    ].map(({icon,label,app},i) => (
-                        <DesktopIcon key={app} icon={icon} label={label} constraintsRef={desktopRef} x={28} y={96 + i*104} onOpen={() => { if(!openApps[app]) toggleApp(app); else { const z = topZ + 1; setZIndices(prev => ({...prev, [app]: z})); setTopZ(z); } }} />
-                    ))}
-
                     {openApps.SPECTRO && (
-                        <Window title="SPECTROGRAM 〰️" theme={theme} onClose={() => toggleApp('SPECTRO')} zIndex={zIndices.SPECTRO} initialX={100} initialY={60} width={900} height={600}>
+                        <Window key="SPECTRO" accent={APP_ACCENTS.SPECTRO} minimized={!!minApps.SPECTRO} onMinimize={() => minimizeApp('SPECTRO')} onFocus={() => focusApp('SPECTRO')} title="SPECTROGRAM 〰️" theme={theme} onClose={() => toggleApp('SPECTRO')} zIndex={zIndices.SPECTRO} initialX={100} initialY={60} width={900} height={600}>
                             <iframe src="spectro_app.html" style={{width:'100%',height:'100%',border:'none',background:'#130f0f'}} title="Spectrogram Viewer" />
                         </Window>
                     )}
 
                     {openApps.ARTWORK && (
-                        <Window title="ARTWORK_RIPPER ❄️" theme={theme} onClose={() => toggleApp('ARTWORK')} zIndex={zIndices.ARTWORK} initialX={120} initialY={70} width={820} height={600}>
+                        <Window key="ARTWORK" accent={APP_ACCENTS.ARTWORK} minimized={!!minApps.ARTWORK} onMinimize={() => minimizeApp('ARTWORK')} onFocus={() => focusApp('ARTWORK')} title="ARTWORK_RIPPER ❄️" theme={theme} onClose={() => toggleApp('ARTWORK')} zIndex={zIndices.ARTWORK} initialX={120} initialY={70} width={820} height={600}>
                             <iframe src="artwork_app.html" style={{width:'100%',height:'100%',border:'none',background:'#0a0a0f'}} title="Artwork Ripper" />
                         </Window>
                     )}
 
                     {openApps.AUDIO && (
-                        <Window title="AMY'S AUDIO CONVERTER 🎧" theme={theme} onClose={() => toggleApp('AUDIO')} zIndex={zIndices.AUDIO} initialX={140} initialY={70} width={900} height={620}>
+                        <Window key="AUDIO" accent={APP_ACCENTS.AUDIO} minimized={!!minApps.AUDIO} onMinimize={() => minimizeApp('AUDIO')} onFocus={() => focusApp('AUDIO')} title="AMY'S AUDIO CONVERTER 🎧" theme={theme} onClose={() => toggleApp('AUDIO')} zIndex={zIndices.AUDIO} initialX={140} initialY={70} width={900} height={620}>
                             <iframe src="amys-audio-converterv4.html" style={{width:'100%',height:'100%',border:'none'}} title="Amy's Audio Converter" />
                         </Window>
                     )}
 
                     {openApps.ALPHA && (
-                        <Window title="WHITE_TO_TRANSPARENT 🪄" theme={theme} onClose={() => toggleApp('ALPHA')} zIndex={zIndices.ALPHA} initialX={160} initialY={80} width={900} height={600}>
+                        <Window key="ALPHA" accent={APP_ACCENTS.ALPHA} minimized={!!minApps.ALPHA} onMinimize={() => minimizeApp('ALPHA')} onFocus={() => focusApp('ALPHA')} title="WHITE_TO_TRANSPARENT 🪄" theme={theme} onClose={() => toggleApp('ALPHA')} zIndex={zIndices.ALPHA} initialX={160} initialY={80} width={900} height={600}>
                             <iframe src="White_to_transparent.html" style={{width:'100%',height:'100%',border:'none'}} title="White to transparent" />
                         </Window>
                     )}
+                    </AnimatePresence>
 
                     <style>{`
                         .dock-wrap { position:fixed; bottom:18px; width:100%; display:flex; justify-content:center; z-index:5000; pointer-events:none; overflow:visible; }
@@ -525,6 +554,11 @@
                         .dock-item:hover .dock-icon { transform:scale(1.65) translateY(-8px); }
                         .dock-item:hover + .dock-item .dock-icon,
                         .dock-item:has(+ .dock-item:hover) .dock-icon { transform:scale(1.3) translateY(-4px); }
+                        .dock-dot { width:4px; height:4px; border-radius:50%; margin-top:5px; background:transparent; transition:background 0.2s, opacity 0.2s; }
+                        .dock-dot.on { background:rgba(255,255,255,0.9); }
+                        .dock-dot.min { opacity:0.4; }
+                        .desk-icon-dot { position:absolute; left:-3px; top:30px; width:5px; height:5px; border-radius:50%; background:#fff; box-shadow:0 0 6px rgba(255,255,255,0.8); }
+                        .desk-icon-dot.min { opacity:0.4; }
                         .desk-icon { position:absolute; width:92px; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:grab; user-select:none; -webkit-user-select:none; z-index:5; touch-action:none; }
                         .desk-icon:active { cursor:grabbing; }
                         .desk-icon-art { position:relative; width:64px; height:64px; display:grid; place-items:center; font-size:38px; line-height:1; border-radius:16px; backdrop-filter:blur(14px); background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.12); box-shadow:0 6px 20px rgba(0,0,0,0.35); transition:transform 0.15s; }
@@ -550,6 +584,7 @@
                             <div key={app} className="dock-item" onClick={() => toggleApp(app)}>
                                 <span className="dock-label">{label}</span>
                                 <span className="dock-icon">{icon}</span>
+                                <span className={`dock-dot ${openApps[app] ? 'on' : ''} ${minApps[app] ? 'min' : ''}`}></span>
                             </div>
                         ))}
                     </div>
@@ -1301,20 +1336,48 @@
             );
         }
 
-        function DesktopIcon({ icon, label, x, y, onOpen, constraintsRef }) {
+        function DesktopIcon({ id, icon, label, x, y, onOpen, constraintsRef, isOpen, isMin }) {
+            const KEY = 'aos_icon_pos';
+            const ref = React.useRef(null);
             const [sel, setSel] = React.useState(false);
+            const [off, setOff] = React.useState(() => {
+                try {
+                    const m = JSON.parse(localStorage.getItem(KEY) || '{}')[id];
+                    if (m && isFinite(m.x) && isFinite(m.y)) {
+                        return {
+                            x: Math.max(-x, Math.min(window.innerWidth - 92 - x, m.x)),
+                            y: Math.max(-y, Math.min(window.innerHeight - 100 - y, m.y)),
+                        };
+                    }
+                } catch (e) {}
+                return { x: 0, y: 0 };
+            });
             React.useEffect(() => {
-                const off = () => setSel(false);
-                document.addEventListener('click', off);
-                return () => document.removeEventListener('click', off);
+                const clear = () => setSel(false);
+                document.addEventListener('click', clear);
+                return () => document.removeEventListener('click', clear);
             }, []);
+            const save = () => {
+                const r = ref.current && ref.current.getBoundingClientRect();
+                if (!r) return;
+                const n = { x: Math.round(r.left - x), y: Math.round(r.top - y) };
+                setOff(n);
+                try {
+                    const all = JSON.parse(localStorage.getItem(KEY) || '{}');
+                    all[id] = n;
+                    localStorage.setItem(KEY, JSON.stringify(all));
+                } catch (e) {}
+            };
             return (
-                <motion.div drag dragMomentum={false} dragConstraints={constraintsRef} dragElastic={0}
+                <motion.div ref={ref} drag dragMomentum={false} dragConstraints={constraintsRef} dragElastic={0}
+                    initial={{ x: off.x, y: off.y }} animate={{ x: off.x, y: off.y }} transition={{ duration: 0 }}
+                    onDragEnd={save}
                     className={`desk-icon ${sel ? 'sel' : ''}`} style={{ left: x, top: y }}
                     onClick={(e) => { e.stopPropagation(); setSel(true); }}
                     onDoubleClick={(e) => { e.stopPropagation(); onOpen(); }}
                     onContextMenu={(e) => e.stopPropagation()}>
                     <div className="desk-icon-art">{icon}<span className="desk-icon-alias">↗</span></div>
+                    {isOpen && <span className={`desk-icon-dot ${isMin ? 'min' : ''}`}></span>}
                     <div className="desk-icon-label">{label}</div>
                 </motion.div>
             );
@@ -1329,47 +1392,104 @@
             );
         }
 
-        function Window({ title, children, onClose, theme, zIndex, initialX, initialY, isWinston, width, height }) {
-            const w = width||400, h = height||480;
-            const [pos, setPos] = React.useState({ x: Math.min(initialX, window.innerWidth - w), y: Math.min(initialY, window.innerHeight - h) });
-            const dragging = React.useRef(false);
-            const dragStart = React.useRef({mx:0, my:0, wx:0, wy:0});
+        function Window({ title, children, onClose, theme, zIndex, initialX, initialY, isWinston, width, height, accent, minimized, onMinimize, onFocus }) {
+            const ac = accent || '#ef4444';
+            const [geo, setGeo] = React.useState(() => {
+                const w = Math.min(width || 400, window.innerWidth - 16);
+                const h = Math.min(height || 480, window.innerHeight - 16);
+                return {
+                    x: Math.max(0, Math.min(initialX, window.innerWidth - w)),
+                    y: Math.max(0, Math.min(initialY, window.innerHeight - h)),
+                    w, h
+                };
+            });
+            const [maxed, setMaxed] = React.useState(false);
+            const [anim, setAnim] = React.useState(false);
+            const prevGeo = React.useRef(null);
+            const gesture = React.useRef(null);
 
-            const onTitleMouseDown = (e) => {
-                if (e.target.classList.contains('traffic-light')) return;
-                dragging.current = true;
-                dragStart.current = { mx: e.clientX, my: e.clientY, wx: pos.x, wy: pos.y };
+            const toggleMax = () => {
+                setAnim(true);
+                setTimeout(() => setAnim(false), 360);
+                if (maxed) {
+                    if (prevGeo.current) setGeo(prevGeo.current);
+                    setMaxed(false);
+                } else {
+                    prevGeo.current = geo;
+                    setGeo({ x: 12, y: 72, w: window.innerWidth - 24, h: Math.max(240, window.innerHeight - 72 - 96) });
+                    setMaxed(true);
+                }
+            };
+
+            const begin = (mode) => (e) => {
+                if (onFocus) onFocus();
+                if (e.target.classList && e.target.classList.contains('traffic-light')) return;
+                if (maxed) return;
+                gesture.current = { mode, px: e.clientX, py: e.clientY, g: { ...geo } };
+                try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
                 e.preventDefault();
             };
-            React.useEffect(() => {
-                const onMove = (e) => {
-                    if (!dragging.current) return;
-                    const dx = e.clientX - dragStart.current.mx;
-                    const dy = e.clientY - dragStart.current.my;
-                    setPos({
-                        x: Math.max(0, Math.min(window.innerWidth - w, dragStart.current.wx + dx)),
-                        y: Math.max(0, Math.min(window.innerHeight - h, dragStart.current.wy + dy)),
+            const move = (e) => {
+                const k = gesture.current;
+                if (!k) return;
+                const dx = e.clientX - k.px, dy = e.clientY - k.py;
+                if (k.mode === 'move') {
+                    setGeo({
+                        ...k.g,
+                        x: Math.max(0, Math.min(window.innerWidth - k.g.w, k.g.x + dx)),
+                        y: Math.max(0, Math.min(window.innerHeight - 48, k.g.y + dy)),
                     });
-                };
-                const onUp = () => { dragging.current = false; };
-                window.addEventListener('mousemove', onMove);
-                window.addEventListener('mouseup', onUp);
-                return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
-            }, [w, h]);
+                } else {
+                    setGeo({
+                        ...k.g,
+                        w: Math.max(280, Math.min(window.innerWidth - k.g.x, k.g.w + dx)),
+                        h: Math.max(180, Math.min(window.innerHeight - k.g.y, k.g.h + dy)),
+                    });
+                }
+            };
+            const end = () => { gesture.current = null; };
+
+            const dockDrop = Math.max(0, window.innerHeight - (geo.y + geo.h) - 28);
 
             return (
-                <div style={{ zIndex, position: 'absolute', left: pos.x, top: pos.y, width: w, height: h, borderRadius: '24px', overflow: 'hidden', display:'flex', flexDirection:'column' }} className={`border ${theme.winBg} border-white/10 shadow-2xl`}>
-                    <div className={`window-titlebar p-4 flex justify-between items-center ${theme.titleBar} cursor-grab active:cursor-grabbing`} style={{flexShrink:0}} onMouseDown={onTitleMouseDown}>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.86, y: 28 }}
+                    animate={minimized ? { opacity: 0, scale: 0.18, y: dockDrop } : { opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: 18, transition: { duration: 0.16 } }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 28, mass: 0.8 }}
+                    onPointerDown={() => onFocus && onFocus()}
+                    style={{
+                        zIndex, position: 'absolute', left: geo.x, top: geo.y, width: geo.w, height: geo.h,
+                        borderRadius: maxed ? '18px' : '24px', overflow: 'hidden', display: 'flex', flexDirection: 'column',
+                        transformOrigin: '50% 100%',
+                        pointerEvents: minimized ? 'none' : 'auto',
+                        boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px ${ac}33`,
+                        transition: anim ? 'left .3s ease, top .3s ease, width .3s ease, height .3s ease, border-radius .3s ease' : 'none',
+                    }}
+                    className={`border ${theme.winBg} border-white/10`}>
+                    <div className={`window-titlebar p-4 flex justify-between items-center ${theme.titleBar}`}
+                        style={{ flexShrink: 0, touchAction: 'none', cursor: maxed ? 'default' : 'grab',
+                                 backgroundImage: `linear-gradient(90deg, ${ac}55, ${ac}0f 75%)`, borderBottom: `1px solid ${ac}55` }}
+                        onPointerDown={begin('move')} onPointerMove={move} onPointerUp={end} onPointerCancel={end}
+                        onDoubleClick={(e) => { if (!(e.target.classList && e.target.classList.contains('traffic-light'))) toggleMax(); }}>
                         <div className="flex gap-2">
-                            <div onClick={onClose} className="traffic-light close-btn"></div>
-                            <div className="traffic-light minimize-btn"></div>
-                            <div className="traffic-light expand-btn"></div>
+                            <div onClick={onClose} className="traffic-light close-btn" title="Close"></div>
+                            <div onClick={() => onMinimize && onMinimize()} className="traffic-light minimize-btn" title="Minimize"></div>
+                            <div onClick={toggleMax} className="traffic-light expand-btn" title={maxed ? 'Restore' : 'Fullscreen'}></div>
                         </div>
-                        <span className="text-[9px] font-bold opacity-50 uppercase tracking-widest">{title}</span>
+                        <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: ac, opacity: 0.9 }}>{title}</span>
                         <div className="w-12"></div>
                     </div>
                     <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white text-black' : ''}`}>{children}</div>
-                </div>
+                    {!maxed && (
+                        <div onPointerDown={begin('resize')} onPointerMove={move} onPointerUp={end} onPointerCancel={end}
+                            style={{ position: 'absolute', right: 0, bottom: 0, width: 24, height: 24, cursor: 'nwse-resize', touchAction: 'none', zIndex: 3 }}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" style={{ position: 'absolute', right: 5, bottom: 5, opacity: 0.55 }}>
+                                <path d="M14 20 L20 14 M9 20 L20 9 M4 20 L20 4" stroke={ac} strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                            </svg>
+                        </div>
+                    )}
+                </motion.div>
             );
         }
 
