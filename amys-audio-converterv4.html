@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Amy's Audio Converter</title>
+<link href="https://api.fontshare.com/v2/css?f[]=gambarino@400&f[]=pally@400,500&display=swap" rel="stylesheet">
+<style>
+:root{--serif:"Gambarino",Georgia,"Times New Roman",serif;--h:347;--s:67;--bg:hsl(var(--h) 7% 84%);--panel:hsl(var(--h) 7% 91%);--well:hsl(var(--h) 7% 87%);--ink:hsl(var(--h) 14% 10%);--mute:hsl(var(--h) 6% 37%);--line:hsl(var(--h) 6% 70%);--accent:hsl(var(--h) calc(var(--s)*1%) 26%);--accent-ink:#fff;--bad:#b3261e;
+ font-family:"Pally",-apple-system,"Helvetica Neue",Arial,sans-serif;font-size:15px;color:var(--ink);background:var(--bg)}
+@media(prefers-color-scheme:dark){:root{--bg:hsl(var(--h) 8% 10%);--panel:hsl(var(--h) 8% 13%);--well:hsl(var(--h) 8% 11%);--ink:hsl(var(--h) 15% 91%);--mute:hsl(var(--h) 6% 62%);--line:hsl(var(--h) 7% 23%);--accent:hsl(var(--h) calc(var(--s)*1%) 70%);--accent-ink:hsl(var(--h) 40% 8%);--bad:#ff8a80}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);display:flex;flex-direction:column;min-height:100%}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:22px 28px 16px}
+h1{margin:0;font:400 38px/1 var(--serif);letter-spacing:-.01em}
+header p{margin:0;color:var(--mute);font-size:13px}
+main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;padding:0 28px;min-height:0}
+.list,.insp{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.list{display:flex;flex-direction:column;min-height:340px;overflow:hidden}
+.list.over{outline:2px solid var(--accent);outline-offset:-2px}
+.drop{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:40px;color:var(--mute)}
+.drop strong{color:var(--ink);font:400 30px/1.1 var(--serif)}
+ul{list-style:none;margin:0;padding:0;overflow:auto;flex:1}
+li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;padding:12px 16px;border-bottom:1px solid var(--line);position:relative}
+li .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+li .m{color:var(--mute);font-size:13px;font-variant-numeric:tabular-nums}
+li .s{grid-row:1/span 3;grid-column:2;align-self:center;display:flex;gap:12px;align-items:center;font-size:13px;color:var(--mute)}
+li.err .s>span{color:var(--bad)}li{cursor:pointer}li.sel{background:var(--well);box-shadow:inset 3px 0 0 var(--accent)}li .t{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.who{margin:2px 0 4px;color:var(--mute);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+li .bar{position:absolute;left:0;bottom:-1px;height:2px;background:var(--accent);width:0;transition:width .25s}
+.bar-tools{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--line);background:var(--well);font-size:13px;color:var(--mute)}
+button,select,input[type=text]{font:inherit;color:inherit}
+button{border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:7px 13px;cursor:pointer}
+button:hover:not(:disabled){border-color:var(--mute)}
+button:disabled{opacity:.45;cursor:default}
+button.link{border:0;background:none;padding:0;color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+button.link.quiet{color:var(--mute)}
+button.go{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:500;padding:10px 22px;border-radius:8px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.insp{padding:6px 18px 16px;align-self:start;max-height:calc(100vh - 150px);overflow:auto}h2{font:400 23px/1 var(--serif);margin:18px 0 4px}h2:first-child{margin-top:12px}input[type=checkbox]{accent-color:var(--accent);margin-right:8px}.row.one{grid-template-columns:1fr}.row.one label{color:var(--ink)}
+.row{display:grid;grid-template-columns:104px 1fr;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.row:last-of-type{border-bottom:0}
+.row label{color:var(--mute);font-size:14px}
+select,input[type=text]{width:100%;background:var(--well);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-height:32px}
+select:disabled,input:disabled{opacity:.4}
+.row.off label{opacity:.5}
+.note{margin:6px 0 0;color:var(--mute);font-size:13px;line-height:1.45;min-height:3em}
+footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 28px 22px}
+.sum{color:var(--mute);font-size:14px;font-variant-numeric:tabular-nums}
+.acts{display:flex;gap:10px;align-items:center}
+@media(max-width:820px){.insp{max-height:none}main{grid-template-columns:1fr;padding:0 16px}header,footer{padding-left:16px;padding-right:16px}header{flex-direction:column;gap:4px}footer{flex-direction:column;align-items:stretch}.acts{justify-content:flex-end}}
+.hd{display:flex;align-items:center;gap:16px}
+.theme{position:relative}
+.sw{width:30px;height:30px;padding:0;border-radius:50%;background:var(--accent);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line)}
+.pop{position:absolute;right:0;top:42px;z-index:5;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px;align-items:center;font-size:13px}
+.pop[hidden]{display:none}
+.wheel{position:relative;width:168px;height:168px;border-radius:50%;touch-action:none;cursor:crosshair;
+ background:radial-gradient(circle,hsl(0 0% 74%) 0,transparent 72%),conic-gradient(hsl(0 85% 55%),hsl(60 85% 55%),hsl(120 85% 45%),hsl(180 85% 45%),hsl(240 85% 60%),hsl(300 85% 55%),hsl(360 85% 55%))}
+.knob{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35);pointer-events:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>Amy's Audio Converter</h1>
+  <div class="hd">
+    <p>Everything happens in this browser tab. Your files never get uploaded.</p>
+    <div class="theme">
+      <button class="sw" id="tbtn" aria-label="Theme color" aria-expanded="false" aria-controls="pop"></button>
+      <div class="pop" id="pop" hidden>
+        <div class="wheel" id="wheel" tabindex="0" role="slider" aria-label="Theme color. Arrow keys change hue and strength."><i class="knob" id="knob"></i></div>
+        <button class="link quiet" id="treset">Reset to burgundy</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="list" id="list" aria-label="Files to convert">
+    <div class="drop" id="empty">
+      <strong>Drop audio files here</strong>
+      <span>WAV, AIFF, MP3, FLAC, M4A, OGG and anything else your browser can open.</span>
+      <button id="pick">Choose files</button>
+    </div>
+    <ul id="items" hidden></ul>
+    <div class="bar-tools" id="tools" hidden>
+      <span id="count"></span>
+      <span><button class="link" id="add">Add more</button> &nbsp; <button class="link quiet" id="clear">Clear list</button></span>
+    </div>
+  </section>
+
+  <aside class="insp" aria-label="Output settings">
+    <h2>Audio</h2>
+    <div class="row"><label for="ch">Channels</label>
+      <select id="ch"><option value="orig">Same as source</option><option value="1">Mono</option><option value="2" selected>Stereo</option><option value="4">4 channels</option><option value="6">5.1 (6 channels)</option></select></div>
+    <div class="row"><label for="fmt">Output format</label>
+      <select id="fmt"><option value="orig">Same as source</option><option value="wav" selected>WAV</option><option value="aiff">AIFF</option><option value="mp3">MP3</option><option value="raw">Raw PCM</option></select></div>
+    <div class="row"><label for="sr">Sample rate</label>
+      <select id="sr"><option value="orig">Same as source</option><option>8000</option><option>11025</option><option>16000</option><option>22050</option><option>32000</option><option selected>44100</option><option>48000</option><option>88200</option><option>96000</option><option>176400</option><option>192000</option></select></div>
+    <div class="row"><label for="bd">Bit depth</label><select id="bd"></select></div>
+    <div class="row"><label for="end">Endianness</label>
+      <select id="end"><option value="orig">Same as source</option><option value="le" selected>Little endian</option><option value="be">Big endian</option></select></div>
+    <div class="row"><label for="ext">Extension</label>
+      <input type="text" id="ext" list="exts" placeholder="Automatic" autocomplete="off" spellcheck="false"><datalist id="exts"></datalist></div>
+    <div class="row"><label for="enc">Encoding</label>
+      <select id="enc"><option value="orig">Same as source</option><option value="int" selected>PCM, signed integer</option><option value="float">PCM, floating point</option></select></div>
+    <div class="row"><label for="q">Quality</label>
+      <select id="q"><option value="96">96 kbps</option><option value="128">128 kbps</option><option value="160">160 kbps</option><option value="192">192 kbps</option><option value="256">256 kbps</option><option value="320" selected>320 kbps</option></select></div>
+    <h2>Metadata</h2>
+    <p class="who" id="who"></p>
+    <div class="row"><label for="m_title">Title</label><input type="text" class="mt" id="m_title"></div>
+    <div class="row"><label for="m_artist">Artist</label><input type="text" class="mt" id="m_artist"></div>
+    <div class="row"><label for="m_album">Album</label><input type="text" class="mt" id="m_album"></div>
+    <div class="row"><label for="m_year">Year</label><input type="text" class="mt" id="m_year" maxlength="4"></div>
+    <div class="row"><label for="m_track">Track</label><input type="text" class="mt" id="m_track"></div>
+    <div class="row"><label for="m_genre">Genre</label><input type="text" class="mt" id="m_genre"></div>
+    <div class="row"><label for="m_comment">Comment</label><input type="text" class="mt" id="m_comment"></div>
+    <div class="row one"><span><button class="link" id="clearTags">Clear this file&rsquo;s tags</button> &nbsp; <button class="link" id="allTags">Copy to all files</button></span></div>
+    <p class="note" id="note"></p>
+  </aside>
+</main>
+
+<footer>
+  <div class="sum" id="sum"></div>
+  <div class="acts">
+    <button id="zip" disabled>Save all as .zip</button>
+    <button class="go" id="go" disabled>Convert</button>
+  </div>
+</footer>
+<input type="file" id="file" accept="audio/*,.aif,.aiff,.flac,.caf,.opus" multiple hidden>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const FMT={wav:['wav','wave','bwf'],aiff:['aif','aiff','aifc'],mp3:['mp3'],raw:['raw','pcm','bin']};
+const MP3_RATES=[8000,11025,12000,16000,22050,24000,32000,44100,48000];
+let items=[],busy=false,sel=-1;
+
+/* ---------- settings ---------- */
+const MT=['title','artist','album','year','track','genre','comment'],QS=[96,128,160,192,256,320];
+function opts(){
+  const v=id=>$('#'+id).value;
+  return{ch:v('ch'),fmt:v('fmt'),sr:v('sr'),bits:v('bd')==='orig'?'orig':+v('bd'),end:v('end'),enc:v('enc'),kbps:+v('q'),ext:v('ext').trim().replace(/^\.+/,'')};
+}
+function setBits(){
+  const f=$('#enc').value==='float',cur=$('#bd').value,list=(f?[32,64]:[8,16,24,32]).map(String);
+  $('#bd').innerHTML='<option value="orig">Same as source</option>'+list.map(b=>`<option>${b}</option>`).join('');
+  $('#bd').value=['orig',...list].includes(cur)?cur:(f?'32':'16');
+}
+function sync(extReset){
+  const fmt=$('#fmt').value,mp3=fmt==='mp3',lossless=['wav','aiff','raw'].includes(fmt);
+  if(extReset){$('#exts').innerHTML=(fmt==='orig'?Object.values(FMT).flat():FMT[fmt]).map(e=>`<option value="${e}">`).join('');$('#ext').value=''}
+  for(const id of['bd','end','enc']){$('#'+id).disabled=mp3;$('#'+id).closest('.row').classList.toggle('off',mp3)}
+  $('#q').disabled=lossless;$('#q').closest('.row').classList.toggle('off',lossless);
+  const o=opts();
+  $('#note').textContent=mp3?'MP3 is lossy and always little endian, so bit depth and encoding don\u2019t apply. It tops out at stereo and 48 kHz.'
+   :fmt==='raw'?'Raw PCM has no header, so it can\u2019t hold tags. You\u2019ll need to remember the settings to open it again.'
+   :fmt==='wav'&&o.end==='be'?'Big endian WAV is written as RIFX. Few players open it, so double-check yours does.'
+   :'Sources the browser can read but not write back, like FLAC, M4A and OGG, come out as WAV when the format is \u201CSame as source\u201D. Tags are read from MP3, WAV and AIFF files.';
+  const c=[fmt==='orig'?'same format as source':fmt==='raw'?'Raw PCM':fmt.toUpperCase()];
+  if(mp3)c.push(o.kbps+' kbps');
+  else{c.push((o.bits==='orig'?'source bit depth':o.bits+'-bit')+(o.enc==='float'?' float':''));if(o.end==='be')c.push('big endian')}
+  c.push(o.sr==='orig'?'source rate':o.sr/1000+' kHz');
+  c.push(o.ch==='orig'?'source channels':o.ch==='1'?'mono':o.ch==='2'?'stereo':o.ch+' channels');
+  if(o.ext)c.push('.'+o.ext);
+  $('#sum').textContent='Output: '+c.join(', ');
+  showMeta();
+}
+$('#fmt').onchange=()=>sync(true);
+$('#enc').onchange=()=>{setBits();sync()};
+$$('.insp select,.insp input:not(.mt)').forEach(e=>e.addEventListener('input',()=>sync()));
+setBits();sync(true);
+
+/* ---------- list ---------- */
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const size=n=>n>1e6?(n/1e6).toFixed(1)+' MB':Math.max(1,Math.round(n/1e3))+' KB';
+function add(files){
+  for(const f of files)if(f.type.startsWith('audio/')||/\.(aiff?|aifc|flac|caf|opus|m4a|wav|mp3|ogg)$/i.test(f.name)){
+    const it={file:f,state:'queued',pct:0,meta:{},info:''};it.ready=read(it);items.push(it)}
+  if(sel<0&&items.length)sel=0;
+  draw();showMeta();
+}
+async function read(it){
+  try{
+    const P=probe(await it.file.arrayBuffer(),it.file.name);it.meta={...P.tags};
+    it.info=P.fmt==='mp3'?'MP3'+(P.kbps?', '+P.kbps+' kbps':''):(P.fmt||P.ext||'audio').toUpperCase()+(P.bits?', '+P.bits+(P.float?'-bit float':'-bit'):'');
+  }catch{}
+  draw();if(items[sel]===it)showMeta();
+}
+function showMeta(){
+  const it=items[sel],raw=$('#fmt').value==='raw',off=!it||raw;
+  $('#who').textContent=!it?'Add a file to see its tags.':raw?'Raw PCM can\u2019t hold tags.':'Tags for '+it.file.name;
+  MT.forEach(k=>{const i=$('#m_'+k);i.value=it?(it.meta[k]||''):'';i.disabled=off});
+  $('#clearTags').disabled=off;$('#allTags').disabled=off||items.length<2;
+}
+function draw(){
+  const has=items.length>0;
+  $('#empty').hidden=has;$('#items').hidden=!has;$('#tools').hidden=!has;
+  $('#items').innerHTML=items.map((it,i)=>{
+    const st=it.state==='done'?`<span>${size(it.blob.size)}</span><button class="link" data-save="${i}">Save</button>`
+      :it.state==='error'?`<span>${esc(it.msg)}</span>`
+      :it.state==='working'?`<span>${esc(it.msg||'Working')}</span>`
+      :`<span>Waiting</span>${busy?'':`<button class="link quiet" data-del="${i}">Remove</button>`}`;
+    const t=['title','artist','album'].map(k=>it.meta[k]).filter(Boolean).join(', ');
+    return`<li data-i="${i}" class="${it.state==='error'?'err':''}${i===sel?' sel':''}"><span class="n">${esc(it.file.name)}</span><span class="m">${esc([it.info,size(it.file.size)].filter(Boolean).join(', '))}</span>${t?`<span class="t">${esc(t)}</span>`:''}<span class="s">${st}</span><i class="bar" style="width:${it.pct}%"></i></li>`}).join('');
+  const done=items.filter(i=>i.state==='done').length;
+  $('#count').textContent=`${items.length} file${items.length===1?'':'s'}`+(done?`, ${done} converted`:'');
+  $('#go').disabled=busy||!items.some(i=>i.state!=='done');
+  $('#zip').disabled=busy||done<1;
+  $('#go').textContent=busy?'Converting\u2026':'Convert';
+}
+$('#items').onclick=e=>{
+  const d=e.target.dataset,li=e.target.closest('li');
+  if(d.del!==undefined){items.splice(+d.del,1);if(sel>=items.length)sel=items.length-1;draw();showMeta();return}
+  if(d.save!==undefined){save(items[+d.save]);return}
+  if(li){sel=+li.dataset.i;draw();showMeta()}
+};
+$$('.mt').forEach(i=>i.addEventListener('input',()=>{if(items[sel]){items[sel].meta[i.id.slice(2)]=i.value;draw()}}));
+$('#clearTags').onclick=()=>{if(items[sel]){items[sel].meta={};showMeta();draw()}};
+$('#allTags').onclick=()=>{const m=items[sel]&&items[sel].meta;if(m){items.forEach(it=>it.meta={...m});draw()}};
+$('#pick').onclick=$('#add').onclick=()=>$('#file').click();
+$('#file').onchange=e=>{add(e.target.files);e.target.value=''};
+$('#clear').onclick=()=>{if(!busy){items=[];sel=-1;draw();showMeta()}};
+const L=$('#list');
+['dragenter','dragover'].forEach(t=>L.addEventListener(t,e=>{e.preventDefault();L.classList.add('over')}));
+['dragleave','drop'].forEach(t=>L.addEventListener(t,e=>{e.preventDefault();L.classList.remove('over')}));
+L.addEventListener('drop',e=>add(e.dataTransfer.files));
+
+/* ---------- encoders ---------- */
+function pcm(b,bits,float,le,signed8){
+  const ch=b.numberOfChannels,n=b.length,bps=bits/8,out=new ArrayBuffer(n*ch*bps),dv=new DataView(out),cd=[];
+  for(let c=0;c<ch;c++)cd.push(b.getChannelData(c));
+  let o=0;
+  for(let i=0;i<n;i++)for(let c=0;c<ch;c++){
+    let s=cd[c][i];
+    if(float){bits===64?dv.setFloat64(o,s,le):dv.setFloat32(o,s,le)}
+    else{
+      s=Math.max(-1,Math.min(1,s));
+      if(bits===8){const v=Math.round(s*127);dv.setUint8(o,signed8?v&255:v+128)}
+      else if(bits===16)dv.setInt16(o,Math.round(s*32767),le);
+      else if(bits===24){const v=Math.round(s*8388607),a=v&255,m=(v>>8)&255,h=(v>>16)&255;
+        if(le){dv.setUint8(o,a);dv.setUint8(o+1,m);dv.setUint8(o+2,h)}else{dv.setUint8(o,h);dv.setUint8(o+1,m);dv.setUint8(o+2,a)}}
+      else dv.setInt32(o,Math.round(s*2147483647),le);
+    }
+    o+=bps;
+  }
+  return out;
+}
+const tag=(dv,o,s)=>{for(let i=0;i<s.length;i++)dv.setUint8(o+i,s.charCodeAt(i))};
+const utf=s=>new TextEncoder().encode(s);
+const join=a=>{const o=new Uint8Array(a.reduce((n,x)=>n+x.length,0));let p=0;for(const x of a){o.set(x,p);p+=x.length}return o};
+const be32=n=>new Uint8Array([n>>>24,n>>>16&255,n>>>8&255,n&255]);
+const le32=n=>new Uint8Array([n&255,n>>>8&255,n>>>16&255,n>>>24]);
+const u16=s=>{const a=new Uint8Array(2+s.length*2);a[0]=255;a[1]=254;for(let i=0;i<s.length;i++){a[2+i*2]=s.charCodeAt(i)&255;a[3+i*2]=s.charCodeAt(i)>>8}return a};
+function wav(data,ch,sr,bits,float,le,tags){
+  const I={title:'INAM',artist:'IART',album:'IPRD',year:'ICRD',genre:'IGNR',track:'ITRK',comment:'ICMT'},u32=le?le32:be32,ck=[];
+  for(const k in I)if(tags[k]){const b=utf(tags[k]+'\0'),n=b.length;ck.push(utf(I[k]),u32(n),b,new Uint8Array(n&1))}
+  const body=join(ck),list=ck.length?join([utf('LIST'),u32(4+body.length),utf('INFO'),body]):new Uint8Array(0),pad=data.byteLength&1;
+  const h=new DataView(new ArrayBuffer(44)),ba=ch*bits/8;
+  tag(h,0,le?'RIFF':'RIFX');h.setUint32(4,36+data.byteLength+pad+list.length,le);tag(h,8,'WAVEfmt ');h.setUint32(16,16,le);
+  h.setUint16(20,float?3:1,le);h.setUint16(22,ch,le);h.setUint32(24,sr,le);h.setUint32(28,sr*ba,le);h.setUint16(32,ba,le);h.setUint16(34,bits,le);
+  tag(h,36,'data');h.setUint32(40,data.byteLength,le);
+  return new Blob([h,data,new Uint8Array(pad),list],{type:'audio/wav'});
+}
+function aiff(data,ch,sr,bits,float,le,frames,tags){
+  const aifc=float||le,comp=float?(bits===64?'fl64':'fl32'):'sowt',name=float?(bits===64?'64-bit float':'32-bit float'):'little-endian';
+  const cks=[],add=(id,s)=>{const b=utf(s),n=b.length;cks.push(utf(id),be32(n),b,new Uint8Array(n&1))};
+  if(tags.title)add('NAME',tags.title);if(tags.artist)add('AUTH',tags.artist);if(tags.comment)add('ANNO',tags.comment);
+  for(const k of['album','year','genre','track'])if(tags[k])add('ANNO',k[0].toUpperCase()+k.slice(1)+': '+tags[k]);
+  const extra=join(cks);
+  let pn=1+name.length;if(pn%2)pn++;
+  const comm=18+(aifc?4+pn:0),pad=data.byteLength%2,total=4+(aifc?12:0)+8+comm+16+data.byteLength+pad+extra.length;
+  const h=new DataView(new ArrayBuffer(12+(aifc?12:0)+8+comm+16));let o=0;
+  tag(h,o,'FORM');h.setUint32(o+4,total);tag(h,o+8,aifc?'AIFC':'AIFF');o+=12;
+  if(aifc){tag(h,o,'FVER');h.setUint32(o+4,4);h.setUint32(o+8,0xA2805140);o+=12}
+  tag(h,o,'COMM');h.setUint32(o+4,comm);h.setUint16(o+8,ch);h.setUint32(o+10,frames);h.setUint16(o+14,bits);
+  const e=Math.floor(Math.log2(sr));h.setUint16(o+16,e+16383);h.setBigUint64(o+18,BigInt(Math.round(sr*2**(63-e))));
+  if(aifc){tag(h,o+26,comp);h.setUint8(o+30,name.length);tag(h,o+31,name)}
+  o+=8+comm;
+  tag(h,o,'SSND');h.setUint32(o+4,8+data.byteLength);
+  return new Blob([h,data,new Uint8Array(pad),extra],{type:'audio/aiff'});
+}
+function id3(t){
+  const fr=[],M={title:'TIT2',artist:'TPE1',album:'TALB',year:'TYER',track:'TRCK',genre:'TCON'};
+  for(const k in M)if(t[k]){const b=join([new Uint8Array([1]),u16(t[k])]);fr.push(utf(M[k]),be32(b.length),new Uint8Array(2),b)}
+  if(t.comment){const b=join([new Uint8Array([1,101,110,103,255,254,0,0]),u16(t.comment)]);fr.push(utf('COMM'),be32(b.length),new Uint8Array(2),b)}
+  if(!fr.length)return new Uint8Array(0);
+  const body=join(fr),n=body.length;
+  return join([utf('ID3'),new Uint8Array([3,0,0,n>>21&127,n>>14&127,n>>7&127,n&127]),body]);
+}
+let lameP;
+function loadLame(){return window.lamejs?Promise.resolve():lameP||(lameP=new Promise((ok,no)=>{
+  const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js';
+  s.onload=ok;s.onerror=()=>{lameP=null;no(new Error('MP3 encoder couldn\u2019t load. Check your connection.'))};document.head.appendChild(s)}))}
+async function mp3(b,kbps,tick,tags){
+  await loadLame();
+  const ch=b.numberOfChannels,enc=new lamejs.Mp3Encoder(ch,b.sampleRate,kbps),parts=[];
+  const to16=a=>{const r=new Int16Array(a.length);for(let i=0;i<a.length;i++){const s=Math.max(-1,Math.min(1,a[i]));r[i]=s<0?s*32768:s*32767}return r};
+  const l=to16(b.getChannelData(0)),r=ch>1?to16(b.getChannelData(1)):null,step=1152*16;
+  for(let i=0;i<l.length;i+=step){
+    const d=r?enc.encodeBuffer(l.subarray(i,i+step),r.subarray(i,i+step)):enc.encodeBuffer(l.subarray(i,i+step));
+    if(d.length)parts.push(d);
+    if((i/step)%8===0){tick(i/l.length);await new Promise(r=>setTimeout(r))}
+  }
+  parts.push(enc.flush());
+  return new Blob([id3(tags),...parts],{type:'audio/mpeg'});
+}
+
+/* ---------- reading the source ---------- */
+const TXT=(b,e)=>{
+  if(e===1||e===2){let le=true,t=b;if(b[0]===255&&b[1]===254)t=b.subarray(2);else if(b[0]===254&&b[1]===255){t=b.subarray(2);le=false}else if(e===2)le=false;
+    return new TextDecoder(le?'utf-16le':'utf-16be').decode(t).replace(/\0+$/,'')}
+  return new TextDecoder(e===0?'iso-8859-1':'utf-8').decode(b).replace(/\0+$/,'');
+};
+function probe(ab,name){
+  const u=new Uint8Array(ab),dv=new DataView(ab),s4=o=>String.fromCharCode(u[o],u[o+1],u[o+2],u[o+3]),t=s4(0),
+    r={fmt:null,bits:null,float:false,le:true,kbps:null,tags:{},ext:((name.match(/\.([^.]+)$/)||[])[1]||'').toLowerCase()};
+  try{
+    if(t==='RIFF'||t==='RIFX'){
+      const le=r.le=t==='RIFF',M={INAM:'title',IART:'artist',IPRD:'album',ICRD:'year',IGNR:'genre',ITRK:'track',ICMT:'comment'};r.fmt='wav';
+      for(let o=12;o+8<=u.length;){
+        const id=s4(o),n=dv.getUint32(o+4,le);
+        if(id==='fmt '){const f=dv.getUint16(o+8,le);r.float=f===3||(f===65534&&dv.getUint16(o+32,le)===3);r.bits=dv.getUint16(o+22,le)}
+        if(id==='LIST'&&s4(o+8)==='INFO')for(let p=o+12;p+8<=o+8+n;){const k=s4(p),m=dv.getUint32(p+4,le);if(M[k])r.tags[M[k]]=TXT(u.subarray(p+8,p+8+m),3);p+=8+m+(m&1)}
+        o+=8+n+(n&1);
+      }
+      if(r.tags.year)r.tags.year=r.tags.year.slice(0,4);
+    }else if(t==='FORM'){
+      r.fmt='aiff';r.le=false;const M={NAME:'title',AUTH:'artist',ANNO:'comment'};
+      for(let o=12;o+8<=u.length;){
+        const id=s4(o),n=dv.getUint32(o+4);
+        if(id==='COMM'){r.bits=dv.getUint16(o+14);if(s4(8)==='AIFC'){const c=s4(o+26);if(c==='sowt')r.le=true;if(c==='fl32'||c==='fl64'){r.float=true;r.bits=c==='fl64'?64:32}}}
+        if(M[id]&&!r.tags[M[id]])r.tags[M[id]]=TXT(u.subarray(o+8,o+8+n),3);
+        o+=8+n+(n&1);
+      }
+    }else if(t==='fLaC'){
+      r.bits=(((u[20]&1)<<4)|(u[21]>>4))+1;
+    }else if(t.startsWith('ID3')||(u[0]===255&&(u[1]&224)===224)){
+      r.fmt='mp3';let p=0;
+      if(t.startsWith('ID3')){
+        const v=u[3],end=10+((u[6]<<21)|(u[7]<<14)|(u[8]<<7)|u[9]),M={TIT2:'title',TPE1:'artist',TALB:'album',TYER:'year',TDRC:'year',TRCK:'track',TCON:'genre'};
+        p=end;
+        for(let o=10;o+10<=end&&u[o];){
+          const id=s4(o),n=v===4?((u[o+4]<<21)|(u[o+5]<<14)|(u[o+6]<<7)|u[o+7]):dv.getUint32(o+4),b=u.subarray(o+10,o+10+n),e=b[0];
+          if(M[id])r.tags[M[id]]=TXT(b.subarray(1),e);
+          if(id==='COMM'){let i=4;if(e===0||e===3)i=b.indexOf(0,4)+1;else{while(i+1<b.length&&(b[i]||b[i+1]))i+=2;i+=2}r.tags.comment=TXT(b.subarray(i),e)}
+          o+=10+n;
+        }
+        if(r.tags.year)r.tags.year=r.tags.year.slice(0,4);
+      }
+      for(let i=p;i<p+4096&&i+3<u.length;i++)if(u[i]===255&&(u[i+1]&224)===224){
+        const bi=u[i+2]>>4,T=((u[i+1]>>3)&3)===3?[0,32,40,48,56,64,80,96,112,128,160,192,224,256,320]:[0,8,16,24,32,40,48,56,64,80,96,112,128,144,160];
+        if(bi>0&&bi<15){r.kbps=T[bi];break}
+      }
+    }
+  }catch{}
+  return r;
+}
+
+/* ---------- convert ---------- */
+async function convert(it,o){
+  const set=(msg,pct)=>{it.msg=msg;it.pct=pct;draw()};
+  set('Decoding',8);
+  await it.ready;
+  const bytes=await it.file.arrayBuffer(),P=probe(bytes,it.file.name),ac=new(window.AudioContext||window.webkitAudioContext)();
+  let src;
+  try{src=await ac.decodeAudioData(bytes)}catch{throw new Error('This browser can\u2019t read that file')}finally{ac.close()}
+  const fmt=o.fmt==='orig'?(P.fmt||'wav'):o.fmt,same=fmt===P.fmt;
+  let ch=o.ch==='orig'?src.numberOfChannels:+o.ch,sr=o.sr==='orig'?src.sampleRate:+o.sr;
+  if(fmt==='mp3'){ch=Math.min(ch,2);sr=MP3_RATES.reduce((a,b)=>Math.abs(b-sr)<Math.abs(a-sr)?b:a)}
+  const float=o.enc==='orig'?P.float:o.enc==='float';
+  let bits=o.bits==='orig'?(P.bits||16):o.bits;
+  bits=float?(bits>32?64:32):([8,16,24,32].find(b=>b>=bits)||32);
+  const le=o.end==='orig'?(same?P.le:fmt!=='aiff'):o.end==='le';
+  const kbps=o.kbps==='orig'?(P.kbps?QS.reduce((a,b)=>Math.abs(b-P.kbps)<Math.abs(a-P.kbps)?b:a):256):o.kbps;
+  const ext=o.ext||(same&&FMT[fmt].includes(P.ext)?P.ext:FMT[fmt][0]);
+  const tags=fmt==='raw'?{}:Object.fromEntries(Object.entries(it.meta).map(([k,v])=>[k,(v||'').trim()]).filter(e=>e[1]));
+  set('Resampling',30);
+  const oc=new OfflineAudioContext(ch,Math.max(1,Math.ceil(src.duration*sr)),sr),s=oc.createBufferSource();
+  s.buffer=src;s.connect(oc.destination);s.start();
+  const buf=await oc.startRendering();
+  set('Encoding',55);
+  let blob;
+  if(fmt==='mp3')blob=await mp3(buf,kbps,p=>set('Encoding',55+p*44),tags);
+  else{
+    const data=pcm(buf,bits,float,le,fmt!=='wav');
+    blob=fmt==='wav'?wav(data,ch,sr,bits,float,le,tags):fmt==='aiff'?aiff(data,ch,sr,bits,float,le,buf.length,tags):new Blob([data],{type:'application/octet-stream'});
+  }
+  return{blob,ext};
+}
+$('#go').onclick=async()=>{
+  busy=true;const o=opts();
+  for(const it of items){
+    if(it.state==='done')continue;
+    it.state='working';it.pct=2;draw();
+    try{const r=await convert(it,o);it.blob=r.blob;it.out=outName(it.file.name,r.ext);it.state='done';it.pct=0}
+    catch(e){it.state='error';it.msg=e.message||'Conversion failed';it.pct=0}
+    draw();
+  }
+  busy=false;draw();
+};
+const outName=(n,ext)=>n.replace(/\.[^.]+$/,'')+'.'+ext;
+function save(it){const a=document.createElement('a');a.href=URL.createObjectURL(it.blob);a.download=it.out;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+
+/* ---------- zip (stored, no compression) ---------- */
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c}return t})();
+const crc=u=>{let c=~0;for(let i=0;i<u.length;i++)c=CRC[(c^u[i])&255]^(c>>>8);return~c>>>0};
+$('#zip').onclick=async()=>{
+  const used=new Set(),enc=new TextEncoder(),files=[],cen=[];let off=0;
+  for(const it of items.filter(i=>i.state==='done')){
+    let nm=it.out,k=2;while(used.has(nm))nm=it.out.replace(/(\.[^.]*)?$/,` (${k++})$1`);used.add(nm);
+    const d=new Uint8Array(await it.blob.arrayBuffer()),nb=enc.encode(nm),c=crc(d);
+    const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x800,true);
+    h.setUint32(14,c,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,nb.length,true);
+    const g=new DataView(new ArrayBuffer(46));g.setUint32(0,0x02014b50,true);g.setUint16(4,20,true);g.setUint16(6,20,true);g.setUint16(8,0x800,true);
+    g.setUint32(16,c,true);g.setUint32(20,d.length,true);g.setUint32(24,d.length,true);g.setUint16(28,nb.length,true);g.setUint32(42,off,true);
+    files.push(h,nb,d);cen.push(g,nb);off+=30+nb.length+d.length;
+  }
+  const cs=cen.reduce((a,p)=>a+(p.byteLength),0),e=new DataView(new ArrayBuffer(22)),n=cen.length/2;
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,n,true);e.setUint16(10,n,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([...files,...cen,e],{type:'application/zip'}));a.download="Amy's converted audio.zip";a.click();
+};
+/* ---------- theme wheel ---------- */
+const TH={h:347,s:67},W=$('#wheel'),K=$('#knob');
+function theme(h,s){
+  TH.h=(Math.round(h)+360)%360;TH.s=Math.round(Math.max(25,Math.min(85,s)));
+  const st=document.documentElement.style;st.setProperty('--h',TH.h);st.setProperty('--s',TH.s);
+  const a=TH.h*Math.PI/180,r=(TH.s-25)/60*76;
+  K.style.left=84+r*Math.sin(a)+'px';K.style.top=84-r*Math.cos(a)+'px';K.style.background=`hsl(${TH.h} ${TH.s}% 45%)`;
+  try{localStorage.setItem('aac-theme',JSON.stringify(TH))}catch{}
+}
+const pick=e=>{const b=W.getBoundingClientRect(),dx=e.clientX-b.left-84,dy=e.clientY-b.top-84;theme(Math.atan2(dx,-dy)*180/Math.PI,25+Math.min(1,Math.hypot(dx,dy)/76)*60)};
+W.onpointerdown=e=>{W.setPointerCapture(e.pointerId);pick(e);W.onpointermove=pick};
+W.onpointerup=()=>{W.onpointermove=null};
+W.onkeydown=e=>{const d={ArrowLeft:[-6,0],ArrowRight:[6,0],ArrowUp:[0,5],ArrowDown:[0,-5]}[e.key];if(d){e.preventDefault();theme(TH.h+d[0],TH.s+d[1])}};
+const pop=(open)=>{$('#pop').hidden=!open;$('#tbtn').setAttribute('aria-expanded',open)};
+$('#tbtn').onclick=()=>pop($('#pop').hidden);
+$('#treset').onclick=()=>theme(347,67);
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.theme'))pop(false)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')pop(false)});
+try{const t=JSON.parse(localStorage.getItem('aac-theme'));theme(t.h,t.s)}catch{theme(347,67)}
+draw();
+</script>
+</body>
+</html>
