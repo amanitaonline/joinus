@@ -6,14 +6,13 @@
 <title>Amy's Audio Converter</title>
 <link href="https://api.fontshare.com/v2/css?f[]=gambarino@400&f[]=pally@400,500&display=swap" rel="stylesheet">
 <style>
-:root{--serif:"Gambarino",Georgia,"Times New Roman",serif;--h:347;--s:67;--bg:hsl(var(--h) 7% 84%);--panel:hsl(var(--h) 7% 91%);--well:hsl(var(--h) 7% 87%);--ink:hsl(var(--h) 14% 10%);--mute:hsl(var(--h) 6% 37%);--line:hsl(var(--h) 6% 70%);--accent:hsl(var(--h) calc(var(--s)*1%) 26%);--accent-ink:#fff;--bad:#b3261e;
+:root{--serif:"Gambarino",Georgia,"Times New Roman",serif;--h:347;--s:67;--L:84;--dk:0;--bg:hsl(var(--h) 7% calc(var(--L)*1%));--panel:hsl(var(--h) 7% calc(var(--L)*1% + 7% - var(--dk)*4%));--well:hsl(var(--h) 7% calc(var(--L)*1% + 3% - var(--dk)*2%));--ink:hsl(var(--h) 14% calc(10% + var(--dk)*81%));--mute:hsl(var(--h) 6% calc(37% + var(--dk)*25%));--line:hsl(var(--h) 6% calc(var(--L)*1% - 14% + var(--dk)*27%));--accent:hsl(var(--h) calc(var(--s)*1%) calc(26% + var(--dk)*44%));--accent-ink:hsl(var(--h) calc(var(--dk)*40%) calc(100% - var(--dk)*92%));--bad:hsl(4 75% calc(40% + var(--dk)*40%));
  font-family:"Pally",-apple-system,"Helvetica Neue",Arial,sans-serif;font-size:15px;color:var(--ink);background:var(--bg)}
-@media(prefers-color-scheme:dark){:root{--bg:hsl(var(--h) 8% 10%);--panel:hsl(var(--h) 8% 13%);--well:hsl(var(--h) 8% 11%);--ink:hsl(var(--h) 15% 91%);--mute:hsl(var(--h) 6% 62%);--line:hsl(var(--h) 7% 23%);--accent:hsl(var(--h) calc(var(--s)*1%) 70%);--accent-ink:hsl(var(--h) 40% 8%);--bad:#ff8a80}}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);display:flex;flex-direction:column;min-height:100%}
-header{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:22px 28px 16px}
-h1{margin:0;font:400 38px/1 var(--serif);letter-spacing:-.01em}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 28px 16px}
+h1{margin:0;line-height:0;color:var(--ink)}.logo{height:40px;width:auto;display:block}
 header p{margin:0;color:var(--mute);font-size:13px}
 main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;padding:0 28px;min-height:0}
 .list,.insp{background:var(--panel);border:1px solid var(--line);border-radius:10px}
@@ -29,7 +28,7 @@ li .s{grid-row:1/span 3;grid-column:2;align-self:center;display:flex;gap:12px;al
 li.err .s>span{color:var(--bad)}li{cursor:pointer}li.sel{background:var(--well);box-shadow:inset 3px 0 0 var(--accent)}li .t{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.who{margin:2px 0 4px;color:var(--mute);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 li .bar{position:absolute;left:0;bottom:-1px;height:2px;background:var(--accent);width:0;transition:width .25s}
 .bar-tools{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--line);background:var(--well);font-size:13px;color:var(--mute)}
-button,select,input[type=text]{font:inherit;color:inherit}
+button,select,input[type=text],textarea{font:inherit;color:inherit}
 button{border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:7px 13px;cursor:pointer}
 button:hover:not(:disabled){border-color:var(--mute)}
 button:disabled{opacity:.45;cursor:default}
@@ -41,8 +40,8 @@ button.go{background:var(--accent);color:var(--accent-ink);border-color:var(--ac
 .row{display:grid;grid-template-columns:104px 1fr;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
 .row:last-of-type{border-bottom:0}
 .row label{color:var(--mute);font-size:14px}
-select,input[type=text]{width:100%;background:var(--well);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-height:32px}
-select:disabled,input:disabled{opacity:.4}
+select,input[type=text],textarea{width:100%;background:var(--well);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-height:32px}
+select:disabled,input:disabled,textarea:disabled{opacity:.4}
 .row.off label{opacity:.5}
 .note{margin:6px 0 0;color:var(--mute);font-size:13px;line-height:1.45;min-height:3em}
 footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 28px 22px}
@@ -57,18 +56,33 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
 .wheel{position:relative;width:168px;height:168px;border-radius:50%;touch-action:none;cursor:crosshair;
  background:radial-gradient(circle,hsl(0 0% 74%) 0,transparent 72%),conic-gradient(hsl(0 85% 55%),hsl(60 85% 55%),hsl(120 85% 45%),hsl(180 85% 45%),hsl(240 85% 60%),hsl(300 85% 55%),hsl(360 85% 55%))}
 .knob{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35);pointer-events:none}
+textarea{resize:vertical;min-height:64px;display:block}
+.tabs{display:flex;gap:4px;padding:4px;margin:12px 0 4px;background:var(--well);border-radius:9px}
+.tabs button{flex:1;border:0;background:none;padding:6px;border-radius:6px;color:var(--mute)}
+.tabs button[aria-selected=true]{background:var(--panel);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.pair{display:flex;align-items:center;gap:8px}.pair i{font-style:normal;color:var(--mute);font-size:14px}
+.artrow{display:flex;gap:14px;align-items:flex-end;padding:8px 0 10px}
+.art{width:120px;height:120px;flex:none;border-radius:6px;background:var(--well) center/cover;border:1px solid var(--line);display:grid;place-items:center;color:var(--mute);font-size:13px;text-align:center}
+.artbtns{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.notice{margin:0;padding:10px 16px;font-size:13px;line-height:1.4;color:var(--mute);background:var(--well);border-bottom:1px solid var(--line)}
+.notice[hidden]{display:none}
+.tone{display:flex;align-items:center;gap:8px;width:168px;font-size:12px;color:var(--mute)}
+.tone input{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:10px;padding:0;border-radius:6px;background:linear-gradient(90deg,#fff,#000);border:1px solid var(--line)}
+.tone input::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.4)}
+.tone input::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.4)}
 </style>
 </head>
 <body>
 <header>
-  <h1>Amy's Audio Converter</h1>
+  <h1><svg class="logo" role="img" aria-label="Amy’s Audio Converter" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68.82 16.57"><defs><style>.cls-1 {fill:currentColor;}</style></defs><path class="cls-1" d="M4.22,7.18h3.01v-.23c-.85-.08-.9-.1-.9-1.35v-2.58c0-1.12.71-1.76,1.33-1.76.52,0,1.07.36,1.07,1.92v2.42c0,1.26-.04,1.28-.89,1.35v.23h3.01v-.23c-.97-.08-1.02-.1-1.02-1.35v-2.58c0-1.12.71-1.76,1.33-1.76.52,0,1.07.36,1.07,1.92v2.42c0,1.26-.04,1.28-.89,1.35v.23h3.01v-.23c-.97-.08-1.02-.1-1.02-1.35v-2.99c0-1.37-.42-2.03-1.4-2.03-.68,0-1.1.31-2.18,1.1-.17-.74-.59-1.1-1.32-1.1-.67,0-1.08.3-2.1,1.04v-.98l-.1-.06c-.65.56-1.2.84-2.13.84v.17c-.19-.66-.66-1.01-1.5-1.01C1.48.58.18,1.33.18,2.04c0,.25.16.53.61.53,1.08,0,.17-1.64,1.37-1.64.66,0,.94.54.94,1.78v1.29l-1.33.44c-1.3.43-1.76.79-1.76,1.52,0,.61.35,1.34,1.27,1.34.67,0,1.3-.41,1.82-.82v.7h1.13ZM5.23,2.52v3.08c0,1-.03,1.22-.53,1.3-.46-.08-.5-.28-.5-1.3v-3.23c0-.27-.03-.51-.08-.72.83,0,1.12.09,1.12.86ZM1.85,6.67c-.5,0-.72-.42-.72-.84,0-.48.24-.85,1.07-1.13l.9-.29v1.19c-.1.78-.8,1.07-1.25,1.07Z"/><path class="cls-1" d="M14.14,1.9l2.06,5.27c-.4,1.12-.71,1.62-1.14,1.62-.48,0-.34-.62-.91-.62-.41,0-.52.32-.52.59,0,.48.36.71.91.71.62,0,1.28-.29,2.15-2.73l1.67-4.74c.29-.8.35-.85.88-.94v-.23c-.29.02-.61.05-.96.05s-.68-.02-1.04-.05v.23c.54.05.77.1.77.41,0,.2-.11.54-.28,1.07l-1.03,3.15-1.27-3.61c-.11-.32-.18-.53-.18-.67,0-.26.23-.3.76-.35v-.23c-.47.02-.95.05-1.42.05s-.91-.02-1.33-.05v.23c.48.07.59.1.89.85Z"/><path class="cls-1" d="M18.96,3.2L20.89.11l-.28-.11c-.26.1-.58.17-.9.16l-.96,2.95.2.1Z"/><path class="cls-1" d="M20.05,2.29c0,1.91,2.78,2.02,2.78,3.65,0,.74-.53,1.06-1.07,1.06-.86,0-1.18-.84-1.51-1.93l-.28.02.24,2.34h.24c.05-.23.16-.3.31-.3.25,0,.61.18,1.08.18.85,0,1.89-.67,1.89-1.85,0-1.97-2.77-2.23-2.77-3.65,0-.58.44-.91.94-.91.65,0,1.02.56,1.36,1.57l.25-.02-.18-2.1h-.22c-.07.28-.16.37-.3.37-.24,0-.46-.13-.89-.13-1.28,0-1.88.8-1.88,1.7Z"/><path class="cls-1" d="M13.82,14.77v-4.95l-.1-.06c-.65.56-1.2.84-2.13.84v.23c.84,0,1.13.08,1.13.86v2.95c0,.52-.71,1.16-1.33,1.16-.52,0-1.07-.36-1.07-1.44v-4.55l-.1-.06c-.63.55-1.18.82-2.08.84-.22-.54-.67-.84-1.43-.84-1.13,0-2.42.74-2.42,1.45,0,.25.16.53.61.53,1.08,0,.17-1.64,1.37-1.64.66,0,.94.54.94,1.78v1.29l-1.33.44c-1.3.43-1.76.79-1.76,1.52,0,.61.35,1.34,1.27,1.34.67,0,1.3-.41,1.82-.82v.7h2v-.23c-.85-.08-.9-.1-.9-1.35v-3.23c0-.27-.03-.51-.08-.72.73.01,1,.13,1,.86v3.24c0,.89.42,1.55,1.4,1.55.67,0,1.08-.3,2.1-1.04v.92h2.12v-.23c-.97-.08-1.02-.1-1.02-1.35ZM7.2,14.77c-.1.78-.8,1.07-1.25,1.07-.5,0-.72-.42-.72-.84,0-.48.24-.85,1.07-1.13l.9-.29v1.19Z"/><path class="cls-1" d="M21.47,14.77v-4.95l-.1-.06c-.63.55-1.18.82-2.07.83v-3.87l-.1-.06c-.65.56-1.2.84-2.13.84v.23c.84,0,1.13.08,1.13.86v1.5c-.3-.18-.79-.34-1.29-.34-1.44,0-2.75,1.33-2.75,3.53,0,1.99.95,3.19,2.17,3.19.76,0,1.33-.47,1.87-1.24v1.12h4.17v-.23c-.85-.08-.9-.1-.9-1.35ZM18.2,14.21c-.26,1.15-.88,1.72-1.51,1.72-.82,0-1.34-.94-1.34-2.78,0-2.05.58-3,1.5-3,.61,0,1.36.42,1.36,1.64v2.42ZM20.36,14.77c0,1.01-.03,1.22-.54,1.31-.48-.08-.52-.28-.52-1.31v-3.94c.78,0,1.06.11,1.06.86v3.08Z"/><path class="cls-1" d="M19.99,8.6c0,.46.36.8.82.8s.8-.35.8-.8-.35-.82-.8-.82-.82.36-.82.82Z"/><path class="cls-1" d="M24.56,9.76c-1.7,0-2.79,1.4-2.79,3.54,0,1.97.9,3.18,2.64,3.18s2.79-1.4,2.79-3.53c0-1.98-.94-3.19-2.64-3.19ZM24.61,16.16c-1.13,0-1.58-1.67-1.58-3.49s.49-2.6,1.29-2.6c1.18,0,1.66,1.69,1.66,3.47s-.6,2.63-1.37,2.63Z"/><path class="cls-1" d="M44.27,14.8v-2.99c0-1.37-.42-2.03-1.4-2.03-.67,0-1.08.3-2.1,1.04v-.98l-.1-.06c-.65.56-1.2.84-2.13.84v.11c-.45-.6-1.12-.95-2.02-.95-1.7,0-2.79,1.4-2.79,3.54,0,.68.12,1.27.33,1.75-.48.44-1.04.74-1.53.74-1.16,0-1.81-1.55-1.81-3.25,0-1.4.47-2.43,1.32-2.43.92,0,.68,1.22,1.46,1.22.41,0,.64-.35.64-.67,0-.44-.52-.9-1.64-.9-2.01,0-2.95,1.52-2.95,3.51,0,2.1,1.12,3.2,2.47,3.2,1,0,1.68-.6,2.18-1.17.43.75,1.15,1.17,2.18,1.17,1.68,0,2.79-1.4,2.79-3.53,0-.87-.19-1.59-.54-2.12.77,0,1.05.11,1.05.86v3.08c0,1.26-.04,1.28-1.01,1.35v.23h3.01v-.23c-.85-.08-.9-.1-.9-1.35v-2.58c0-1.12.71-1.76,1.33-1.76.52,0,1.07.36,1.07,1.92v2.42c0,1.26-.04,1.28-.89,1.35v.23h3.01v-.23c-.97-.08-1.02-.1-1.02-1.35ZM36.57,16.19c-1.13,0-1.58-1.67-1.58-3.49s.49-2.6,1.29-2.6c1.18,0,1.66,1.69,1.66,3.47s-.6,2.63-1.37,2.63Z"/><path class="cls-1" d="M50.16,10.26v-.23c-.29.02-.61.05-.96.05s-.68-.02-1.04-.05v.23c.54.01.77.05.77.37,0,.22-.1.56-.28,1.1l-1.07,3.27-1.24-3.73c-.11-.34-.18-.56-.18-.71,0-.28.23-.3.76-.31v-.23c-.47.02-.95.05-1.42.05s-.91-.02-1.33-.05v.23c.48.01.59.05.89.85l2.04,5.46h.29l1.9-5.37c.3-.85.35-.91.88-.94Z"/><path class="cls-1" d="M59.79,15.98c-.43,0-.66-.26-.66-.95v-4.61l1.46-.14v-.25l-1.46-.17v-1.27h-.23c-.07.65-.43,1.12-.97,1.33-.15-.08-.33-.13-.54-.13-.56,0-1.06.3-1.66,1.09v-1.03l-.22-.06c-.48.51-.98.77-1.76.82-.41-.6-1.05-.82-1.64-.82-1.62,0-2.6,1.52-2.6,3.51,0,2.12,1.15,3.2,2.46,3.2,1.09,0,1.86-.77,2.38-1.39l-.14-.19c-.5.53-1.13.9-1.7.9-1.15,0-1.8-1.51-1.81-3.2l3.49-.36c0-.59-.11-1.03-.29-1.39.53.04.73.21.73.85v3.08c0,1.26-.04,1.28-1.01,1.35v.23h3.37v-.23c-1.21-.08-1.26-.1-1.26-1.35v-1.99c0-1.59.52-2.35,1.04-2.35.44,0,.42.62.92.62.13,0,.24-.05.33-.12v4.23c0,.84.55,1.31,1.31,1.31.63,0,1.12-.32,1.44-.71l-.13-.22c-.22.22-.49.4-.85.4ZM50.72,12.06c.1-1.13.52-1.92,1.25-1.92.36,0,1.01.19,1.08,1.92h-2.33Z"/><path class="cls-1" d="M67.93,9.79c-.56,0-1.06.3-1.66,1.09v-1.03l-.22-.06c-.48.51-.99.77-1.76.82-.41-.6-1.05-.82-1.64-.82-1.62,0-2.6,1.52-2.6,3.51,0,2.12,1.15,3.2,2.46,3.2,1.09,0,1.86-.77,2.38-1.39l-.14-.19c-.5.53-1.13.9-1.7.9-1.15,0-1.8-1.51-1.81-3.2l3.49-.36c0-.59-.11-1.03-.29-1.39.53.04.73.21.73.85v3.08c0,1.26-.04,1.28-1.01,1.35v.23h3.37v-.23c-1.21-.08-1.26-.1-1.26-1.35v-1.99c0-1.59.52-2.35,1.04-2.35.44,0,.42.62.92.62.36,0,.59-.31.59-.64,0-.41-.37-.66-.9-.66ZM61.25,12.06c.1-1.13.52-1.92,1.25-1.92.36,0,1.01.19,1.08,1.92h-2.33Z"/></svg></h1>
   <div class="hd">
     <p>Everything happens in this browser tab. Your files never get uploaded.</p>
     <div class="theme">
-      <button class="sw" id="tbtn" aria-label="Theme color" aria-expanded="false" aria-controls="pop"></button>
+      <button class="sw" id="tbtn" aria-label="Theme colors" aria-expanded="false" aria-controls="pop"></button>
       <div class="pop" id="pop" hidden>
         <div class="wheel" id="wheel" tabindex="0" role="slider" aria-label="Theme color. Arrow keys change hue and strength."><i class="knob" id="knob"></i></div>
-        <button class="link quiet" id="treset">Reset to burgundy</button>
+        <label class="tone"><span>White</span><input type="range" id="tone" min="0" max="100" aria-label="Brightness, white to black"><span>Black</span></label>
+        <button class="link quiet" id="treset">Reset theme</button>
       </div>
     </div>
   </div>
@@ -76,6 +90,7 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
 
 <main>
   <section class="list" id="list" aria-label="Files to convert">
+    <p class="notice" id="notice" hidden>Heads up: m4a files might not convert in this browser. Lossless m4a (ALAC) is the most likely to fail. Safari is the safest choice for any m4a, lossy or lossless.</p>
     <div class="drop" id="empty">
       <strong>Drop audio files here</strong>
       <span>WAV, AIFF, MP3, FLAC, M4A, OGG and anything else your browser can open.</span>
@@ -89,56 +104,82 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:16px;pa
   </section>
 
   <aside class="insp" aria-label="Output settings">
-    <h2>Audio</h2>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tAudio" aria-selected="true">Audio</button>
+      <button role="tab" id="tMeta" aria-selected="false">Metadata</button>
+    </div>
+    <div id="pAudio">
+    <div class="row"><label for="preset">Preset</label><select id="preset"></select></div>
+    <div class="row one"><span><button class="link" id="psave">Save settings as preset</button> &nbsp; <button class="link quiet" id="pdel">Delete preset</button></span></div>
     <div class="row"><label for="ch">Channels</label>
       <select id="ch"><option value="orig">Same as source</option><option value="1">Mono</option><option value="2" selected>Stereo</option><option value="4">4 channels</option><option value="6">5.1 (6 channels)</option></select></div>
     <div class="row"><label for="fmt">Output format</label>
-      <select id="fmt"><option value="orig">Same as source</option><option value="wav" selected>WAV</option><option value="aiff">AIFF</option><option value="mp3">MP3</option><option value="raw">Raw PCM</option></select></div>
+      <select id="fmt"><option value="orig">Same as source</option><option value="wav" selected>WAV</option><option value="aiff">AIFF</option><option value="mp3">MP3</option><option value="flac">FLAC</option><option value="raw">Raw PCM</option></select></div>
     <div class="row"><label for="sr">Sample rate</label>
       <select id="sr"><option value="orig">Same as source</option><option>8000</option><option>11025</option><option>16000</option><option>22050</option><option>32000</option><option selected>44100</option><option>48000</option><option>88200</option><option>96000</option><option>176400</option><option>192000</option></select></div>
     <div class="row"><label for="bd">Bit depth</label><select id="bd"></select></div>
+    <div class="row"><label for="dt">Dither</label><select id="dt"><option value="tpdf">TPDF, for 16-bit and lower</option><option value="none">None</option></select></div>
     <div class="row"><label for="end">Endianness</label>
       <select id="end"><option value="orig">Same as source</option><option value="le" selected>Little endian</option><option value="be">Big endian</option></select></div>
     <div class="row"><label for="ext">Extension</label>
       <input type="text" id="ext" list="exts" placeholder="Automatic" autocomplete="off" spellcheck="false"><datalist id="exts"></datalist></div>
+    <div class="row"><label for="nm">File name</label><input type="text" id="nm" placeholder="{name}" autocomplete="off" spellcheck="false" title="Tokens: {name} {title} {artist} {album} {albumArtist} {track} {disc} {year} {genre}"></div>
     <div class="row"><label for="enc">Encoding</label>
       <select id="enc"><option value="orig">Same as source</option><option value="int" selected>PCM, signed integer</option><option value="float">PCM, floating point</option></select></div>
     <div class="row"><label for="q">Quality</label>
       <select id="q"><option value="96">96 kbps</option><option value="128">128 kbps</option><option value="160">160 kbps</option><option value="192">192 kbps</option><option value="256">256 kbps</option><option value="320" selected>320 kbps</option></select></div>
-    <h2>Metadata</h2>
-    <p class="who" id="who"></p>
-    <div class="row"><label for="m_title">Title</label><input type="text" class="mt" id="m_title"></div>
-    <div class="row"><label for="m_artist">Artist</label><input type="text" class="mt" id="m_artist"></div>
-    <div class="row"><label for="m_album">Album</label><input type="text" class="mt" id="m_album"></div>
-    <div class="row"><label for="m_year">Year</label><input type="text" class="mt" id="m_year" maxlength="4"></div>
-    <div class="row"><label for="m_track">Track</label><input type="text" class="mt" id="m_track"></div>
-    <div class="row"><label for="m_genre">Genre</label><input type="text" class="mt" id="m_genre"></div>
-    <div class="row"><label for="m_comment">Comment</label><input type="text" class="mt" id="m_comment"></div>
-    <div class="row one"><span><button class="link" id="clearTags">Clear this file&rsquo;s tags</button> &nbsp; <button class="link" id="allTags">Copy to all files</button></span></div>
     <p class="note" id="note"></p>
+    </div>
+    <div id="pMeta" hidden>
+      <p class="who" id="who"></p>
+      <div class="artrow">
+        <div class="art" id="art" aria-label="Artwork"></div>
+        <div class="artbtns"><button id="artPick">Choose image</button><button class="link quiet" id="artDel">Remove artwork</button></div>
+      </div>
+      <div class="row"><label for="m_title">Track title</label><input type="text" class="mt" id="m_title"></div>
+      <div class="row"><label for="m_artist">Track artist</label><input type="text" class="mt" id="m_artist"></div>
+      <div class="row"><label for="m_album">Album</label><input type="text" class="mt" id="m_album"></div>
+      <div class="row"><label for="m_albumArtist">Album artist</label><input type="text" class="mt" id="m_albumArtist"></div>
+      <div class="row"><label for="m_composer">Composer</label><input type="text" class="mt" id="m_composer"></div>
+      <div class="row"><label for="m_work">Work</label><input type="text" class="mt" id="m_work"></div>
+      <div class="row"><label for="m_movement">Movement</label><input type="text" class="mt" id="m_movement"></div>
+      <div class="row"><label for="m_movementNo">Movement no.</label><span class="pair"><input type="text" class="mt" id="m_movementNo" inputmode="numeric"><i>of</i><input type="text" class="mt" id="m_movementOf" inputmode="numeric" aria-label="Movement count"></span></div>
+      <div class="row"><label for="m_grouping">Grouping</label><input type="text" class="mt" id="m_grouping"></div>
+      <div class="row"><label for="m_genre">Genre</label><input type="text" class="mt" id="m_genre"></div>
+      <div class="row"><label for="m_year">Year</label><input type="text" class="mt" id="m_year" maxlength="4" inputmode="numeric"></div>
+      <div class="row"><label for="m_track">Track number</label><span class="pair"><input type="text" class="mt" id="m_track" inputmode="numeric"><i>of</i><input type="text" class="mt" id="m_trackOf" inputmode="numeric" aria-label="Track count"></span></div>
+      <div class="row"><label for="m_disc">Disc number</label><span class="pair"><input type="text" class="mt" id="m_disc" inputmode="numeric"><i>of</i><input type="text" class="mt" id="m_discOf" inputmode="numeric" aria-label="Disc count"></span></div>
+      <div class="row"><label for="m_bpm">BPM</label><input type="text" class="mt" id="m_bpm" inputmode="numeric"></div>
+      <div class="row"><label for="m_comment">Comments</label><textarea class="mt" id="m_comment" rows="3"></textarea></div>
+      <div class="row one"><label><input type="checkbox" class="mt" id="m_showWork">Show work and movement</label></div>
+      <div class="row one"><label><input type="checkbox" class="mt" id="m_compilation">Part of a compilation</label></div>
+      <div class="row one"><span><button class="link" id="clearTags">Clear this file&rsquo;s tags</button> &nbsp; <button class="link" id="allTags">Copy to all files</button></span></div>
+    </div>
   </aside>
 </main>
 
 <footer>
   <div class="sum" id="sum"></div>
   <div class="acts">
+    <button id="dirbtn" disabled hidden>Save to folder</button>
     <button id="zip" disabled>Save all as .zip</button>
     <button class="go" id="go" disabled>Convert</button>
   </div>
 </footer>
+<input type="file" id="artFile" accept="image/*" hidden>
 <input type="file" id="file" accept="audio/*,.aif,.aiff,.flac,.caf,.opus" multiple hidden>
 
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const FMT={wav:['wav','wave','bwf'],aiff:['aif','aiff','aifc'],mp3:['mp3'],raw:['raw','pcm','bin']};
+const FMT={wav:['wav','wave','bwf'],aiff:['aif','aiff','aifc'],mp3:['mp3'],raw:['raw','pcm','bin'],flac:['flac']};
 const MP3_RATES=[8000,11025,12000,16000,22050,24000,32000,44100,48000];
 let items=[],busy=false,sel=-1;
 
 /* ---------- settings ---------- */
-const MT=['title','artist','album','year','track','genre','comment'],QS=[96,128,160,192,256,320];
+const MT=['title','artist','album','albumArtist','composer','work','movement','movementNo','movementOf','grouping','genre','year','track','trackOf','disc','discOf','bpm','comment'],BK=['showWork','compilation'],QS=[96,128,160,192,256,320];
 function opts(){
   const v=id=>$('#'+id).value;
-  return{ch:v('ch'),fmt:v('fmt'),sr:v('sr'),bits:v('bd')==='orig'?'orig':+v('bd'),end:v('end'),enc:v('enc'),kbps:+v('q'),ext:v('ext').trim().replace(/^\.+/,'')};
+  return{ch:v('ch'),fmt:v('fmt'),sr:v('sr'),bits:v('bd')==='orig'?'orig':+v('bd'),end:v('end'),enc:v('enc'),kbps:+v('q'),dither:v('dt'),tpl:v('nm').trim(),ext:v('ext').trim().replace(/^\.+/,'')};
 }
 function setBits(){
   const f=$('#enc').value==='float',cur=$('#bd').value,list=(f?[32,64]:[8,16,24,32]).map(String);
@@ -146,15 +187,16 @@ function setBits(){
   $('#bd').value=['orig',...list].includes(cur)?cur:(f?'32':'16');
 }
 function sync(extReset){
-  const fmt=$('#fmt').value,mp3=fmt==='mp3',lossless=['wav','aiff','raw'].includes(fmt);
+  const fmt=$('#fmt').value,mp3=fmt==='mp3',lossless=['wav','aiff','raw','flac'].includes(fmt);
   if(extReset){$('#exts').innerHTML=(fmt==='orig'?Object.values(FMT).flat():FMT[fmt]).map(e=>`<option value="${e}">`).join('');$('#ext').value=''}
-  for(const id of['bd','end','enc']){$('#'+id).disabled=mp3;$('#'+id).closest('.row').classList.toggle('off',mp3)}
+  for(const id of['bd','dt','end','enc']){const off=id==='bd'||id==='dt'?mp3:mp3||fmt==='flac';$('#'+id).disabled=off;$('#'+id).closest('.row').classList.toggle('off',off)}
   $('#q').disabled=lossless;$('#q').closest('.row').classList.toggle('off',lossless);
   const o=opts();
   $('#note').textContent=mp3?'MP3 is lossy and always little endian, so bit depth and encoding don\u2019t apply. It tops out at stereo and 48 kHz.'
+   :fmt==='flac'?'FLAC is lossless and integer only, so endianness and encoding don\u2019t apply. Bit depth is 8, 16 or 24, and tags and artwork are kept.'
    :fmt==='raw'?'Raw PCM has no header, so it can\u2019t hold tags. You\u2019ll need to remember the settings to open it again.'
    :fmt==='wav'&&o.end==='be'?'Big endian WAV is written as RIFX. Few players open it, so double-check yours does.'
-   :'Sources the browser can read but not write back, like FLAC, M4A and OGG, come out as WAV when the format is \u201CSame as source\u201D. Tags are read from MP3, WAV and AIFF files.';
+   :'Sources the browser can read but not write back, like M4A and OGG, come out as WAV when the format is \u201CSame as source\u201D. Tags and artwork are read from MP3, WAV, AIFF, FLAC and M4A files.';
   const c=[fmt==='orig'?'same format as source':fmt==='raw'?'Raw PCM':fmt.toUpperCase()];
   if(mp3)c.push(o.kbps+' kbps');
   else{c.push((o.bits==='orig'?'source bit depth':o.bits+'-bit')+(o.enc==='float'?' float':''));if(o.end==='be')c.push('big endian')}
@@ -180,42 +222,63 @@ function add(files){
 }
 async function read(it){
   try{
-    const P=probe(await it.file.arrayBuffer(),it.file.name);it.meta={...P.tags};
+    const P=probe(await it.file.arrayBuffer(),it.file.name);it.meta={...P.tags};setPic(it,P.pic);
     it.info=P.fmt==='mp3'?'MP3'+(P.kbps?', '+P.kbps+' kbps':''):(P.fmt||P.ext||'audio').toUpperCase()+(P.bits?', '+P.bits+(P.float?'-bit float':'-bit'):'');
   }catch{}
   draw();if(items[sel]===it)showMeta();
 }
+function setPic(it,pic){
+  if(it.pic&&it.pic.url)URL.revokeObjectURL(it.pic.url);
+  it.pic=pic?{mime:pic.mime,data:pic.data,url:URL.createObjectURL(new Blob([pic.data],{type:pic.mime}))}:null;
+}
 function showMeta(){
   const it=items[sel],raw=$('#fmt').value==='raw',off=!it||raw;
-  $('#who').textContent=!it?'Add a file to see its tags.':raw?'Raw PCM can\u2019t hold tags.':'Tags for '+it.file.name;
+  $('#who').textContent=!it?'Add a file to see its tags.':raw?'Raw PCM can\u2019t hold tags.':it.file.name;
   MT.forEach(k=>{const i=$('#m_'+k);i.value=it?(it.meta[k]||''):'';i.disabled=off});
-  $('#clearTags').disabled=off;$('#allTags').disabled=off||items.length<2;
+  BK.forEach(k=>{const i=$('#m_'+k);i.checked=!!(it&&it.meta[k]);i.disabled=off});
+  const a=$('#art'),has=!!(it&&it.pic);
+  a.style.backgroundImage=has?`url(${it.pic.url})`:'none';a.textContent=has?'':'No artwork';
+  $('#artPick').disabled=$('#clearTags').disabled=off;$('#artDel').disabled=off||!has;$('#allTags').disabled=off||items.length<2;
 }
 function draw(){
   const has=items.length>0;
   $('#empty').hidden=has;$('#items').hidden=!has;$('#tools').hidden=!has;
   $('#items').innerHTML=items.map((it,i)=>{
-    const st=it.state==='done'?`<span>${size(it.blob.size)}</span><button class="link" data-save="${i}">Save</button>`
+    const st=it.state==='done'?`<span>${size(it.blob.size)}</span><button class="link quiet" data-play="${i}">${playing===i?'Stop':'Play'}</button><button class="link" data-save="${i}">Save</button>`
       :it.state==='error'?`<span>${esc(it.msg)}</span>`
       :it.state==='working'?`<span>${esc(it.msg||'Working')}</span>`
-      :`<span>Waiting</span>${busy?'':`<button class="link quiet" data-del="${i}">Remove</button>`}`;
+      :`<span>Waiting</span><button class="link quiet" data-play="${i}">${playing===i?'Stop':'Play'}</button>${busy?'':`<button class="link quiet" data-del="${i}">Remove</button>`}`;
     const t=['title','artist','album'].map(k=>it.meta[k]).filter(Boolean).join(', ');
     return`<li data-i="${i}" class="${it.state==='error'?'err':''}${i===sel?' sel':''}"><span class="n">${esc(it.file.name)}</span><span class="m">${esc([it.info,size(it.file.size)].filter(Boolean).join(', '))}</span>${t?`<span class="t">${esc(t)}</span>`:''}<span class="s">${st}</span><i class="bar" style="width:${it.pct}%"></i></li>`}).join('');
   const done=items.filter(i=>i.state==='done').length;
   $('#count').textContent=`${items.length} file${items.length===1?'':'s'}`+(done?`, ${done} converted`:'');
   $('#go').disabled=busy||!items.some(i=>i.state!=='done');
-  $('#zip').disabled=busy||done<1;
+  $('#zip').disabled=$('#dirbtn').disabled=busy||done<1;
   $('#go').textContent=busy?'Converting\u2026':'Convert';
 }
 $('#items').onclick=e=>{
   const d=e.target.dataset,li=e.target.closest('li');
   if(d.del!==undefined){items.splice(+d.del,1);if(sel>=items.length)sel=items.length-1;draw();showMeta();return}
   if(d.save!==undefined){save(items[+d.save]);return}
+  if(d.play!==undefined){play(+d.play);return}
   if(li){sel=+li.dataset.i;draw();showMeta()}
 };
-$$('.mt').forEach(i=>i.addEventListener('input',()=>{if(items[sel]){items[sel].meta[i.id.slice(2)]=i.value;draw()}}));
-$('#clearTags').onclick=()=>{if(items[sel]){items[sel].meta={};showMeta();draw()}};
-$('#allTags').onclick=()=>{const m=items[sel]&&items[sel].meta;if(m){items.forEach(it=>it.meta={...m});draw()}};
+$$('.mt').forEach(i=>i.addEventListener('input',()=>{const it=items[sel];if(it){it.meta[i.id.slice(2)]=i.type==='checkbox'?i.checked:i.value;draw()}}));
+$('#clearTags').onclick=()=>{const it=items[sel];if(it){it.meta={};setPic(it,null);showMeta();draw()}};
+$('#allTags').onclick=()=>{const s0=items[sel];if(s0){items.forEach(it=>{if(it!==s0){it.meta={...s0.meta};setPic(it,s0.pic&&{mime:s0.pic.mime,data:s0.pic.data})}});draw()}};
+async function loadArt(it,f){
+  let blob=f;
+  if(!/^image\/(jpeg|png)$/.test(f.type)){try{const bm=await createImageBitmap(f),c=document.createElement('canvas');c.width=bm.width;c.height=bm.height;c.getContext('2d').drawImage(bm,0,0);blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.92))}catch{return}}
+  setPic(it,{mime:blob.type,data:new Uint8Array(await blob.arrayBuffer())});
+  if(it===items[sel])showMeta();
+}
+$('#artPick').onclick=()=>$('#artFile').click();
+$('#artDel').onclick=()=>{const it=items[sel];if(it){setPic(it,null);showMeta()}};
+$('#artFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f&&items[sel])loadArt(items[sel],f)};
+$('#art').addEventListener('dragover',e=>e.preventDefault());
+$('#art').addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/')&&items[sel])loadArt(items[sel],f)});
+function tab(m){$('#pAudio').hidden=m;$('#pMeta').hidden=!m;$('#tAudio').setAttribute('aria-selected',!m);$('#tMeta').setAttribute('aria-selected',m)}
+$('#tAudio').onclick=()=>tab(false);$('#tMeta').onclick=()=>tab(true);
 $('#pick').onclick=$('#add').onclick=()=>$('#file').click();
 $('#file').onchange=e=>{add(e.target.files);e.target.value=''};
 $('#clear').onclick=()=>{if(!busy){items=[];sel=-1;draw();showMeta()}};
@@ -225,8 +288,8 @@ const L=$('#list');
 L.addEventListener('drop',e=>add(e.dataTransfer.files));
 
 /* ---------- encoders ---------- */
-function pcm(b,bits,float,le,signed8){
-  const ch=b.numberOfChannels,n=b.length,bps=bits/8,out=new ArrayBuffer(n*ch*bps),dv=new DataView(out),cd=[];
+function pcm(b,bits,float,le,signed8,dith){
+  const D=dith?()=>Math.random()-Math.random():()=>0,ch=b.numberOfChannels,n=b.length,bps=bits/8,out=new ArrayBuffer(n*ch*bps),dv=new DataView(out),cd=[];
   for(let c=0;c<ch;c++)cd.push(b.getChannelData(c));
   let o=0;
   for(let i=0;i<n;i++)for(let c=0;c<ch;c++){
@@ -234,8 +297,8 @@ function pcm(b,bits,float,le,signed8){
     if(float){bits===64?dv.setFloat64(o,s,le):dv.setFloat32(o,s,le)}
     else{
       s=Math.max(-1,Math.min(1,s));
-      if(bits===8){const v=Math.round(s*127);dv.setUint8(o,signed8?v&255:v+128)}
-      else if(bits===16)dv.setInt16(o,Math.round(s*32767),le);
+      if(bits===8){const v=Math.max(-128,Math.min(127,Math.round(s*127+D())));dv.setUint8(o,signed8?v&255:v+128)}
+      else if(bits===16)dv.setInt16(o,Math.max(-32768,Math.min(32767,Math.round(s*32767+D()))),le);
       else if(bits===24){const v=Math.round(s*8388607),a=v&255,m=(v>>8)&255,h=(v>>16)&255;
         if(le){dv.setUint8(o,a);dv.setUint8(o+1,m);dv.setUint8(o+2,h)}else{dv.setUint8(o,h);dv.setUint8(o+1,m);dv.setUint8(o+2,a)}}
       else dv.setInt32(o,Math.round(s*2147483647),le);
@@ -250,21 +313,21 @@ const join=a=>{const o=new Uint8Array(a.reduce((n,x)=>n+x.length,0));let p=0;for
 const be32=n=>new Uint8Array([n>>>24,n>>>16&255,n>>>8&255,n&255]);
 const le32=n=>new Uint8Array([n&255,n>>>8&255,n>>>16&255,n>>>24]);
 const u16=s=>{const a=new Uint8Array(2+s.length*2);a[0]=255;a[1]=254;for(let i=0;i<s.length;i++){a[2+i*2]=s.charCodeAt(i)&255;a[3+i*2]=s.charCodeAt(i)>>8}return a};
-function wav(data,ch,sr,bits,float,le,tags){
+function wav(data,ch,sr,bits,float,le,tags,pic){
   const I={title:'INAM',artist:'IART',album:'IPRD',year:'ICRD',genre:'IGNR',track:'ITRK',comment:'ICMT'},u32=le?le32:be32,ck=[];
   for(const k in I)if(tags[k]){const b=utf(tags[k]+'\0'),n=b.length;ck.push(utf(I[k]),u32(n),b,new Uint8Array(n&1))}
-  const body=join(ck),list=ck.length?join([utf('LIST'),u32(4+body.length),utf('INFO'),body]):new Uint8Array(0),pad=data.byteLength&1;
+  const body=join(ck),x=id3(tags,pic),list=join([ck.length?join([utf('LIST'),u32(4+body.length),utf('INFO'),body]):new Uint8Array(0),x.length?join([utf('id3 '),u32(x.length),x,new Uint8Array(x.length&1)]):new Uint8Array(0)]),pad=data.byteLength&1;
   const h=new DataView(new ArrayBuffer(44)),ba=ch*bits/8;
   tag(h,0,le?'RIFF':'RIFX');h.setUint32(4,36+data.byteLength+pad+list.length,le);tag(h,8,'WAVEfmt ');h.setUint32(16,16,le);
   h.setUint16(20,float?3:1,le);h.setUint16(22,ch,le);h.setUint32(24,sr,le);h.setUint32(28,sr*ba,le);h.setUint16(32,ba,le);h.setUint16(34,bits,le);
   tag(h,36,'data');h.setUint32(40,data.byteLength,le);
   return new Blob([h,data,new Uint8Array(pad),list],{type:'audio/wav'});
 }
-function aiff(data,ch,sr,bits,float,le,frames,tags){
+function aiff(data,ch,sr,bits,float,le,frames,tags,pic){
   const aifc=float||le,comp=float?(bits===64?'fl64':'fl32'):'sowt',name=float?(bits===64?'64-bit float':'32-bit float'):'little-endian';
   const cks=[],add=(id,s)=>{const b=utf(s),n=b.length;cks.push(utf(id),be32(n),b,new Uint8Array(n&1))};
   if(tags.title)add('NAME',tags.title);if(tags.artist)add('AUTH',tags.artist);if(tags.comment)add('ANNO',tags.comment);
-  for(const k of['album','year','genre','track'])if(tags[k])add('ANNO',k[0].toUpperCase()+k.slice(1)+': '+tags[k]);
+  const x=id3(tags,pic);if(x.length)cks.push(utf('ID3 '),be32(x.length),x,new Uint8Array(x.length&1));
   const extra=join(cks);
   let pn=1+name.length;if(pn%2)pn++;
   const comm=18+(aifc?4+pn:0),pad=data.byteLength%2,total=4+(aifc?12:0)+8+comm+16+data.byteLength+pad+extra.length;
@@ -278,19 +341,76 @@ function aiff(data,ch,sr,bits,float,le,frames,tags){
   tag(h,o,'SSND');h.setUint32(o+4,8+data.byteLength);
   return new Blob([h,data,new Uint8Array(pad),extra],{type:'audio/aiff'});
 }
-function id3(t){
-  const fr=[],M={title:'TIT2',artist:'TPE1',album:'TALB',year:'TYER',track:'TRCK',genre:'TCON'};
-  for(const k in M)if(t[k]){const b=join([new Uint8Array([1]),u16(t[k])]);fr.push(utf(M[k]),be32(b.length),new Uint8Array(2),b)}
-  if(t.comment){const b=join([new Uint8Array([1,101,110,103,255,254,0,0]),u16(t.comment)]);fr.push(utf('COMM'),be32(b.length),new Uint8Array(2),b)}
+function id3(t,pic){
+  const fr=[],fh=(id,b)=>fr.push(utf(id),be32(b.length),new Uint8Array(2),b),
+    tx=(id,v)=>{if(v)fh(id,join([new Uint8Array([1]),u16(String(v))]))},pair=(a,b)=>a?(b?a+'/'+b:a):'';
+  tx('TIT2',t.title);tx('TPE1',t.artist);tx('TALB',t.album);tx('TPE2',t.albumArtist);tx('TCOM',t.composer);
+  tx('TYER',t.year);tx('TRCK',pair(t.track,t.trackOf));tx('TPOS',pair(t.disc,t.discOf));
+  tx('TIT1',t.work);tx('GRP1',t.grouping);tx('MVNM',t.movement);tx('MVIN',pair(t.movementNo,t.movementOf));
+  tx('TBPM',t.bpm);tx('TCON',t.genre);
+  if(t.compilation)tx('TCMP','1');if(t.showWork)tx('SHWM','1');
+  if(t.comment)fh('COMM',join([new Uint8Array([1,101,110,103,255,254,0,0]),u16(t.comment)]));
+  if(pic)fh('APIC',join([new Uint8Array([0]),utf(pic.mime),new Uint8Array([0,3,0]),pic.data]));
   if(!fr.length)return new Uint8Array(0);
   const body=join(fr),n=body.length;
   return join([utf('ID3'),new Uint8Array([3,0,0,n>>21&127,n>>14&127,n>>7&127,n&127]),body]);
+}
+const u8=n=>n<128?[n]:n<2048?[192|n>>6,128|n&63]:n<65536?[224|n>>12,128|n>>6&63,128|n&63]:[240|n>>18,128|n>>12&63,128|n>>6&63,128|n&63];
+const T16=(()=>{const t=new Uint16Array(256);for(let i=0;i<256;i++){let c=i<<8;for(let k=0;k<8;k++)c=c&32768?((c<<1)^32773)&65535:(c<<1)&65535;t[i]=c}return t})();
+const crc16=a=>{let c=0;for(let i=0;i<a.length;i++)c=((c<<8)&65535)^T16[(c>>8)^a[i]];return c};
+const crc8=a=>{let c=0;for(const x of a){c^=x;for(let i=0;i<8;i++)c=c&128?((c<<1)^7)&255:(c<<1)&255}return c};
+class BW{constructor(){this.o=[];this.a=0;this.k=0}
+  w(v,n){if(n>16){this.w(Math.floor(v/65536),n-16);v=((v%65536)+65536)%65536;n=16}
+    this.a=(this.a<<n)|(v&((1<<n)-1));this.k+=n;while(this.k>=8){this.k-=8;this.o.push((this.a>>this.k)&255)}this.a&=(1<<this.k)-1}
+  al(){if(this.k)this.w(0,8-this.k)}}
+function flacSub(w,x,bits){
+  const L=x.length,R=(i,o)=>o===0?x[i]:o===1?x[i]-x[i-1]:o===2?x[i]-2*x[i-1]+x[i-2]:o===3?x[i]-3*x[i-1]+3*x[i-2]-x[i-3]:x[i]-4*x[i-1]+6*x[i-2]-4*x[i-3]+x[i-4];
+  let bo=0,bs=Infinity;
+  for(let o=0;o<=Math.min(4,L-1);o++){let t=0;for(let i=o;i<L;i++)t+=Math.abs(R(i,o));if(t<bs){bs=t;bo=o}}
+  const m=L-bo,u=new Uint32Array(m);
+  for(let i=0;i<m;i++){const r=R(i+bo,bo);u[i]=r>=0?2*r:-2*r-1}
+  const k0=Math.max(0,Math.min(14,Math.round(Math.log2(bs/Math.max(1,m)+1))));
+  let k=k0,bc=Infinity;
+  for(let c=Math.max(0,k0-1);c<=Math.min(14,k0+1);c++){let t=m*(c+1);for(let i=0;i<m;i++)t+=u[i]>>>c;if(t<bc){bc=t;k=c}}
+  w.w(0,1);
+  if(bc+bo*bits+10>=L*bits){w.w(1,6);w.w(0,1);for(let i=0;i<L;i++)w.w(x[i],bits);return}
+  w.w(8+bo,6);w.w(0,1);
+  for(let i=0;i<bo;i++)w.w(x[i],bits);
+  w.w(0,2);w.w(0,4);w.w(k,4);
+  for(let i=0;i<m;i++){let q=u[i]>>>k;while(q>16){w.w(0,16);q-=16}w.w(1,q+1);if(k)w.w(u[i]&((1<<k)-1),k)}
+}
+async function flac(b,bits,tags,pic,dith,tick){
+  const ch=b.numberOfChannels,n=b.length,BS=4096,mx=2**(bits-1)-1,SC={8:1,16:4,24:6},cd=[],chunks=[];let mn=1e9,mxs=0;
+  for(let c=0;c<ch;c++)cd.push(b.getChannelData(c));
+  for(let off=0,fr=0;off<n;off+=BS,fr++){
+    const len=Math.min(BS,n-off),w=new BW();
+    for(let c=0;c<ch;c++){
+      const x=new Int32Array(len),d=cd[c];
+      for(let i=0;i<len;i++){const v=Math.round(d[off+i]*mx+(dith&&bits<=16?Math.random()-Math.random():0));x[i]=v>mx?mx:v<-mx-1?-mx-1:v}
+      flacSub(w,x,bits);
+    }
+    w.al();
+    const h=[255,248,112,((ch-1)<<4)|(SC[bits]<<1),...u8(fr),(len-1)>>8,(len-1)&255];h.push(crc8(h));
+    const f=new Uint8Array(h.length+w.o.length+2);f.set(h);f.set(w.o,h.length);
+    const c=crc16(f.subarray(0,f.length-2));f[f.length-2]=c>>8;f[f.length-1]=c&255;
+    chunks.push(f);mn=Math.min(mn,f.length);mxs=Math.max(mxs,f.length);
+    if(fr%16===0){tick(off/n);await new Promise(r=>setTimeout(r))}
+  }
+  const si=new BW();si.w(Math.min(BS,n),16);si.w(BS,16);si.w(mn,24);si.w(mxs,24);si.w(b.sampleRate,20);si.w(ch-1,3);si.w(bits-1,5);si.w(Math.floor(n/4294967296),4);si.w(n%4294967296,32);
+  const bh=(last,ty,len)=>new Uint8Array([(last<<7)|ty,len>>16&255,len>>8&255,len&255]);
+  const V=[['TITLE','title'],['ARTIST','artist'],['ALBUM','album'],['ALBUMARTIST','albumArtist'],['COMPOSER','composer'],['DATE','year'],['TRACKNUMBER','track'],['TRACKTOTAL','trackOf'],['DISCNUMBER','disc'],['DISCTOTAL','discOf'],['WORK','work'],['MOVEMENTNAME','movement'],['MOVEMENT','movementNo'],['MOVEMENTTOTAL','movementOf'],['GROUPING','grouping'],['GENRE','genre'],['BPM','bpm'],['COMMENT','comment']]
+    .filter(e=>tags[e[1]]).map(e=>utf(e[0]+'='+tags[e[1]]));
+  if(tags.compilation)V.push(utf('COMPILATION=1'));if(tags.showWork)V.push(utf('SHOWMOVEMENT=1'));
+  const vend=utf('Amy\u2019s Audio Converter'),vc=join([le32(vend.length),vend,le32(V.length),...V.flatMap(x=>[le32(x.length),x])]);
+  const parts=[utf('fLaC'),bh(0,0,34),new Uint8Array(si.o),new Uint8Array(16),bh(pic?0:1,4,vc.length),vc];
+  if(pic){const mime=utf(pic.mime),pb=join([be32(3),be32(mime.length),mime,be32(0),be32(0),be32(0),be32(0),be32(0),be32(pic.data.length),pic.data]);parts.push(bh(1,6,pb.length),pb)}
+  return new Blob([...parts,...chunks],{type:'audio/flac'});
 }
 let lameP;
 function loadLame(){return window.lamejs?Promise.resolve():lameP||(lameP=new Promise((ok,no)=>{
   const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js';
   s.onload=ok;s.onerror=()=>{lameP=null;no(new Error('MP3 encoder couldn\u2019t load. Check your connection.'))};document.head.appendChild(s)}))}
-async function mp3(b,kbps,tick,tags){
+async function mp3(b,kbps,tick,tags,pic){
   await loadLame();
   const ch=b.numberOfChannels,enc=new lamejs.Mp3Encoder(ch,b.sampleRate,kbps),parts=[];
   const to16=a=>{const r=new Int16Array(a.length);for(let i=0;i<a.length;i++){const s=Math.max(-1,Math.min(1,a[i]));r[i]=s<0?s*32768:s*32767}return r};
@@ -301,7 +421,7 @@ async function mp3(b,kbps,tick,tags){
     if((i/step)%8===0){tick(i/l.length);await new Promise(r=>setTimeout(r))}
   }
   parts.push(enc.flush());
-  return new Blob([id3(tags),...parts],{type:'audio/mpeg'});
+  return new Blob([id3(tags,pic),...parts],{type:'audio/mpeg'});
 }
 
 /* ---------- reading the source ---------- */
@@ -310,6 +430,52 @@ const TXT=(b,e)=>{
     return new TextDecoder(le?'utf-16le':'utf-16be').decode(t).replace(/\0+$/,'')}
   return new TextDecoder(e===0?'iso-8859-1':'utf-8').decode(b).replace(/\0+$/,'');
 };
+function id3read(u,dv,o0){
+  const s4=o=>String.fromCharCode(u[o],u[o+1],u[o+2],u[o+3]),tags={};let pic=null;
+  if(s4(o0).slice(0,3)!=='ID3')return{tags,pic,end:o0};
+  const v=u[o0+3],end=o0+10+((u[o0+6]<<21)|(u[o0+7]<<14)|(u[o0+8]<<7)|u[o0+9]),
+    M={TIT2:'title',TPE1:'artist',TALB:'album',TPE2:'albumArtist',TCOM:'composer',TYER:'year',TDRC:'year',TIT1:'work',GRP1:'grouping',MVNM:'movement',TBPM:'bpm',TCON:'genre'},
+    P={TRCK:['track','trackOf'],TPOS:['disc','discOf'],MVIN:['movementNo','movementOf']};
+  if(v>=3)for(let o=o0+10;o+10<=end&&u[o];){
+    const id=s4(o),n=v===4?((u[o+4]<<21)|(u[o+5]<<14)|(u[o+6]<<7)|u[o+7]):dv.getUint32(o+4),b=u.subarray(o+10,o+10+n),e=b[0];
+    if(M[id])tags[M[id]]=TXT(b.subarray(1),e);
+    else if(P[id]){const[a,c]=TXT(b.subarray(1),e).split('/');tags[P[id][0]]=a||'';if(c)tags[P[id][1]]=c}
+    else if(id==='TCMP')tags.compilation=TXT(b.subarray(1),e)==='1';
+    else if(id==='SHWM')tags.showWork=TXT(b.subarray(1),e)==='1';
+    else if(id==='COMM'){let i=4;if(e===0||e===3)i=b.indexOf(0,4)+1;else{while(i+1<b.length&&(b[i]||b[i+1]))i+=2;i+=2}tags.comment=TXT(b.subarray(i),e)}
+    else if(id==='APIC'&&!pic){
+      let i=1;while(b[i])i++;const mime=TXT(b.subarray(1,i),0);i+=2;
+      if(e===0||e===3){while(b[i])i++;i++}else{while(i+1<b.length&&(b[i]||b[i+1]))i+=2;i+=2}
+      pic={mime:mime.includes('/')?mime:'image/'+mime,data:b.slice(i)};
+    }
+    o+=10+n;
+  }
+  if(tags.year)tags.year=tags.year.slice(0,4);
+  return{tags,pic,end};
+}
+function m4a(u,dv,r){
+  const s4=o=>String.fromCharCode(u[o],u[o+1],u[o+2],u[o+3]),
+    walk=(a,e,f)=>{for(let o=a;o+8<=e;){const n=dv.getUint32(o)||e-o;if(n<8)break;f(s4(o+4),o,Math.min(o+n,e));o+=n}},
+    find=(p,a,e)=>{let x=null;walk(a,e,(t,o,b)=>{if(x||t!==p[0])return;const c=o+(t==='meta'?12:8);x=p.length>1?find(p.slice(1),c,b):[c,b]});return x},
+    K={'\xa9nam':'title','\xa9ART':'artist','\xa9alb':'album','aART':'albumArtist','\xa9wrt':'composer','\xa9day':'year','\xa9gen':'genre','\xa9cmt':'comment','\xa9grp':'grouping','\xa9wrk':'work','\xa9mvn':'movement'},
+    mv=find(['moov'],0,u.length);
+  if(!mv)return;
+  const il=find(['udta','meta','ilst'],mv[0],mv[1]);
+  if(il)walk(il[0],il[1],(t,a,b)=>{
+    const d=find(['data'],a+8,b);if(!d)return;
+    const ty=u[d[0]+3],p=u.subarray(d[0]+8,d[1]),str=()=>new TextDecoder().decode(p);
+    if(K[t])r.tags[K[t]]=K[t]==='year'?str().slice(0,4):str();
+    else if(t==='trkn'||t==='disk'){const k=t==='trkn'?['track','trackOf']:['disc','discOf'];r.tags[k[0]]=String(p[2]<<8|p[3]);if(p[4]|p[5])r.tags[k[1]]=String(p[4]<<8|p[5])}
+    else if(t==='tmpo')r.tags.bpm=String(p[0]<<8|p[1]);
+    else if(t==='cpil')r.tags.compilation=!!p[0];
+    else if(t==='shwm')r.tags.showWork=!!p[0];
+    else if(t==='mvi')r.tags.movementNo=String(p[0]);
+    else if(t==='mvc')r.tags.movementOf=String(p[0]);
+    else if(t==='covr'&&!r.pic)r.pic={mime:ty===14?'image/png':'image/jpeg',data:p.slice()};
+  });
+  let hit=0;
+  for(let i=mv[0];i+14<mv[1];i++)if(u[i]===97&&u[i+1]===108&&u[i+2]===97&&u[i+3]===99&&++hit===2){r.bits=u[i+13];break}
+}
 function probe(ab,name){
   const u=new Uint8Array(ab),dv=new DataView(ab),s4=o=>String.fromCharCode(u[o],u[o+1],u[o+2],u[o+3]),t=s4(0),
     r={fmt:null,bits:null,float:false,le:true,kbps:null,tags:{},ext:((name.match(/\.([^.]+)$/)||[])[1]||'').toLowerCase()};
@@ -319,6 +485,7 @@ function probe(ab,name){
       for(let o=12;o+8<=u.length;){
         const id=s4(o),n=dv.getUint32(o+4,le);
         if(id==='fmt '){const f=dv.getUint16(o+8,le);r.float=f===3||(f===65534&&dv.getUint16(o+32,le)===3);r.bits=dv.getUint16(o+22,le)}
+        if(id==='id3 '){const x=id3read(u,dv,o+8);Object.assign(r.tags,x.tags);r.pic=x.pic}
         if(id==='LIST'&&s4(o+8)==='INFO')for(let p=o+12;p+8<=o+8+n;){const k=s4(p),m=dv.getUint32(p+4,le);if(M[k])r.tags[M[k]]=TXT(u.subarray(p+8,p+8+m),3);p+=8+m+(m&1)}
         o+=8+n+(n&1);
       }
@@ -328,24 +495,36 @@ function probe(ab,name){
       for(let o=12;o+8<=u.length;){
         const id=s4(o),n=dv.getUint32(o+4);
         if(id==='COMM'){r.bits=dv.getUint16(o+14);if(s4(8)==='AIFC'){const c=s4(o+26);if(c==='sowt')r.le=true;if(c==='fl32'||c==='fl64'){r.float=true;r.bits=c==='fl64'?64:32}}}
-        if(M[id]&&!r.tags[M[id]])r.tags[M[id]]=TXT(u.subarray(o+8,o+8+n),3);
+        if(id==='ID3 '){const x=id3read(u,dv,o+8);Object.assign(r.tags,x.tags);r.pic=x.pic}
+        else if(M[id]&&!r.tags[M[id]])r.tags[M[id]]=TXT(u.subarray(o+8,o+8+n),3);
         o+=8+n+(n&1);
       }
     }else if(t==='fLaC'){
-      r.bits=(((u[20]&1)<<4)|(u[21]>>4))+1;
+      r.fmt='flac';r.bits=(((u[20]&1)<<4)|(u[21]>>4))+1;
+      const V={TITLE:'title',ARTIST:'artist',ALBUM:'album',ALBUMARTIST:'albumArtist',COMPOSER:'composer',DATE:'year',YEAR:'year',TRACKNUMBER:'track',TRACKTOTAL:'trackOf',TOTALTRACKS:'trackOf',DISCNUMBER:'disc',DISCTOTAL:'discOf',TOTALDISCS:'discOf',WORK:'work',MOVEMENTNAME:'movement',MOVEMENT:'movementNo',MOVEMENTTOTAL:'movementOf',GROUPING:'grouping',GENRE:'genre',BPM:'bpm',COMMENT:'comment',DESCRIPTION:'comment'};
+      for(let o=4,last=0;!last&&o+4<=u.length;){
+        const h=u[o],n=(u[o+1]<<16)|(u[o+2]<<8)|u[o+3],b=o+4,ty=h&127;last=h>>7;
+        if(ty===4){
+          let q=b;q+=4+dv.getUint32(q,true);const c=dv.getUint32(q,true);q+=4;
+          for(let i=0;i<c&&q<b+n;i++){
+            const l=dv.getUint32(q,true),str=TXT(u.subarray(q+4,q+4+l),3),eq=str.indexOf('=');q+=4+l;
+            if(eq<1)continue;
+            const k=str.slice(0,eq).toUpperCase(),v=str.slice(eq+1);
+            if(k==='TRACKNUMBER'&&v.includes('/')){const[a,z]=v.split('/');r.tags.track=a;r.tags.trackOf=z}
+            else if(V[k]&&!r.tags[V[k]])r.tags[V[k]]=V[k]==='year'?v.slice(0,4):v;
+            else if(k==='COMPILATION')r.tags.compilation=v==='1';
+            else if(k==='SHOWMOVEMENT')r.tags.showWork=v==='1';
+          }
+        }else if(ty===6&&!r.pic){
+          let q=b+4;const ml=dv.getUint32(q),mime=TXT(u.subarray(q+4,q+4+ml),3);q+=4+ml;q+=4+dv.getUint32(q)+16;
+          r.pic={mime,data:u.slice(q+4,q+4+dv.getUint32(q))};
+        }
+        o=b+n;
+      }
+    }else if(s4(4)==='ftyp'){m4a(u,dv,r);
     }else if(t.startsWith('ID3')||(u[0]===255&&(u[1]&224)===224)){
       r.fmt='mp3';let p=0;
-      if(t.startsWith('ID3')){
-        const v=u[3],end=10+((u[6]<<21)|(u[7]<<14)|(u[8]<<7)|u[9]),M={TIT2:'title',TPE1:'artist',TALB:'album',TYER:'year',TDRC:'year',TRCK:'track',TCON:'genre'};
-        p=end;
-        for(let o=10;o+10<=end&&u[o];){
-          const id=s4(o),n=v===4?((u[o+4]<<21)|(u[o+5]<<14)|(u[o+6]<<7)|u[o+7]):dv.getUint32(o+4),b=u.subarray(o+10,o+10+n),e=b[0];
-          if(M[id])r.tags[M[id]]=TXT(b.subarray(1),e);
-          if(id==='COMM'){let i=4;if(e===0||e===3)i=b.indexOf(0,4)+1;else{while(i+1<b.length&&(b[i]||b[i+1]))i+=2;i+=2}r.tags.comment=TXT(b.subarray(i),e)}
-          o+=10+n;
-        }
-        if(r.tags.year)r.tags.year=r.tags.year.slice(0,4);
-      }
+      if(t.startsWith('ID3')){const x=id3read(u,dv,0);Object.assign(r.tags,x.tags);r.pic=x.pic;p=x.end}
       for(let i=p;i<p+4096&&i+3<u.length;i++)if(u[i]===255&&(u[i+1]&224)===224){
         const bi=u[i+2]>>4,T=((u[i+1]>>3)&3)===3?[0,32,40,48,56,64,80,96,112,128,160,192,224,256,320]:[0,8,16,24,32,40,48,56,64,80,96,112,128,144,160];
         if(bi>0&&bi<15){r.kbps=T[bi];break}
@@ -362,27 +541,29 @@ async function convert(it,o){
   await it.ready;
   const bytes=await it.file.arrayBuffer(),P=probe(bytes,it.file.name),ac=new(window.AudioContext||window.webkitAudioContext)();
   let src;
-  try{src=await ac.decodeAudioData(bytes)}catch{throw new Error('This browser can\u2019t read that file')}finally{ac.close()}
+  try{src=await ac.decodeAudioData(bytes)}catch{throw new Error(/\.(m4a|mp4|alac)$/i.test(it.file.name)?'This browser can\u2019t decode m4a. Try Safari.':'This browser can\u2019t read that file')}finally{ac.close()}
   const fmt=o.fmt==='orig'?(P.fmt||'wav'):o.fmt,same=fmt===P.fmt;
   let ch=o.ch==='orig'?src.numberOfChannels:+o.ch,sr=o.sr==='orig'?src.sampleRate:+o.sr;
   if(fmt==='mp3'){ch=Math.min(ch,2);sr=MP3_RATES.reduce((a,b)=>Math.abs(b-sr)<Math.abs(a-sr)?b:a)}
   const float=o.enc==='orig'?P.float:o.enc==='float';
   let bits=o.bits==='orig'?(P.bits||16):o.bits;
   bits=float?(bits>32?64:32):([8,16,24,32].find(b=>b>=bits)||32);
+  if(fmt==='flac')bits=[8,16,24].find(b=>b>=Math.min(bits,24))||24;
   const le=o.end==='orig'?(same?P.le:fmt!=='aiff'):o.end==='le';
   const kbps=o.kbps==='orig'?(P.kbps?QS.reduce((a,b)=>Math.abs(b-P.kbps)<Math.abs(a-P.kbps)?b:a):256):o.kbps;
   const ext=o.ext||(same&&FMT[fmt].includes(P.ext)?P.ext:FMT[fmt][0]);
-  const tags=fmt==='raw'?{}:Object.fromEntries(Object.entries(it.meta).map(([k,v])=>[k,(v||'').trim()]).filter(e=>e[1]));
+  const tags=fmt==='raw'?{}:Object.fromEntries(Object.entries(it.meta).map(([k,v])=>[k,typeof v==='string'?v.trim():v]).filter(e=>e[1])),pic=fmt==='raw'?null:it.pic;
   set('Resampling',30);
   const oc=new OfflineAudioContext(ch,Math.max(1,Math.ceil(src.duration*sr)),sr),s=oc.createBufferSource();
   s.buffer=src;s.connect(oc.destination);s.start();
   const buf=await oc.startRendering();
   set('Encoding',55);
   let blob;
-  if(fmt==='mp3')blob=await mp3(buf,kbps,p=>set('Encoding',55+p*44),tags);
+  if(fmt==='mp3')blob=await mp3(buf,kbps,p=>set('Encoding',55+p*44),tags,pic);
+  else if(fmt==='flac')blob=await flac(buf,bits,tags,pic,o.dither==='tpdf',p=>set('Encoding',55+p*44));
   else{
-    const data=pcm(buf,bits,float,le,fmt!=='wav');
-    blob=fmt==='wav'?wav(data,ch,sr,bits,float,le,tags):fmt==='aiff'?aiff(data,ch,sr,bits,float,le,buf.length,tags):new Blob([data],{type:'application/octet-stream'});
+    const data=pcm(buf,bits,float,le,fmt!=='wav',o.dither==='tpdf');
+    blob=fmt==='wav'?wav(data,ch,sr,bits,float,le,tags,pic):fmt==='aiff'?aiff(data,ch,sr,bits,float,le,buf.length,tags,pic):new Blob([data],{type:'application/octet-stream'});
   }
   return{blob,ext};
 }
@@ -391,12 +572,17 @@ $('#go').onclick=async()=>{
   for(const it of items){
     if(it.state==='done')continue;
     it.state='working';it.pct=2;draw();
-    try{const r=await convert(it,o);it.blob=r.blob;it.out=outName(it.file.name,r.ext);it.state='done';it.pct=0}
+    try{const r=await convert(it,o);it.blob=r.blob;it.out=outFor(it,r.ext,o.tpl);it.state='done';it.pct=0}
     catch(e){it.state='error';it.msg=e.message||'Conversion failed';it.pct=0}
     draw();
   }
   busy=false;draw();
 };
+function outFor(it,ext,tpl){
+  const m=it.meta,f={name:it.file.name.replace(/\.[^.]+$/,''),title:m.title,artist:m.artist,album:m.album,albumArtist:m.albumArtist,track:m.track?String(m.track).padStart(2,'0'):'',disc:m.disc,year:m.year,genre:m.genre};
+  const n=(tpl||'{name}').replace(/\{(\w+)\}/g,(_,k)=>f[k]||'').replace(/[\\/:*?"<>|]+/g,'_').replace(/\s+/g,' ').trim()||f.name;
+  return n+'.'+ext;
+}
 const outName=(n,ext)=>n.replace(/\.[^.]+$/,'')+'.'+ext;
 function save(it){const a=document.createElement('a');a.href=URL.createObjectURL(it.blob);a.download=it.out;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
 
@@ -418,25 +604,78 @@ $('#zip').onclick=async()=>{
   e.setUint32(0,0x06054b50,true);e.setUint16(8,n,true);e.setUint16(10,n,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([...files,...cen,e],{type:'application/zip'}));a.download="Amy's converted audio.zip";a.click();
 };
-/* ---------- theme wheel ---------- */
-const TH={h:347,s:67},W=$('#wheel'),K=$('#knob');
-function theme(h,s){
-  TH.h=(Math.round(h)+360)%360;TH.s=Math.round(Math.max(25,Math.min(85,s)));
-  const st=document.documentElement.style;st.setProperty('--h',TH.h);st.setProperty('--s',TH.s);
+/* ---------- theme: wheel + white-to-black slider ---------- */
+const dflt=matchMedia('(prefers-color-scheme:dark)').matches?.94:.14,TH={h:347,s:67,t:dflt},W=$('#wheel'),K=$('#knob');
+function theme(h,s,t){
+  if(h!=null){TH.h=(Math.round(h)+360)%360;TH.s=Math.round(Math.max(25,Math.min(85,s)))}
+  if(t!=null)TH.t=Math.max(0,Math.min(1,t));
+  const st=document.documentElement.style,L=Math.round(97-TH.t*93),dk=L<45?1:0;
+  st.setProperty('--h',TH.h);st.setProperty('--s',TH.s);st.setProperty('--L',L);st.setProperty('--dk',dk);st.colorScheme=dk?'dark':'light';
   const a=TH.h*Math.PI/180,r=(TH.s-25)/60*76;
   K.style.left=84+r*Math.sin(a)+'px';K.style.top=84-r*Math.cos(a)+'px';K.style.background=`hsl(${TH.h} ${TH.s}% 45%)`;
+  $('#tone').value=Math.round(TH.t*100);
   try{localStorage.setItem('aac-theme',JSON.stringify(TH))}catch{}
 }
 const pick=e=>{const b=W.getBoundingClientRect(),dx=e.clientX-b.left-84,dy=e.clientY-b.top-84;theme(Math.atan2(dx,-dy)*180/Math.PI,25+Math.min(1,Math.hypot(dx,dy)/76)*60)};
 W.onpointerdown=e=>{W.setPointerCapture(e.pointerId);pick(e);W.onpointermove=pick};
 W.onpointerup=()=>{W.onpointermove=null};
 W.onkeydown=e=>{const d={ArrowLeft:[-6,0],ArrowRight:[6,0],ArrowUp:[0,5],ArrowDown:[0,-5]}[e.key];if(d){e.preventDefault();theme(TH.h+d[0],TH.s+d[1])}};
-const pop=(open)=>{$('#pop').hidden=!open;$('#tbtn').setAttribute('aria-expanded',open)};
+$('#tone').oninput=e=>theme(null,null,e.target.value/100);
+const pop=open=>{$('#pop').hidden=!open;$('#tbtn').setAttribute('aria-expanded',open)};
 $('#tbtn').onclick=()=>pop($('#pop').hidden);
-$('#treset').onclick=()=>theme(347,67);
+$('#treset').onclick=()=>theme(347,67,dflt);
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('.theme'))pop(false)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')pop(false)});
-try{const t=JSON.parse(localStorage.getItem('aac-theme'));theme(t.h,t.s)}catch{theme(347,67)}
+try{const t=JSON.parse(localStorage.getItem('aac-theme'));theme(t.h,t.s,t.t)}catch{theme(347,67,dflt)}
+/* ---------- play, save to folder, presets ---------- */
+const aud=new Audio();let playing=-1,purl='';
+function stopPlay(){aud.pause();if(purl)URL.revokeObjectURL(purl);purl='';playing=-1}
+function play(i){
+  if(playing===i){stopPlay();draw();return}
+  stopPlay();const it=items[i],src=it.state==='done'&&it.blob.type!=='application/octet-stream'?it.blob:it.file;
+  purl=URL.createObjectURL(src);aud.src=purl;playing=i;
+  aud.onended=aud.onerror=()=>{stopPlay();draw()};
+  aud.play().catch(()=>{stopPlay();draw()});draw();
+}
+$('#dirbtn').hidden=!window.showDirectoryPicker;
+$('#dirbtn').onclick=async()=>{
+  let dir;try{dir=await showDirectoryPicker({mode:'readwrite'})}catch{return}
+  const used=new Set();
+  for(const it of items.filter(i=>i.state==='done')){
+    let nm=it.out,k=2;while(used.has(nm))nm=it.out.replace(/(\.[^.]*)?$/,` (${k++})$1`);used.add(nm);
+    const w=await(await dir.getFileHandle(nm,{create:true})).createWritable();await w.write(it.blob);await w.close();
+  }
+  $('#sum').textContent='Saved '+used.size+' file'+(used.size===1?'':'s')+' to that folder';
+};
+const PB={'CD quality':{bd:'16'},'Studio, 24-bit WAV':{ch:'orig',sr:'48000',bd:'24'},'MP3 320':{fmt:'mp3',q:'320'},'Podcast, mono MP3':{fmt:'mp3',ch:'1',q:'128'},'FLAC, same as source':{ch:'orig',fmt:'flac',sr:'orig',bd:'orig'}},
+  PD={ch:'2',fmt:'wav',sr:'44100',enc:'int',bd:'16',end:'le',q:'320',dt:'tpdf',nm:'',ext:''},PK=['ch','fmt','sr','enc','bd','end','q','dt','nm','ext'];
+const loadP=()=>{try{return JSON.parse(localStorage.getItem('aac-presets'))||{}}catch{return{}}};
+function fillP(sel){
+  $('#preset').innerHTML='<option value="">Custom</option><optgroup label="Built in">'+Object.keys(PB).map(k=>`<option value="b:${esc(k)}">${esc(k)}</option>`).join('')+'</optgroup>'
+    +(Object.keys(loadP()).length?'<optgroup label="Yours">'+Object.keys(loadP()).map(k=>`<option value="u:${esc(k)}">${esc(k)}</option>`).join('')+'</optgroup>':'');
+  $('#preset').value=sel||'';
+}
+function applyPreset(v){
+  const o={...PD,...(v.startsWith('b:')?PB[v.slice(2)]:loadP()[v.slice(2)])};
+  $('#ch').value=o.ch;$('#fmt').value=o.fmt;$('#sr').value=o.sr;$('#enc').value=o.enc;setBits();$('#bd').value=o.bd;
+  $('#end').value=o.end;$('#q').value=o.q;$('#dt').value=o.dt;$('#nm').value=o.nm;sync(true);$('#ext').value=o.ext;sync();
+}
+$('#preset').onchange=e=>{if(e.target.value)applyPreset(e.target.value)};
+$$('#pAudio select:not(#preset),#pAudio input').forEach(e=>e.addEventListener('input',()=>{$('#preset').value=''}));
+$('#psave').onclick=()=>{
+  const n=(prompt('Name this preset')||'').trim();if(!n)return;
+  const u=loadP();u[n]=Object.fromEntries(PK.map(k=>[k,$('#'+k).value]));
+  try{localStorage.setItem('aac-presets',JSON.stringify(u))}catch{}
+  fillP('u:'+n);
+};
+$('#pdel').onclick=()=>{
+  const v=$('#preset').value;if(!v.startsWith('u:'))return;
+  const u=loadP();delete u[v.slice(2)];try{localStorage.setItem('aac-presets',JSON.stringify(u))}catch{}
+  fillP();
+};
+fillP();
+const safari=/^((?!chrome|chromium|android|crios|fxios|edg|opr).)*safari/i.test(navigator.userAgent);
+$('#notice').hidden=safari;
 draw();
 </script>
 </body>
