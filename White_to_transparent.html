@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Guppys Print and Mockup Helper</title>
 <link id="fav" rel="icon">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap">
 <style>
 :root{--h:150;--bg:hsl(var(--h) 16% 94%);--fg:hsl(var(--h) 14% 13%);--mute:hsl(var(--h) 7% 42%);--line:hsl(var(--h) 14% 82%);--panel:hsl(var(--h) 24% 98%);--soft:hsl(var(--h) 30% 91%);--acc:hsl(var(--h) 32% 32%);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:hsl(var(--h) 10% 9%);--fg:hsl(var(--h) 12% 92%);--mute:hsl(var(--h) 6% 62%);--line:hsl(var(--h) 8% 22%);--panel:hsl(var(--h) 9% 13%);--soft:hsl(var(--h) 14% 19%);--acc:hsl(var(--h) 36% 72%)}}
@@ -76,6 +78,101 @@ dialog::backdrop{background:#0006}
 dialog h2{margin:0 0 4px;font-size:19px}dialog h3{margin:18px 0 6px;font-size:14px}
 dialog dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px}dialog dt{font-weight:650}dialog dd{margin:0;color:var(--mute)}
 dialog ul{margin:0;padding-left:18px;color:var(--mute)}
+
+/* ===== v6: grungy but cute ===== */
+:root{--ink:hsl(var(--h) 28% 11%);--shd:hsl(var(--h) 28% 11%);--note:hsl(46 92% 80%);--tl:81%;--ts:46%;--gop:.34;--gbl:multiply;
+--bg:hsl(var(--h) 15% 87%);--fg:hsl(var(--h) 26% 11%);--mute:hsl(var(--h) 10% 34%);--line:hsl(var(--h) 14% 42%);--panel:hsl(var(--h) 36% 95%);--soft:hsl(var(--h) 30% 85%);--acc:hsl(var(--h) 48% 36%);
+--fd:"Patrick Hand",ui-rounded,"SF Pro Rounded",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:hsl(var(--h) 16% 78%);--shd:hsl(var(--h) 34% 34%);--note:hsl(46 38% 24%);--tl:26%;--ts:34%;--gop:.16;--gbl:screen;
+--bg:hsl(var(--h) 12% 8%);--fg:hsl(var(--h) 16% 92%);--mute:hsl(var(--h) 8% 66%);--line:hsl(var(--h) 10% 40%);--panel:hsl(var(--h) 13% 12%);--soft:hsl(var(--h) 14% 19%);--acc:hsl(var(--h) 50% 66%)}}
+:root[data-theme="dark"]{--ink:hsl(var(--h) 16% 78%);--shd:hsl(var(--h) 34% 34%);--note:hsl(46 38% 24%);--tl:26%;--ts:34%;--gop:.16;--gbl:screen;
+--bg:hsl(var(--h) 12% 8%);--fg:hsl(var(--h) 16% 92%);--mute:hsl(var(--h) 8% 66%);--line:hsl(var(--h) 10% 40%);--panel:hsl(var(--h) 13% 12%);--soft:hsl(var(--h) 14% 19%);--acc:hsl(var(--h) 50% 66%)}
+
+html{background:var(--bg)}
+body{font-family:"Patrick Hand",ui-rounded,"SF Pro Rounded",system-ui,sans-serif;font-size:17px;line-height:1.35;}
+html[data-grain="on"] body::before{content:"";position:fixed;inset:0;z-index:999;pointer-events:none;opacity:var(--gop);mix-blend-mode:var(--gbl);background-size:240px 240px;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+::selection{background:var(--acc);color:var(--bg)}
+main{padding-top:26px}
+
+/* header */
+.logo{filter:drop-shadow(3px 3px 0 var(--shd));transform:rotate(-2.5deg);transition:transform .25s}
+.logo:hover{transform:rotate(2deg) scale(1.05)}
+.tag{display:grid;gap:3px;transform:rotate(-1.5deg)}
+.tag b{font:700 22px/1 var(--fd);letter-spacing:.02em;text-shadow:2px 2px 0 var(--acc)}
+.tag span{font-size:16px;color:var(--mute)}
+.ctl label{font-size:16px}
+.ctl button{border-radius:12px 9px 13px 8px/9px 13px 8px 12px;padding:6px 14px;font-size:16px}
+#hue{border:2px solid var(--ink);height:12px}
+
+/* buttons */
+button{border:2px solid var(--ink);border-radius:12px 9px 13px 8px/9px 13px 8px 12px;box-shadow:2px 2px 0 var(--shd);transition:transform .08s,box-shadow .08s;font-size:16px}
+button:hover{border-color:var(--ink);transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--shd)}
+button:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--shd)}
+button:disabled{box-shadow:none;transform:none}
+button.main{font-family:var(--fd);font-weight:700;font-size:17px;letter-spacing:.02em}
+.sw button{border-radius:50%}
+#strip button{border-radius:999px;box-shadow:2px 2px 0 var(--shd);font-size:15px}
+
+/* tabs: sticker folder tabs */
+.tabs{padding:8px 8px 0;gap:4px;margin-bottom:-2px}
+.tabs button{--i:0;border:2px solid var(--ink);border-bottom:none;border-radius:14px 12px 0 0/16px 14px 0 0;background:hsl(calc(var(--h) + 38*var(--i)) var(--ts) var(--tl));color:var(--fg);font:700 15px/1 var(--fd);padding:10px 15px 9px;box-shadow:none;transform-origin:bottom center;transition:transform .12s}
+.tabs button::before{display:none!important}
+.tabs button:nth-child(1){--i:0}.tabs button:nth-child(2){--i:1}.tabs button:nth-child(3){--i:2}.tabs button:nth-child(4){--i:3}.tabs button:nth-child(5){--i:4}.tabs button:nth-child(6){--i:5}.tabs button:nth-child(7){--i:6}.tabs button:nth-child(8){--i:7}.tabs button:nth-child(9){--i:8}
+.tabs button:nth-child(odd){transform:rotate(-1.2deg)}
+.tabs button:nth-child(even){transform:rotate(1deg)}
+.tabs button:hover{transform:translateY(-3px) rotate(0);box-shadow:none;background:hsl(calc(var(--h) + 38*var(--i)) var(--ts) calc(var(--tl) + 6%))}
+.tabs button.on,.tabs button.on:hover{background:var(--panel);transform:translateY(0) rotate(0);padding-bottom:13px;z-index:2;color:var(--fg)}
+
+/* deck */
+.deck{position:relative;isolation:isolate;border:2px solid var(--ink);border-radius:4px 22px 10px 24px/18px 8px 22px 10px;box-shadow:6px 6px 0 var(--shd)}
+.deck::before{content:"";position:absolute;z-index:3;left:-30px;bottom:6px;width:98px;height:26px;transform:rotate(-42deg);pointer-events:none;
+background:repeating-linear-gradient(135deg,hsl(calc(var(--h) + 150) 70% calc(var(--tl) - 8%)/.9) 0 8px,hsl(calc(var(--h) + 150) 70% calc(var(--tl) + 2%)/.9) 8px 16px);
+clip-path:polygon(0 0,100% 0,98% 25%,100% 50%,98% 75%,100% 100%,0 100%,2% 75%,0 50%,2% 25%);filter:drop-shadow(0 1px 1px #0004)}
+.deck::after{content:"";position:absolute;z-index:-1;right:6px;top:6px;width:200px;height:120px;pointer-events:none;opacity:.16;
+background-image:radial-gradient(var(--ink) 1.3px,transparent 1.7px);background-size:9px 9px;-webkit-mask-image:linear-gradient(225deg,#000,transparent 75%);mask-image:linear-gradient(225deg,#000,transparent 75%)}
+
+/* stage */
+#stage{border:2px dashed var(--ink);border-radius:16px 22px 14px 24px/22px 14px 24px 16px}
+#stage.over{outline:3px solid var(--acc);outline-offset:-10px}
+#hint{font-size:18px}
+#hint b{font:700 28px/1.2 var(--fd);display:inline-block;transform:rotate(-1.5deg);text-shadow:2px 2px 0 var(--acc)}
+.steps{background:var(--note);color:var(--fg);border:2px dashed var(--ink);border-radius:6px 12px 8px 14px;transform:rotate(.7deg);box-shadow:3px 3px 0 var(--shd);font-size:16px}
+
+/* controls */
+label{font-size:15.5px}
+small{font-size:14px}
+label .v{background:var(--soft);border:1.5px solid var(--ink);border-radius:8px;padding:0 8px;font-size:14px;color:var(--fg)}
+.blurb{position:relative;background:var(--note);color:var(--fg);border:2px solid var(--ink);border-radius:4px 10px 6px 12px;box-shadow:3px 3px 0 var(--shd);transform:rotate(-.5deg);font-size:16px;padding:12px 14px 10px;margin-top:6px}
+.blurb::before{content:"";position:absolute;top:-10px;left:50%;width:48px;height:15px;margin-left:-24px;transform:rotate(-2deg);background:hsl(calc(var(--h) + 150) 60% calc(var(--tl) - 4%)/.85)}
+input[type=number],select{border:2px solid var(--ink);border-radius:9px 7px 10px 6px/7px 10px 6px 9px;font-size:16px;padding:6px 10px}
+input[type=color]{border:2px solid var(--ink);border-radius:9px 7px 10px 6px/7px 10px 6px 9px}
+input[type=checkbox]{width:18px;height:18px}
+input[type=range]:not(#hue){-webkit-appearance:none;appearance:none;height:22px;background:transparent}
+input[type=range]:not(#hue)::-webkit-slider-runnable-track{height:10px;box-sizing:border-box;border:2px solid var(--ink);border-radius:8px 5px 8px 5px;background:var(--soft)}
+input[type=range]:not(#hue)::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-5px;border-radius:50% 45% 50% 48%;background:var(--acc);border:2px solid var(--ink);box-shadow:2px 2px 0 var(--shd)}
+input[type=range]:not(#hue)::-moz-range-track{height:6px;border:2px solid var(--ink);border-radius:8px;background:var(--soft)}
+input[type=range]:not(#hue)::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--acc);border:2px solid var(--ink)}
+#pal small{font-size:12px}
+#szout,#vecout{font-size:15px;color:var(--fg)}
+
+/* ink match */
+#inkbox{display:grid;gap:6px;padding:10px 12px;border:2px dashed var(--ink);border-radius:10px 6px 12px 8px}
+.inkhead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.inkhead b{font:700 15px var(--fd)}
+.inkhead button{padding:3px 10px;font-size:14px}
+#inks{display:grid;gap:5px}
+.ink{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:15px}
+.ink i{width:18px;height:18px;border:2px solid var(--ink);border-radius:50% 45% 50% 48%;flex:none}
+.ink small{flex-basis:100%;padding-left:48px;margin-top:-4px}
+
+/* dialog */
+dialog{border:2px solid var(--ink);border-radius:8px 22px 10px 24px;box-shadow:7px 7px 0 var(--shd);font-size:17px}
+dialog::backdrop{background:#000a}
+dialog h2{font:700 27px var(--fd);transform:rotate(-1deg);display:inline-block;text-shadow:2px 2px 0 var(--acc)}
+dialog h3{font:700 17px var(--fd)}
+@media (max-width:760px){.tag span{display:none}.deck::after{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
@@ -109,11 +206,11 @@ dialog ul{margin:0;padding-left:18px;color:var(--mute)}
     <path d="M282.57,266.57c-6.96.79-2.2,1.19-9.77-1.32.25-.96.35-1.54.2-2.06-.23-.77-1.41-.48-1.79-1.04l-2.85-4.12c-.96-1.39-1.9-2.36-2.85-3.82l-4.71-7.21c-.49-.75-.25-1.91-.79-2.64-1.87-2.5-2.07-5.43-1.04-8.29.44-1.23.12-3,1.04-4.02,2.11-2.34-.49-1.78,2.98-6.57,1.69-.44,7.58-1.5,7.9,1.3.16,1.39.13,2.86-1.02,3.75-4.3,3.3-3.06,14.51-2.24,15.14l2.53,1.92c1.93,1.47,2.75,4.8,5.17,6.01,4.05-1.5,3.26.53,7.59.95-.94,1.85,1.3,2.51,1.42,3.77l.48,5.01c-.52.72-1.39,2.72-2.24,3.23Z"/>
     <path d="M331.1,305.19c.32,1.18-1.51,1.8-.65,8.32.28,2.15.52,5.37-1.88,6.48-1.99.92-3.82.24-5.22-.83-5.2-3.97-1.99-5.82-2.93-9.8-.1-.4.53-.85.59-1.18.1-.51-.58-1.26-.83-1.88,1.58-2.17,1.51-5.71.37-8.15.36-.72,1.21-1.48,1.41-2.01.29-.75-.93-1.85-.73-2.56.72-2.54.8-4.9-.52-7.04-.21-.39.94-1.46.77-1.84-.2-.48-.61-.91-1.44-1.35,2.49-1.82,3.15-11.29.9-13.8,1.01-.57.91-1.65,1.04-2.69.18-1.39.88-2.31-.04-3.85-.54-.92.53-2.47.42-3.61-.21-2.23-.59-4.59-1.13-6.79-1.67-.13-.8,1.74-1.11,2.24-.76,1.24-2.06,1.98-1.74,3.78.41,2.34-2.77,2.34-4.03,6.24-11.89,6.53-.89,3.21-16.11,5.53-.71-.86-1.75-1.23-2.48-1.56-3.87-1.69-5.05-5.55-6.22-9-.59-1.76-2.28-2.67-1.73-4.95.48-1.97-.75-3.91-2.9-4.56,3.95-2.98-1.28-5.41.7-7.43,1.4-1.43.43-2.19.14-3.62-1.18-5.78.78-10.5-1.45-13.94-.43-1.17,1.82-1.38,2.55-1.87,1.88-1.25,4.02-1.61,5.96.04,1.24,1.06,1.32,2.24,1.3,4.08l-.02,2.05c-3.22,2.29.19,1.78-2.18,4.46-.25.28.16.76,1.04,1.01-1.88,3.03.85,8.57,1.1,12.5.14,2.31.96,5.98,2.23,7.84.77,1.13.39,3.5,1.92,4.23.67.32,1.89.91,2.6.77l2.78-.54c.73-.14,1.44.4,2.23.26.72-.12.92-1.24,1.63-1.72,3.12-2.1,4.52-5.89,2.35-9.19.37-1.19,1.65-2.36,1.8-3.6-1.38-2.35-.91-4.75-1.33-7.07-.38-2.04-1.72-3.67-1.73-5.94,0-1.37-5.27-2.94-6.31-6.73.12-.95.4-2.54.63-3.57.29-1.25,2.81-3.42,4.05-2.93,1.71.67,2.53,1.97,4.63,1.94,4.73-.06,4.21,2.21,5.7,3.84.39.43-.11,1.64.9,2.08-3.1,2.77.98,2.75-.06,7.01-.23.95.22,2.68,1.48,2.33.86-.24,1.3-1.57,2.34-1.27s1.7,1.24,2.89,1.68c-1.02,1.2,1.06,6.31,1.46,7.29s-.62,3.83,1.62,3.76c1.42-.04,2.94-2.73,3.13-4.14.49-3.56,2.86-8.67,4.62-11.58.17-.28,3.32-7.78,3.74-8.13,2.33-1.01,2.9-3.28,4.66-4.66,1.93-1.51,4.17-3.05,6.26-4.44,1.93-1.29,4.84-1.89,7.07-2.47l3.49-.91c2.35-.61,10.09-1.51,11.4-.83l2.45,1.28c3.22-1.32,5.7.17,8.29,1.66.87.5,3.03-.7,3.23,1.51.57-.43.64-.75.83-.74-1.04-.08,2.6,1.69,3.04,1.69,3.71,0,.8-.04,4.81,3.41,3,2.58,3.28,6.21,6,7.68-.46.92.34,1.71.57,2.22l1.61,3.61c.52,1.17-.2,2.14.45,3.65,1.12,2.58-1.38,8.5.45,10.03l-2.51,2.53c1.43,3.3-2.77,7.27-4.82,9.48-1.65,1.77-3.61,4.45-6.44,4.06-1.45-.2-1.82.4-2.97.77-2.49.81-11.74,1.1-13.57.5s-3.33-1.43-5.3-1.54l-5.93-.34c.06,0-6.83-3.65-10.47-3.24-1.61.18-2.72-.92-3.75-1.96-.4-.4-1.22-.22-1.66-.45-.14-.07-1.05-2.9-.89-3.53.14-.54.87-1.06,1.57-1.61l-.33-2.64c1.45,2.25,2.97.63,4.54.98l4.85,1.09c1.38.31,2.89,2.11,4.74.48.74.99.92,2.23,1.76,2.85,1.33.08,8.45,1.56,9.03,1.92,2.78,1.71,5.48.82,8.29.37,1.94-.31,9.51.13,11.07-3.04.13-.27,1.31.02,1.21-.52-.04-.22-.53-.31-.79-.72,2.46-.28,3.59-1.89,3.72-4.21.07-1.22,1.56-2.05,1.89-3.22.23-.81-.71-1.85-.36-2.5.69-1.25,1.04-5.86-.92-7.2.78-4.22-.84-3.21-1.49-4.43-2.81-5.27-1.21-.94-3.91-5.83l-8.36-4.58c-1.25-.68-3.22-1.11-4.57-.93l-1.74.24c-.38.05-.76-1.33-1.34-1.4-2.78-.36-5.96-.39-8.74.14-1.04,1.03-2.41,2.62-4.37,1.82-1.5-.61-2.57.26-3.81.75-2.78,1.09-4.78,2.48-6.62,4.82-1.22,1.54-4.02,2.47-4.66,4.74-.37,1.29-1.24,1.88-1.95,2.94-.76,1.14-.34,3.03-2.41,3.5.6.92,1.15.64,1.76,1.24-2.55.98-3.21,2.66-3.77,4.78-.48,1.81-2.21,3.71-.88,5.79-1.84,1.46-1.71,3.77-2.38,6-.5,1.65-.93,3.23-1.33,4.86-.26,1.06-1.11,1.39-.8,2.91,1.17,5.6-1.93,6.97-.91,9.69.45,1.21-.65,1.87-.87,2.73-1.07,4.2-.64,13.34-1.02,14.05-1.03,1.93.19,3.7.33,5.45.2,2.53-2.44,5.09-.95,10.63Z"/>
   </g>
-</svg><h1 class="sr">Guppys Print and Mockup Helper</h1></div>
-<div class="ctl"><label>Color<input id="hue" type="range" min="0" max="360" value="150" aria-label="Accent color"></label><button id="theme">Dark mode</button><button id="guidebtn">How it works</button></div>
+</svg><h1 class="sr">Guppys Print and Mockup Helper</h1><div class="tag"><b>Print &amp; Mockup Helper</b><span>v6 ♡ now with vectors</span></div></div>
+<div class="ctl"><label>Color<input id="hue" type="range" min="0" max="360" value="150" aria-label="Accent color"></label><button id="undo" title="Undo (Ctrl+Z)" disabled>↶ Undo</button><button id="redo" title="Redo (Ctrl+Shift+Z)" disabled>Redo ↷</button><button id="theme">Dark mode</button><button id="grain" title="Toggle paper grain">Grain: off</button><button id="guidebtn">How it works</button></div>
 </header>
 
-<nav class="tabs" role="tablist"><button data-tab="key" class="on">Make Transparent</button><button data-tab="clean">Clean Up Edges</button><button data-tab="sticker">Sticker Outline</button><button data-tab="sep">Separate Inks</button><button data-tab="reduce">Reduce Colors</button><button data-tab="print">Print Prep</button><button data-tab="sheet">Gang Sheet</button><button data-tab="mock">Garment Mockup</button></nav>
+<nav class="tabs" role="tablist"><button data-tab="key" class="on">Make Transparent</button><button data-tab="clean">Clean Up Edges</button><button data-tab="sticker">Sticker Outline</button><button data-tab="sep">Separate Inks</button><button data-tab="reduce">Reduce Colors</button><button data-tab="vec">Vectorize</button><button data-tab="print">Print Prep</button><button data-tab="sheet">Gang Sheet</button><button data-tab="mock">Garment Mockup</button></nav>
 <div class="deck">
 <div id="stage"><div id="hint"><b>Drop your art here</b><br>or click to choose. Pasting works too, and so do several files at once.<ol class="steps"><li>Drop in one or more images</li><li>Pick a tab on the right for the job you need</li><li>Download the PNG, plates, or sheet</li></ol></div><canvas id="c"></canvas></div>
 <input id="file" type="file" accept="image/*" multiple hidden>
@@ -172,6 +269,7 @@ dialog ul{margin:0;padding-left:18px;color:var(--mute)}
 <label>Number of colors <span class="v"></span><input id="n" type="range" min="2" max="8" value="4"></label>
 <div id="pal"></div>
 <div class="two"><button id="redet">Re-detect</button><button id="pickpal">Pick from image</button></div>
+<div id="inkbox"><div class="inkhead"><b>Nearest ink match</b><button id="inkcopy">Copy list</button></div><div id="inks"></div><small>Closest Pantone-style code from a built-in table of about 80 solid coated colors, ranked by color distance (ΔE). It is a good first guess, so check a physical swatch book before ordering ink.</small></div>
 </div>
 <div class="pn" data-m2="cmyk" hidden>
 <label class="row"><input id="ht" type="checkbox"> Halftone dots (screen angles 15, 75, 0, 45)</label>
@@ -196,6 +294,18 @@ dialog ul{margin:0;padding-left:18px;color:var(--mute)}
 <label>Max dimension px (0 = off)<input id="maxd" type="number" min="0" value="0"></label>
 <div id="szout">-</div>
 <small>Indexed PNG keeps on/off transparency plus soft edges per palette entry. JPEG gets a white background.</small>
+</div>
+
+<div class="pn" data-p="vec" hidden>
+<p class="blurb">Turns flat, few-color art into a clean SVG that scales to any size. Best on logos, icons, and cutouts. Photos will turn blobby.</p>
+<label>Colors <span class="v"></span><input id="vcol" type="range" min="2" max="16" value="6"></label>
+<label>Simplify paths <span class="v"></span><input id="vtol" type="range" min="2" max="40" value="8"></label>
+<label>Round corners under, degrees <span class="v"></span><input id="vcor" type="range" min="15" max="120" value="50"></label>
+<label>Ignore specks up to px² <span class="v"></span><input id="vspk" type="range" min="0" max="300" value="12"></label>
+<label>Clean ragged edges <span class="v"></span><input id="vcln" type="range" min="0" max="3" value="1"></label>
+<label class="row"><input id="vbg" type="checkbox" checked> Skip background touching the edges</label>
+<div id="vecout">-</div>
+<small>Uses whatever the other tabs produced, so run Make Transparent first for art on a backdrop. Download gives you an .svg. Lower Simplify for tighter tracing, raise it for fewer points.</small>
 </div>
 
 <div class="pn" data-p="print" hidden>
@@ -225,8 +335,11 @@ dialog ul{margin:0;padding-left:18px;color:var(--mute)}
 <label>Move down <span class="v"></span><input id="goff" type="range" min="-100" max="300" value="0"></label>
 </div>
 
+<label>History (recent settings changes)<select id="hist"></select></label>
 <label>Presets<select id="pre"></select></label>
 <div class="two"><button id="presave">Save current</button><button id="predel">Delete</button></div>
+<div class="two"><button id="pjsave">Save project</button><button id="pjopen">Open project</button></div>
+<input id="pjfile" type="file" accept=".guppy,.json,application/json" hidden>
 <button id="add">Add more files</button>
 <button id="dlall" hidden>Download all files (zip)</button>
 <button class="main" id="dl" disabled>Download PNG</button>
@@ -245,6 +358,7 @@ dialog ul{margin:0;padding-left:18px;color:var(--mute)}
 <dt>Sticker Outline</dt><dd>Adds an outline and drop shadow.</dd>
 <dt>Separate Inks</dt><dd>One plate per ink (spot, CMYK or RGB), with underbase, registration marks, and a zip.</dd>
 <dt>Reduce Colors</dt><dd>Fewer colors and smaller files, as indexed PNG, WebP, or JPEG.</dd>
+<dt>Vectorize</dt><dd>Flat, few-color art to a clean SVG.</dd>
 <dt>Print Prep</dt><dd>Mirror, upscale, trim, and DPI and size.</dd>
 <dt>Gang Sheet</dt><dd>Gang sheet from all loaded files.</dd>
 <dt>Garment Mockup</dt><dd>See the design on a tee.</dd>
@@ -256,7 +370,7 @@ dialog ul{margin:0;padding-left:18px;color:var(--mute)}
 <li><b>Gang sheet:</b> load all designs, set the DPI in Print Prep, then open Gang Sheet and download.</li>
 </ul>
 <h3>Handy bits</h3>
-<ul><li>By default the tabs build on each other, so the preview shows the result of all of them. Tick <b>Tabs work separately</b> and each tab starts from your original image and uses only its own settings.</li><li>The before / after box is above the tabs. Presets are at the bottom.</li><li>The color slider and light / dark button are up top.</li></ul>
+<ul><li>By default the tabs build on each other, so the preview shows the result of all of them. Tick <b>Tabs work separately</b> and each tab starts from your original image and uses only its own settings.</li><li>The before / after box is above the tabs. Presets are at the bottom.</li><li>The color slider and light / dark button are up top.</li><li><b>Undo / Redo</b> (also Ctrl+Z and Ctrl+Shift+Z) steps back through your recent settings changes. The History list jumps straight to any step.</li><li><b>Nearest ink match</b> sits under the spot colors in Separate Inks. It suggests a Pantone-style code for each color and adds an ink list to the plates zip.</li><li><b>Save project</b> stores your images and settings in one .guppy file. <b>Open project</b> puts everything back.</li></ul>
 <p style="text-align:right;margin:16px 0 0"><button class="main" id="gclose">Got it</button></p>
 </dialog>
 <script>
@@ -311,7 +425,7 @@ const sm=doS?+$('smooth').value:0;if(sm){a=minF(a,W,H,sm,1);for(let p=0;p<N;p++)
 if(doC&&$('hard').checked){const t=+$('thrv').value,dt=$('dith').checked;
 for(let y=0;y<H;y++)for(let x=0;x<W;x++){const p=y*W+x;a[p]=dt?(a[p]>(BY[(y&3)*4+(x&3)]+.5)*16?255:0):(a[p]>=t?255:0)}}
 for(let p=0;p<N;p++)d[p*4+3]=a[p]}
-const STG={key:['key'],clean:['clean'],sticker:['sticker'],sep:[],reduce:[],print:['up','smooth','flip','trim'],sheet:[],mock:[]};
+const STG={key:['key'],clean:['clean'],sticker:['sticker'],sep:[],reduce:[],print:['up','smooth','flip','trim'],sheet:[],mock:[],vec:[]};
 const stages=()=>$('indep').checked?STG[tab]:null;
 function process(src,st=stages()){const on=k=>!st||st.includes(k);if(on('up'))src=upscale(src);
 let W=src.width,H=src.height,d=on('key')?keyed(src):new Uint8ClampedArray(src.data);
@@ -382,11 +496,11 @@ d('thrv',!g('hard').checked||g('dith').checked);d('dith',!g('hard').checked);
 d('ncol',!g('rdo').checked);d('dth',!g('rdo').checked);d('q',!['webp','jpeg'].includes(g('fmt').value));
 d('olc',+g('olw').value===0);const ns=+g('sho').value===0;['shx','shy','shc'].forEach(i=>d(i,ns));
 d('pad',!g('trim').checked);d('col',g('orig').checked)}
-const sched=()=>{deps();cancelAnimationFrame(raf);raf=requestAnimationFrame(render)};
+const sched=()=>{deps();histSoon();cancelAnimationFrame(raf);raf=requestAnimationFrame(render)};
 function drawPal(){const p=$('pal');p.innerHTML='';pal.forEach((k,i)=>{const d=document.createElement('div'),inp=document.createElement('input'),x=document.createElement('b');
 const t=document.createElement('small');t.textContent=toHex(k);t.title='click to copy';t.onclick=()=>{try{navigator.clipboard.writeText(t.textContent)}catch(e){}const v=t.textContent;t.textContent='copied';setTimeout(()=>t.textContent=v,700)};
-inp.type='color';inp.value=toHex(k);inp.oninput=()=>{pal[i]=hex(inp.value);t.textContent=inp.value;sched()};x.textContent='×';x.onclick=()=>{pal.splice(i,1);$('n').value=Math.max(2,pal.length);$('n').dispatchEvent(new Event('x'));drawPal();sched()};
-d.append(inp,x,t);p.append(d)})}
+inp.type='color';inp.value=toHex(k);inp.oninput=()=>{pal[i]=hex(inp.value);t.textContent=inp.value;inkList();sched()};x.textContent='×';x.onclick=()=>{pal.splice(i,1);$('n').value=Math.max(2,pal.length);$('n').dispatchEvent(new Event('x'));drawPal();sched()};
+d.append(inp,x,t);p.append(d)});inkList()}
 function render(){const it=items[cur];if(!it)return;
 const o=process(it.data);out=o;
 if(document.activeElement!==$('wid'))$('wid').value=(o.width/dpiV()*(unitK()===1?1:2.54)).toFixed(2);
@@ -398,13 +512,15 @@ pl=plates(o);const sig=pl.map(p=>p.name).join('|'),v=$('view');
 if(v.dataset.sig!==sig){const old=v.value;v.innerHTML='<option value="comp">Composite</option>'+pl.map((p,i)=>`<option value="${i}">${p.name}</option>`).join('');v.dataset.sig=sig;if([...v.options].some(x=>x.value===old))v.value=old}
 if(v.value==='comp')show(pl.comp);else{const f=frame(pl[+v.value].d,pl[+v.value].name);lastD=null;c.width=f.width;c.height=f.height;ctx.drawImage(f,0,0)}}
 else if(tab==='reduce'){lastRed=reduceImg(o);show(lastRed.d);sizeJob()}
+else if(tab==='vec'){vecSoon(o)}
 else show(o)}
 
 /* ---------- loading ---------- */
 async function load(files){files=[...files].filter(f=>f.type.startsWith('image/'));
 for(const f of files){const img=new Image();await new Promise(r=>{img.onload=r;img.src=URL.createObjectURL(f)});
 const k=document.createElement('canvas');k.width=img.naturalWidth;k.height=img.naturalHeight;const g=k.getContext('2d',{willReadFrequently:true});g.drawImage(img,0,0);
-items.push({name:(f.name||'pasted').replace(/\.[^.]+$/,''),data:g.getImageData(0,0,k.width,k.height),size:f.size})}
+const src=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(f)});
+items.push({name:(f.name||'pasted').replace(/\.[^.]+$/,''),data:g.getImageData(0,0,k.width,k.height),size:f.size,src})}
 if(!files.length)return;cur=items.length-files.length;palDirty=true;c.style.display='block';$('hint').style.display='none';$('dl').disabled=false;strip();sched()}
 function strip(){$('strip').innerHTML='';$('dlall').hidden=items.length<2;if(items.length<2)return;items.forEach((it,i)=>{const b=document.createElement('button');b.textContent=it.name;b.className=i===cur?'on':'';b.onclick=()=>{cur=i;palDirty=true;strip();sched()};$('strip').append(b)})}
 
@@ -418,7 +534,7 @@ $('mode').addEventListener('input',()=>document.querySelectorAll('[data-m]').for
 $('smode').addEventListener('input',()=>document.querySelectorAll('[data-m2]').forEach(e=>e.hidden=e.dataset.m2!==($('smode').value==='rgb'?'cmyk':$('smode').value)));
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;pick=null;c.style.cursor='';
 document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('on',x===b));
-document.querySelectorAll('[data-p]').forEach(p=>p.hidden=p.dataset.p!==tab);sched()});
+document.querySelectorAll('[data-p]').forEach(p=>p.hidden=p.dataset.p!==tab);vecShown='';$('dl').textContent=tab==='vec'?'Download SVG':'Download PNG';sched()});
 document.querySelectorAll('[data-bg]').forEach(btn=>btn.onclick=()=>{const v=btn.dataset.bg;
 if(v==='check')stage.removeAttribute('style');else{stage.style.backgroundImage='none';stage.style.backgroundColor=v}});
 $('pickkey').onclick=()=>{if(!items.length)return;pick='key';c.style.cursor='crosshair';sched()};
@@ -438,10 +554,12 @@ stage.addEventListener('drop',e=>load(e.dataTransfer.files));
 window.addEventListener('paste',e=>load(e.clipboardData.files));
 const EXT={png8:'png',png32:'png',webp:'webp',jpeg:'jpg'};
 $('dl').onclick=async()=>{const nm=items[cur]?.name||'image';
+if(tab==='vec'){const r=vectorize(process(items[cur].data));save(new Blob([r.svg],{type:'image/svg+xml'}),nm+'.svg');return}
 if(tab==='reduce'&&lastRed){const f=$('fmt').value;save(await encode(lastRed,f),nm+'-reduced.'+EXT[f]);return}
 save(await pngBlob(lastD?toCv(lastD):c,dpiV()),nm+'-'+tab+'.png')};
 $('dlzip').onclick=async()=>{if(!pl.length)return;const files=[],nm=items[cur].name;
 for(const p of pl){const b=await pngBlob(frame(p.d,p.name),dpiV());files.push({name:nm+'_'+p.name+'.png',data:new Uint8Array(await b.arrayBuffer())})}
+if($('smode').value==='spot'&&pal.length)files.push({name:nm+'_inks.txt',data:new TextEncoder().encode(inkText())});
 save(zip(files),nm+'-plates.zip')};
 
 /* ---------- upscale, sticker, reduce ---------- */
@@ -507,7 +625,8 @@ const b=await encode(rr,$('fmt').value);if(tk!==szTok)return;const a=items[cur].
 $('szout').textContent='Original '+f(a)+' → '+f(b.size)+(a?(b.size<=a?' (−'+Math.round((1-b.size/a)*100)+'%)':' (+'+Math.round((b.size/a-1)*100)+'%)'):'')},150)}
 $('dlall').onclick=async()=>{const files=[],keep=pal;
 for(let i=0;i<items.length;i++){const it=items[i],o=process(it.data),nm=(i+1)+'_'+it.name;
-if(tab==='sep'){if($('smode').value==='spot')pal=i===cur?keep:detect(o,+$('n').value);
+if(tab==='vec'){files.push({name:nm+'.svg',data:new TextEncoder().encode(vectorize(o).svg)})}
+else if(tab==='sep'){if($('smode').value==='spot')pal=i===cur?keep:detect(o,+$('n').value);
 for(const p of plates(o)){const b=await pngBlob(frame(p.d,p.name),dpiV());files.push({name:nm+'_'+p.name+'.png',data:new Uint8Array(await b.arrayBuffer())})}}
 else{const red=tab==='reduce',f=red?$('fmt').value:'png32',b=await encode(red?reduceImg(o):{d:o,W:o.width,H:o.height},f);files.push({name:nm+'.'+EXT[f],data:new Uint8Array(await b.arrayBuffer())})}}
 pal=keep;save(zip(files),'batch.zip')};
@@ -524,7 +643,7 @@ c.addEventListener('pointermove',e=>{if(drag)mv(e)});c.addEventListener('pointer
 const PK='w2t-presets',getP=()=>{try{return JSON.parse(localStorage.getItem(PK)||'{}')}catch(e){return{}}},putP=P=>{try{localStorage.setItem(PK,JSON.stringify(P))}catch(e){alert('Browser blocked saving presets')}};
 function fillP(sel){$('pre').innerHTML='<option value="">Presets…</option>'+Object.keys(getP()).map(k=>'<option>'+k+'</option>').join('');if(sel)$('pre').value=sel}
 $('presave').onclick=()=>{const n=prompt('Preset name');if(!n)return;const P=getP(),o={};
-document.querySelectorAll('aside input[id],aside select[id]').forEach(e=>{if(['wid','pre','view'].includes(e.id))return;o[e.id]=e.type==='checkbox'?e.checked:e.value});P[n]=o;putP(P);fillP(n)};
+settingEls().forEach(e=>{o[e.id]=e.type==='checkbox'?e.checked:e.value});P[n]=o;putP(P);fillP(n)};
 $('pre').addEventListener('change',()=>{const o=getP()[$('pre').value];if(!o)return;for(const id in o){const e=$(id);if(!e)continue;if(e.type==='checkbox')e.checked=o[id];else e.value=o[id];e.dispatchEvent(new Event('input'))}});
 $('predel').onclick=()=>{const P=getP();delete P[$('pre').value];putP(P);fillP()};
 fillP();
@@ -535,18 +654,177 @@ function mock(o){c.width=900;c.height=1000;ctx.clearRect(0,0,900,1000);ctx.fillS
 const w=440*$('gsz').value/100,h=w*o.height/o.width;ctx.drawImage(toCv(o),450-w/2,200+ +$('goff').value,w,h)}
 ['#ffffff','#1c1c1c','#1f2a44','#b9b4a8','#8a2a2a','#d8c9a8'].forEach(k=>{const b=document.createElement('button');b.style.background=k;b.title=k;b.onclick=()=>{$('gcol').value=k;sched()};$('gsw').append(b)});
 
+/* ---------- nearest ink match ---------- */
+/* Approximate sRGB values for common Pantone-style solid coated colors. Good for a first guess, not a proof. */
+const PMS=[['PMS Yellow C','#FEDD00'],['PMS Yellow 012 C','#FFD700'],['PMS 100 C','#F6EB61'],['PMS 102 C','#FCE300'],['PMS 107 C','#FBE122'],['PMS 109 C','#FFD100'],['PMS 116 C','#FFCD00'],['PMS 123 C','#FFC72C'],['PMS 130 C','#F2A900'],['PMS 137 C','#FFA300'],['PMS 144 C','#ED8B00'],['PMS 151 C','#FF8200'],['PMS 165 C','#FF6720'],['PMS 172 C','#FA4616'],['PMS Orange 021 C','#FE5000'],['PMS Warm Red C','#F9423A'],
+['PMS Red 032 C','#EF3340'],['PMS 485 C','#DA291C'],['PMS 186 C','#C8102E'],['PMS 187 C','#A6192E'],['PMS 199 C','#D50032'],['PMS 200 C','#BA0C2F'],['PMS 201 C','#9D2235'],['PMS 202 C','#862633'],['PMS 209 C','#6F263D'],['PMS Rubine Red C','#CE0058'],['PMS Rhodamine Red C','#E10098'],['PMS Pink C','#D62598'],['PMS 213 C','#E31C79'],['PMS 219 C','#DA1884'],
+['PMS Purple C','#BB29BB'],['PMS Violet C','#440099'],['PMS 266 C','#753BBD'],['PMS 267 C','#5F259F'],['PMS 268 C','#582C83'],['PMS 2685 C','#330072'],
+['PMS Reflex Blue C','#001489'],['PMS Process Blue C','#0085CA'],['PMS 2728 C','#0047BB'],['PMS 286 C','#0033A0'],['PMS 287 C','#003087'],['PMS 288 C','#002D72'],['PMS 293 C','#003DA5'],['PMS 285 C','#0072CE'],['PMS 299 C','#00A3E0'],['PMS 300 C','#005EB8'],['PMS 297 C','#71C5E8'],['PMS 534 C','#1B365D'],['PMS 289 C','#0C2340'],['PMS 281 C','#00205B'],['PMS 282 C','#041E42'],['PMS 295 C','#002F6C'],['PMS 280 C','#012169'],
+['PMS 320 C','#009CA6'],['PMS 321 C','#008C95'],['PMS 326 C','#00B2A9'],['PMS 335 C','#009B77'],['PMS 341 C','#007A53'],['PMS 347 C','#009A44'],['PMS 348 C','#00843D'],['PMS 354 C','#00B140'],['PMS 355 C','#009639'],['PMS 361 C','#43B02A'],['PMS 368 C','#78BE20'],['PMS 375 C','#97D700'],['PMS 376 C','#84BD00'],['PMS 382 C','#C4D600'],['PMS Green C','#00AB84'],
+['PMS 4625 C','#4F2C1D'],['PMS 476 C','#4E3629'],['PMS 7527 C','#D6D2C4'],
+['PMS Cool Gray 1 C','#D9D9D6'],['PMS Cool Gray 3 C','#C8C9C7'],['PMS Cool Gray 5 C','#B1B3B3'],['PMS Cool Gray 7 C','#97999B'],['PMS Cool Gray 9 C','#75787B'],['PMS Cool Gray 11 C','#53565A'],['PMS Warm Gray 1 C','#D7D2CB'],['PMS Warm Gray 5 C','#B6ADA5'],['PMS Warm Gray 7 C','#A59C94'],['PMS Warm Gray 9 C','#8C857B'],['PMS Warm Gray 11 C','#6E6259'],['PMS Black 7 C','#3D3935'],['PMS Black C','#2D2926'],['PMS Black 6 C','#101820'],['White ink','#FFFFFF']];
+const labOf=(r,g,b)=>{const f=u=>{u/=255;return u>.04045?((u+.055)/1.055)**2.4:u/12.92},R=f(r),G=f(g),B=f(b),X=(R*.4124+G*.3576+B*.1805)/.95047,Y=R*.2126+G*.7152+B*.0722,Z=(R*.0193+G*.1192+B*.9505)/1.08883,h=t=>t>.008856?Math.cbrt(t):7.787*t+16/116;return[116*h(Y)-16,500*(h(X)-h(Y)),200*(h(Y)-h(Z))]};
+const PMSL=PMS.map(([n,h])=>({n,h,l:labOf(...hex(h))}));
+function nearestInk(k){const l=labOf(k[0],k[1],k[2]);let b=null,bd=1e9;for(const p of PMSL){const e=Math.hypot(l[0]-p.l[0],l[1]-p.l[1],l[2]-p.l[2]);if(e<bd){bd=e;b=p}}return{n:b.n,h:b.h,de:bd}}
+const inkQ=de=>de<=6?'close':de<=15?'approx':'rough';
+function inkList(){const box=$('inks');if(!box)return;box.innerHTML='';
+pal.forEach(k=>{const m=nearestInk(k),r=document.createElement('div'),a=document.createElement('i'),b=document.createElement('i'),t=document.createElement('span'),q=document.createElement('small');
+r.className='ink';a.style.background=toHex(k);b.style.background=m.h;a.title='your color';b.title='ink color';
+t.textContent=toHex(k).toUpperCase()+' → '+m.n;q.textContent='ΔE '+m.de.toFixed(1)+' · '+inkQ(m.de)+' match';r.append(a,b,t,q);box.append(r)})}
+function inkText(){return 'Nearest ink match (approximate - check a physical swatch book before ordering ink)\n\n'+pal.map((k,i)=>{const m=nearestInk(k);return 'Color '+(i+1)+': '+toHex(k).toUpperCase()+'  ->  '+m.n+' ('+m.h+')  dE '+m.de.toFixed(1)+' ('+inkQ(m.de)+')'}).join('\n')+'\n'}
+$('inkcopy').onclick=()=>{try{navigator.clipboard.writeText(inkText())}catch(e){}const b=$('inkcopy'),v=b.textContent;b.textContent='Copied';setTimeout(()=>b.textContent=v,900)};
+
+/* ---------- vectorize ---------- */
+function rdpKeep(P,tol){const n=P.length;if(n<3)return P.slice();const keep=new Uint8Array(n),st=[[0,n-1]],t2=tol*tol;keep[0]=keep[n-1]=1;
+while(st.length){const[i,j]=st.pop();let md=-1,mi=-1;const ax=P[i][0],ay=P[i][1],dx=P[j][0]-ax,dy=P[j][1]-ay,L=dx*dx+dy*dy;
+for(let k=i+1;k<j;k++){const px=P[k][0]-ax,py=P[k][1]-ay;let u=L?(px*dx+py*dy)/L:0;u=u<0?0:u>1?1:u;const ex=px-u*dx,ey=py-u*dy,d=ex*ex+ey*ey;if(d>md){md=d;mi=k}}
+if(md>t2&&mi>0){keep[mi]=1;st.push([i,mi],[mi,j])}}
+return P.filter((_,k)=>keep[k])}
+function simplifyLoop(P,tol){const n=P.length;if(n<=4)return P;let far=0,fd=-1;
+for(let k=1;k<n;k++){const d=(P[k][0]-P[0][0])**2+(P[k][1]-P[0][1])**2;if(d>fd){fd=d;far=k}}
+const A=rdpKeep(P.slice(0,far+1),tol),B=rdpKeep(P.slice(far).concat([P[0]]),tol);return A.slice(0,-1).concat(B.slice(0,-1))}
+function smoothPath(Q,thr,f){const n=Q.length,cor=new Uint8Array(n),T=thr*Math.PI/180;
+for(let i=0;i<n;i++){const a=Q[(i+n-1)%n],b=Q[i],c=Q[(i+1)%n],ux=b[0]-a[0],uy=b[1]-a[1],vx=c[0]-b[0],vy=c[1]-b[1],l=Math.hypot(ux,uy)*Math.hypot(vx,vy);
+cor[i]=l?Math.acos(Math.max(-1,Math.min(1,(ux*vx+uy*vy)/l)))>T?1:0:1}
+const mid=i=>{const a=Q[i],b=Q[(i+1)%n];return[(a[0]+b[0])/2,(a[1]+b[1])/2]},m0=mid(n-1);
+let d='M'+f(m0[0])+' '+f(m0[1]);
+for(let i=0;i<n;i++){const b=Q[i],m=mid(i);
+if(cor[i])d+='L'+f(b[0])+' '+f(b[1])+'L'+f(m[0])+' '+f(m[1]);else d+='Q'+f(b[0])+' '+f(b[1])+' '+f(m[0])+' '+f(m[1])}
+return d+'Z'}
+function vectorize(src){
+const n=+$('vcol').value,tol=+$('vtol').value/10,corner=+$('vcor').value,minA=+$('vspk').value,passes=+$('vcln').value,skipBg=$('vbg').checked;
+const k0=Math.min(1,1200/Math.max(src.width,src.height));let wo=src;
+if(k0<1){const w=Math.max(1,Math.round(src.width*k0)),h=Math.max(1,Math.round(src.height*k0)),t=document.createElement('canvas');t.width=w;t.height=h;
+const g=t.getContext('2d',{willReadFrequently:true});g.imageSmoothingQuality='high';g.drawImage(toCv(src),0,0,w,h);wo=g.getImageData(0,0,w,h)}
+const W=wo.width,H=wo.height,N=W*H,s=wo.data,k=W/src.width,P=detect(wo,n),f=v=>+(v/k).toFixed(1);
+const head='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+src.width+' '+src.height+'" width="'+src.width+'" height="'+src.height+'">\n';
+if(!P.length){const e=head+'</svg>\n';return{svg:e,colors:0,bytes:e.length}}
+/* label every pixel with its nearest palette color (-1 = transparent) */
+const L=new Int8Array(N);let lk=-1,lv=-1;
+for(let p=0;p<N;p++){if(s[p*4+3]<128){L[p]=-1;continue}const r=s[p*4],g=s[p*4+1],b=s[p*4+2],key=r<<16|g<<8|b;
+if(key===lk){L[p]=lv;continue}let bi=0,bd=1e9;for(let i=0;i<P.length;i++){const q=P[i],e=(q[0]-r)**2+(q[1]-g)**2+(q[2]-b)**2;if(e<bd){bd=e;bi=i}}lk=key;lv=bi;L[p]=bi}
+/* clean ragged edges: majority vote in each 3x3 */
+for(let ps=0;ps<passes;ps++){const C=L.slice();
+for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){const p=y*W+x,c=C[p];if(c<0)continue;
+if(C[p-1]===c&&C[p+1]===c&&C[p-W]===c&&C[p+W]===c&&C[p-W-1]===c&&C[p-W+1]===c&&C[p+W-1]===c&&C[p+W+1]===c)continue;
+const v=[C[p-W-1],C[p-W],C[p-W+1],C[p-1],c,C[p+1],C[p+W-1],C[p+W],C[p+W+1]];let best=c,bc=0;
+for(let a=0;a<9;a++){const va=v[a];if(va<0)continue;let ct=0;for(let b=0;b<9;b++)if(v[b]===va)ct++;if(ct>bc){bc=ct;best=va}}
+if(bc>=5)L[p]=best}}
+/* drop the background: the main edge color, only where it is connected to the border */
+if(skipBg){const cnt=new Int32Array(P.length),edge=[];let opq=0;
+for(let x=0;x<W;x++)edge.push(x,(H-1)*W+x);for(let y=0;y<H;y++)edge.push(y*W,y*W+W-1);
+for(const p of edge)if(L[p]>=0){cnt[L[p]]++;opq++}
+if(opq>edge.length*.5){let bi=0;for(let i=1;i<cnt.length;i++)if(cnt[i]>cnt[bi])bi=i;
+if(cnt[bi]>=opq*.5){const stk=[],seen=new Uint8Array(N);
+for(const p of edge)if(L[p]===bi&&!seen[p]){seen[p]=1;stk.push(p)}
+while(stk.length){const p=stk.pop(),x=p%W,y=(p/W)|0;L[p]=-1;
+if(x>0&&!seen[p-1]&&L[p-1]===bi){seen[p-1]=1;stk.push(p-1)}
+if(x<W-1&&!seen[p+1]&&L[p+1]===bi){seen[p+1]=1;stk.push(p+1)}
+if(y>0&&!seen[p-W]&&L[p-W]===bi){seen[p-W]=1;stk.push(p-W)}
+if(y<H-1&&!seen[p+W]&&L[p+W]===bi){seen[p+W]=1;stk.push(p+W)}}}}}
+/* stacked layers: biggest color at the bottom, each layer covers everything above it, so there are no gaps */
+const area=new Int32Array(P.length);for(let p=0;p<N;p++)if(L[p]>=0)area[L[p]]++;
+const order=[...area.keys()].filter(i=>area[i]>0).sort((a,b)=>area[b]-area[a]),rank=new Int16Array(P.length).fill(-1);order.forEach((ci,r)=>rank[ci]=r);
+/* smooth contours: blur each layer mask a touch, then marching squares at the 50% line (no staircase) */
+const SW=W+2,SH=H+2,HE=SW*SH,F=new Float32Array(HE),TB=new Float32Array(HE),nb1=new Int32Array(HE*2).fill(-1),nb2=new Int32Array(HE*2).fill(-1),out=[];
+const nodePt=id=>{if(id<HE){const j=(id/SW)|0,i=id-j*SW,a=F[j*SW+i],b=F[j*SW+i+1];return[i-.5+(.5-a)/(b-a),j-.5]}
+id-=HE;const j=(id/SW)|0,i=id-j*SW,a=F[j*SW+i],b=F[(j+1)*SW+i];return[i-.5,j-.5+(.5-a)/(b-a)]};
+order.forEach((ci,r)=>{
+F.fill(0);for(let y=0;y<H;y++)for(let x=0;x<W;x++){const l=L[y*W+x];if(l>=0&&rank[l]>=r)F[(y+1)*SW+x+1]=1}
+for(let y=0;y<SH;y++){const o=y*SW;for(let x=0;x<SW;x++)TB[o+x]=((x>0?F[o+x-1]:0)+F[o+x]+(x<SW-1?F[o+x+1]:0))/3}
+for(let y=0;y<SH;y++){const o=y*SW;for(let x=0;x<SW;x++)F[o+x]=((y>0?TB[o-SW+x]:0)+TB[o+x]+(y<SH-1?TB[o+SW+x]:0))/3}
+const starts=[],seg=(a,b)=>{if(nb1[a]<0)nb1[a]=b;else nb2[a]=b;if(nb1[b]<0)nb1[b]=a;else nb2[b]=a;starts.push(a)};
+for(let j=0;j<=H;j++)for(let i=0;i<=W;i++){const o=j*SW+i,tl=F[o],tr=F[o+1],bl=F[o+SW],br=F[o+SW+1],
+cs=(tl>=.5?1:0)|(tr>=.5?2:0)|(br>=.5?4:0)|(bl>=.5?8:0);if(cs===0||cs===15)continue;
+const T=o,B=o+SW,Lf=HE+o,R=HE+o+1;
+switch(cs){case 1:case 14:seg(Lf,T);break;case 2:case 13:seg(T,R);break;case 3:case 12:seg(Lf,R);break;case 4:case 11:seg(R,B);break;
+case 6:case 9:seg(T,B);break;case 7:case 8:seg(Lf,B);break;
+case 5:if((tl+tr+bl+br)/4>=.5){seg(T,R);seg(Lf,B)}else{seg(Lf,T);seg(R,B)}break;
+case 10:if((tl+tr+bl+br)/4>=.5){seg(T,Lf);seg(R,B)}else{seg(T,R);seg(Lf,B)}break}}
+const parts=[];
+for(const s0 of starts){if(nb1[s0]<0)continue;
+const pts=[];let cur=s0,prev=-1;
+for(;;){pts.push(nodePt(cur));const n1=nb1[cur],n2=nb2[cur];nb1[cur]=-2;
+const nx=(n1>=0&&n1!==prev)?n1:n2;prev=cur;
+if(nx===s0||nx<0||nb1[nx]===-2)break;cur=nx}
+if(pts.length<3)continue;
+let a=0;for(let i=0,j=pts.length-1;i<pts.length;j=i++)a+=pts[j][0]*pts[i][1]-pts[i][0]*pts[j][1];
+if(Math.abs(a)/2<minA)continue;
+const q=simplifyLoop(pts,tol);if(q.length<3)continue;
+parts.push(smoothPath(q,corner,f))}
+nb1.fill(-1);nb2.fill(-1);
+if(parts.length)out.push('<path fill="'+toHex(P[ci])+'" fill-rule="evenodd" d="'+parts.join('')+'"/>')});
+const svg=head+out.join('\n')+'\n</svg>\n';
+return{svg,colors:out.length,bytes:svg.length}}
+const fmtB=b=>b>1e6?(b/1e6).toFixed(2)+' MB':Math.max(1,Math.round(b/1e3))+' KB';
+let vecT=0,vecTok=0,vecShown='';
+function vecSoon(o){clearTimeout(vecT);const tk=++vecTok,key=cur+':'+o.width+'x'+o.height;
+if(vecShown!==key)show(o);
+$('vecout').textContent='Tracing…';
+vecT=setTimeout(()=>{if(tk!==vecTok||tab!=='vec')return;let r;
+try{r=vectorize(o)}catch(e){$('vecout').textContent='Could not vectorize this one: '+e.message;return}
+const img=new Image();
+img.onload=()=>{URL.revokeObjectURL(img.src);if(tk!==vecTok||tab!=='vec')return;c.width=o.width;c.height=o.height;ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(img,0,0,o.width,o.height);lastD=ctx.getImageData(0,0,c.width,c.height);vecShown=key;ov()};
+img.onerror=()=>{$('vecout').textContent='Could not draw the SVG preview.'};
+img.src=URL.createObjectURL(new Blob([r.svg],{type:'image/svg+xml'}));
+$('vecout').textContent=r.colors+' color layers · SVG '+fmtB(r.bytes)},150)}
+
+/* ---------- undo + history ---------- */
+let hist=[],hi=-1,hT=0,lastEl=null;
+const settingEls=()=>[...document.querySelectorAll('aside input[id],aside select[id]')].filter(e=>e.type!=='file'&&!['wid','pre','view','hist'].includes(e.id));
+function snap(){const o={};settingEls().forEach(e=>{o[e.id]=e.type==='checkbox'?e.checked:e.value});o._pal=pal.map(a=>a.map(Math.round));return JSON.stringify(o)}
+function applyState(o){for(const id in o){if(id==='_pal')continue;const e=$(id);if(!e||e.type==='file')continue;if(e.type==='checkbox')e.checked=o[id];else e.value=o[id]}
+document.querySelectorAll('input[type=range]').forEach(r=>r.dispatchEvent(new Event('x')));
+if(o._pal){pal=o._pal.map(a=>a.slice());palDirty=false;drawPal()}
+['mode','smode'].forEach(id=>$(id).dispatchEvent(new Event('input')));sched()}
+function labelFor(){const e=lastEl;if(!e||!e.id)return'Change';const l=e.closest('label');let t='';
+if(l)for(const nd of l.childNodes)if(nd.nodeType===3&&nd.textContent.trim()){t=nd.textContent.trim();break}
+t=t||e.id;const v=e.type==='checkbox'?(e.checked?'on':'off'):e.tagName==='SELECT'?e.selectedOptions[0].textContent:e.value;return(t+' '+v).slice(0,34)}
+function histUI(){$('undo').disabled=hi<=0;$('redo').disabled=hi>=hist.length-1;
+$('hist').innerHTML=hist.map((h,i)=>'<option value="'+i+'">'+(i===hi?'● ':'')+(i+1)+'. '+h.l.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</option>').reverse().join('');$('hist').value=hi}
+function histCommit(){clearTimeout(hT);const s=snap();if(hist[hi]&&hist[hi].s===s)return;
+hist.length=hi+1;hist.push({s,l:hi<0?'Start':labelFor()});if(hist.length>60)hist.shift();hi=hist.length-1;lastEl=null;histUI()}
+const histSoon=()=>{clearTimeout(hT);hT=setTimeout(histCommit,450)};
+function histReset(){clearTimeout(hT);hist=[];hi=-1;lastEl=null;histCommit()}
+function histTo(i){if(i<0||i>=hist.length)return;hi=i;applyState(JSON.parse(hist[i].s));lastEl=null;histUI()}
+const aside=document.querySelector('aside');['input','change'].forEach(ev=>aside.addEventListener(ev,e=>{lastEl=e.target},true));
+$('undo').onclick=()=>{histCommit();histTo(hi-1)};
+$('redo').onclick=()=>{histCommit();histTo(hi+1)};
+$('hist').addEventListener('change',()=>{histCommit();histTo(+$('hist').value)});
+addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||$('guide').open)return;const k=e.key.toLowerCase(),t=e.target;
+if(t.tagName==='INPUT'&&['number','text'].includes(t.type))return;
+if(k==='z'&&!e.shiftKey){e.preventDefault();$('undo').click()}else if(k==='y'||(k==='z'&&e.shiftKey)){e.preventDefault();$('redo').click()}});
+
+/* ---------- project save / open ---------- */
+$('pjsave').onclick=()=>{histCommit();
+const p={app:'guppys-print-helper',v:6,saved:new Date().toISOString(),tab,cur,settings:JSON.parse(snap()),presets:getP(),items:items.map(i=>({name:i.name,src:i.src}))};
+save(new Blob([JSON.stringify(p)],{type:'application/json'}),(items[cur]?.name||'project')+'.guppy')};
+$('pjopen').onclick=()=>$('pjfile').click();
+$('pjfile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;let p;
+try{p=JSON.parse(await f.text())}catch(x){alert('That file is not a Guppy project.');return}
+if(!p||p.app!=='guppys-print-helper'){alert('That file is not a Guppy project.');return}
+items=[];cur=0;palDirty=true;
+const files=[];for(const it of p.items||[]){try{const b=await(await fetch(it.src)).blob();files.push(new File([b],it.name+'.'+((b.type.split('/')[1]||'png').replace('jpeg','jpg')),{type:b.type}))}catch(x){}}
+await load(files);
+if(items.length){cur=Math.min(Math.max(0,p.cur|0),items.length-1);strip()}else{c.style.display='none';$('hint').style.display='';$('dl').disabled=true;strip()}
+if(p.settings)applyState(p.settings);
+if(p.presets)putP({...getP(),...p.presets});fillP();
+const tb=document.querySelector('[data-tab="'+p.tab+'"]');if(tb)tb.click();
+histReset()};
+
 /* ---------- theme, hue, guide ---------- */
 const root=document.documentElement,TK='gpmh-theme';let th={};try{th=JSON.parse(localStorage.getItem(TK)||'{}')}catch(e){}
 const isDark=()=>root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;
 function favicon(){const s=document.querySelector('.logo').cloneNode(true);s.setAttribute('fill','hsl('+(th.h??150)+' 35% 42%)');s.setAttribute('width',64);s.setAttribute('height',58);$('fav').href='data:image/svg+xml,'+encodeURIComponent(new XMLSerializer().serializeToString(s))}
-function applyTh(){if(th.t)root.dataset.theme=th.t;root.style.setProperty('--h',th.h??150);$('hue').value=th.h??150;$('theme').textContent=isDark()?'Light mode':'Dark mode';favicon()}
+function applyTh(){if(th.t)root.dataset.theme=th.t;root.style.setProperty('--h',th.h??150);$('hue').value=th.h??150;$('theme').textContent=isDark()?'Light mode':'Dark mode';if(th.g)root.dataset.grain='on';else delete root.dataset.grain;$('grain').textContent='Grain: '+(th.g?'on':'off');favicon()}
 const saveTh=()=>{try{localStorage.setItem(TK,JSON.stringify(th))}catch(e){}};
 $('theme').onclick=()=>{th.t=isDark()?'light':'dark';applyTh();saveTh()};
+$('grain').onclick=()=>{th.g=!th.g;applyTh();saveTh()};
 $('hue').addEventListener('input',()=>{th.h=+$('hue').value;applyTh();saveTh()});
 matchMedia('(prefers-color-scheme:dark)').addEventListener('change',applyTh);
 $('guidebtn').onclick=()=>$('guide').showModal();$('gclose').onclick=()=>$('guide').close();
 $('guide').addEventListener('click',e=>{if(e.target===$('guide'))$('guide').close()});
-applyTh();deps();
+applyTh();deps();histReset();
 </script>
 </body>
 </html>
