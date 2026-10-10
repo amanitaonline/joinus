@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Amy's Audio Converter</title>
-<link href="https://api.fontshare.com/v2/css?f[]=gambarino@400&f[]=pally@400,500&display=swap" rel="stylesheet">
+
 <style>
 :root{--serif:"Gambarino",Georgia,"Times New Roman",serif;--h:347;--s:67;--L:84;--dk:0;--bg:hsl(var(--h) 7% calc(var(--L)*1%));--panel:hsl(var(--h) 7% calc(var(--L)*1% + 7% - var(--dk)*4%));--well:hsl(var(--h) 7% calc(var(--L)*1% + 3% - var(--dk)*2%));--ink:hsl(var(--h) 14% calc(10% + var(--dk)*81%));--mute:hsl(var(--h) 6% calc(37% + var(--dk)*25%));--line:hsl(var(--h) 6% calc(var(--L)*1% - 14% + var(--dk)*27%));--accent:hsl(var(--h) calc(var(--s)*1%) calc(26% + var(--dk)*44%));--accent-ink:hsl(var(--h) calc(var(--dk)*40%) calc(100% - var(--dk)*92%));--bad:hsl(4 75% calc(40% + var(--dk)*40%));
  font-family:"Pally",-apple-system,"Helvetica Neue",Arial,sans-serif;font-size:15px;color:var(--ink);background:var(--bg)}
@@ -71,12 +71,153 @@ textarea{resize:vertical;min-height:64px;display:block}
 .tone input::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.4)}
 .tone input::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.4)}
 </style>
+
+<style id="gnarly">
+/* ---------- gnarly: photocopied, inked, misregistered ---------- */
+:root{
+ --type:"Courier New",Courier,ui-monospace,monospace;
+ --display:var(--type);
+ --serif:var(--type);
+ --accent:hsl(var(--h) calc(var(--s)*1% + 20%) calc(26% + var(--dk)*44%));
+ --line:var(--ink);
+ --mute:hsl(var(--h) 8% calc(30% + var(--dk)*33%));
+ font-family:var(--type);font-size:15px;
+}
+body{
+ height:auto;position:relative;overflow-x:hidden;background-color:var(--bg);
+}
+html.nograin body::after{display:none}
+body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;opacity:.55;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeColorMatrix values='2.6 0 0 0 -.8  0 2.6 0 0 -.8  0 0 2.6 0 -.8  0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:260px 260px}
+::selection{background:var(--accent);color:var(--accent-ink)}
+*{scrollbar-color:var(--accent) transparent}
+
+/* header */
+header{padding:28px 34px 20px}
+.logo{height:56px;filter:url(#rough-sm) drop-shadow(4px 4px 0 var(--accent))}
+h1{transform:rotate(-1.6deg);transform-origin:left center}
+.hd{gap:22px}
+header p{
+ background:var(--accent);color:var(--accent-ink);padding:8px 18px;max-width:34ch;line-height:1.35;
+ transform:rotate(1.6deg);
+ clip-path:polygon(1% 12%,4% 0,9% 9%,100% 0,98% 46%,100% 100%,7% 92%,2% 100%,0 55%);
+}
+
+/* panels: crooked inked boxes with a smeared offset print */
+main{padding:0 34px;gap:34px}
+.list,.insp{position:relative;isolation:isolate;background:none;border:0;border-radius:0}
+.list::before,.insp::before{
+ content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+ background:var(--panel);border:3px solid var(--ink);
+ box-shadow:8px 8px 0 var(--accent);filter:url(#rough);
+ transition:transform .15s,box-shadow .15s;
+}
+.list::before{transform:rotate(-.35deg)}
+.insp::before{transform:rotate(.45deg)}
+.list{overflow:visible}
+.list.over{outline:0}
+.list.over::before{box-shadow:0 0 0 6px var(--accent),12px 12px 0 var(--accent);transform:rotate(.8deg) scale(1.012)}
+.insp{padding:0;max-height:none;overflow:visible}
+.insp-in{padding:8px 20px 18px;max-height:max(360px,calc(100vh - 290px));overflow:auto}
+ul{margin:4px 0}
+
+/* drop zone */
+.drop{position:relative;isolation:isolate;margin:20px;padding:34px 26px}
+.drop::before{content:"";position:absolute;inset:0;z-index:-1;border:4px dashed var(--mute);filter:url(#rough);transform:rotate(.3deg)}
+.drop strong{font:700 clamp(34px,5vw,54px)/1 var(--display);transform:rotate(-2.2deg);text-shadow:3px 3px 0 var(--accent);margin-bottom:6px}
+.drop span{max-width:38ch;line-height:1.45}
+.list.over .drop strong{transform:rotate(1.5deg) scale(1.08)}
+
+.notice{margin:16px 16px 0;border:2px dashed var(--mute);background:var(--well);color:var(--ink)}
+
+/* file rows */
+li{padding:13px 20px;border-bottom:2px solid var(--ink)}
+li:last-child{border-bottom:0}
+li:hover{background:var(--well)}
+li.sel{background:var(--accent);color:var(--accent-ink);box-shadow:none}
+li.sel .m,li.sel .s,li.sel .t,li.sel button.link{color:inherit}
+li .bar{height:7px;bottom:0;background:var(--accent)}
+li.sel .bar{background:var(--accent-ink)}
+.bar-tools{border-top:2px solid var(--ink);padding:11px 20px}
+
+/* buttons */
+button{
+ font-family:var(--type);border:2px solid var(--ink);border-radius:0;background:var(--panel);
+ padding:7px 15px;box-shadow:3px 3px 0 var(--ink);
+ transition:transform .07s,box-shadow .07s,background .1s;
+}
+button:hover:not(:disabled){border-color:var(--ink);transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--accent)}
+button:active:not(:disabled){transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+button:disabled{opacity:.4;box-shadow:none}
+button.link,button.link:hover:not(:disabled),button.link:active:not(:disabled){
+ border:0;background:none;padding:0;box-shadow:none;transform:none;color:var(--accent);
+ text-decoration:underline wavy;text-decoration-thickness:1.5px;text-underline-offset:4px;
+}
+button.link.quiet{color:var(--mute)}
+button.link:hover:not(:disabled){text-decoration-style:solid;color:var(--ink)}
+button.go{
+ font:700 24px/1 var(--display);padding:13px 34px;background:var(--accent);color:var(--accent-ink);
+ border-color:var(--ink);box-shadow:6px 6px 0 var(--ink);transform:rotate(-2.2deg);
+}
+button.go:hover:not(:disabled){transform:rotate(-3.2deg) scale(1.05);box-shadow:8px 8px 0 var(--ink)}
+button.go:active:not(:disabled){transform:rotate(-2deg) translate(4px,4px);box-shadow:1px 1px 0 var(--ink)}
+button.go:disabled{background:var(--well);color:var(--mute);border-style:dashed}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+/* inspector */
+.tabs{padding:0;gap:0;margin:16px 0 6px;background:none;border:2px solid var(--ink);border-radius:0}
+.tabs button,.tabs button:hover:not(:disabled),.tabs button:active:not(:disabled){
+ font:700 18px/1 var(--display);padding:9px 6px;border:0;border-radius:0;background:none;color:var(--mute);box-shadow:none;transform:none;
+}
+.tabs button:hover:not(:disabled){background:var(--well);color:var(--ink)}
+.tabs button[aria-selected=true],.tabs button[aria-selected=true]:hover:not(:disabled){background:var(--ink);color:var(--panel);box-shadow:none}
+.row{border-bottom:2px dotted var(--mute)}
+.row label{color:var(--ink)}
+.row.off label{opacity:.45}
+select,input[type=text],textarea{font-family:var(--type);background:var(--well);border:2px solid var(--ink);border-radius:0;box-shadow:inset 2px 2px 0 hsl(0 0% 0% / .14)}
+select:focus-visible,input:focus-visible,textarea:focus-visible{outline-offset:1px}
+.note{padding-left:12px;border-left:4px solid var(--accent);color:var(--mute)}
+.who{color:var(--ink)}
+.art{border:2px solid var(--ink);border-radius:0;transform:rotate(-2deg);box-shadow:5px 5px 0 var(--accent)}
+input[type=checkbox]{width:16px;height:16px}
+
+/* theme picker */
+.sw{width:36px;height:36px;border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);border-radius:50%}
+.sw:hover:not(:disabled){box-shadow:5px 5px 0 var(--accent)}
+.pop{top:48px;border:3px solid var(--ink);border-radius:0;box-shadow:7px 7px 0 var(--accent);background:var(--panel)}
+.wheel{box-shadow:0 0 0 3px var(--ink),5px 5px 0 3px var(--accent)}
+.knob{border-width:3px;box-shadow:0 0 0 2px var(--ink)}
+.tone input{border:2px solid var(--ink);border-radius:0}
+.tone input::-webkit-slider-thumb{border-radius:0;border:3px solid var(--ink);background:var(--accent)}
+.tone input::-moz-range-thumb{border-radius:0;border:3px solid var(--ink);background:var(--accent)}
+
+.grain-btn{font-size:13px;padding:6px 12px}
+.grain-btn[aria-pressed=true]{background:var(--ink);color:var(--panel)}
+
+/* footer */
+footer{padding:26px 34px 32px}
+.sum{font:700 18px/1.2 var(--display);color:var(--ink)}
+.acts{gap:18px}
+
+@media(max-width:820px){
+ header{padding:20px 22px 14px}
+ main{padding:0 22px;gap:30px}
+ footer{padding:22px 22px 28px}
+ .insp-in{max-height:none}
+ .logo{height:46px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<filter id="rough" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="7" result="warp"/><feDisplacementMap in="SourceGraphic" in2="warp" scale="9" xChannelSelector="R" yChannelSelector="G" result="w"/><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="3" result="fray"/><feDisplacementMap in="w" in2="fray" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter>
+<filter id="rough-sm" x="-4%" y="-10%" width="110%" height="125%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="11" result="warp"/><feDisplacementMap in="SourceGraphic" in2="warp" scale="3" xChannelSelector="R" yChannelSelector="G" result="w"/><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="5" result="fray"/><feDisplacementMap in="w" in2="fray" scale="2" xChannelSelector="R" yChannelSelector="G"/></filter>
+</defs></svg>
 <header>
   <h1><svg class="logo" role="img" aria-label="Amy’s Audio Converter" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68.82 16.57"><defs><style>.cls-1 {fill:currentColor;}</style></defs><path class="cls-1" d="M4.22,7.18h3.01v-.23c-.85-.08-.9-.1-.9-1.35v-2.58c0-1.12.71-1.76,1.33-1.76.52,0,1.07.36,1.07,1.92v2.42c0,1.26-.04,1.28-.89,1.35v.23h3.01v-.23c-.97-.08-1.02-.1-1.02-1.35v-2.58c0-1.12.71-1.76,1.33-1.76.52,0,1.07.36,1.07,1.92v2.42c0,1.26-.04,1.28-.89,1.35v.23h3.01v-.23c-.97-.08-1.02-.1-1.02-1.35v-2.99c0-1.37-.42-2.03-1.4-2.03-.68,0-1.1.31-2.18,1.1-.17-.74-.59-1.1-1.32-1.1-.67,0-1.08.3-2.1,1.04v-.98l-.1-.06c-.65.56-1.2.84-2.13.84v.17c-.19-.66-.66-1.01-1.5-1.01C1.48.58.18,1.33.18,2.04c0,.25.16.53.61.53,1.08,0,.17-1.64,1.37-1.64.66,0,.94.54.94,1.78v1.29l-1.33.44c-1.3.43-1.76.79-1.76,1.52,0,.61.35,1.34,1.27,1.34.67,0,1.3-.41,1.82-.82v.7h1.13ZM5.23,2.52v3.08c0,1-.03,1.22-.53,1.3-.46-.08-.5-.28-.5-1.3v-3.23c0-.27-.03-.51-.08-.72.83,0,1.12.09,1.12.86ZM1.85,6.67c-.5,0-.72-.42-.72-.84,0-.48.24-.85,1.07-1.13l.9-.29v1.19c-.1.78-.8,1.07-1.25,1.07Z"/><path class="cls-1" d="M14.14,1.9l2.06,5.27c-.4,1.12-.71,1.62-1.14,1.62-.48,0-.34-.62-.91-.62-.41,0-.52.32-.52.59,0,.48.36.71.91.71.62,0,1.28-.29,2.15-2.73l1.67-4.74c.29-.8.35-.85.88-.94v-.23c-.29.02-.61.05-.96.05s-.68-.02-1.04-.05v.23c.54.05.77.1.77.41,0,.2-.11.54-.28,1.07l-1.03,3.15-1.27-3.61c-.11-.32-.18-.53-.18-.67,0-.26.23-.3.76-.35v-.23c-.47.02-.95.05-1.42.05s-.91-.02-1.33-.05v.23c.48.07.59.1.89.85Z"/><path class="cls-1" d="M18.96,3.2L20.89.11l-.28-.11c-.26.1-.58.17-.9.16l-.96,2.95.2.1Z"/><path class="cls-1" d="M20.05,2.29c0,1.91,2.78,2.02,2.78,3.65,0,.74-.53,1.06-1.07,1.06-.86,0-1.18-.84-1.51-1.93l-.28.02.24,2.34h.24c.05-.23.16-.3.31-.3.25,0,.61.18,1.08.18.85,0,1.89-.67,1.89-1.85,0-1.97-2.77-2.23-2.77-3.65,0-.58.44-.91.94-.91.65,0,1.02.56,1.36,1.57l.25-.02-.18-2.1h-.22c-.07.28-.16.37-.3.37-.24,0-.46-.13-.89-.13-1.28,0-1.88.8-1.88,1.7Z"/><path class="cls-1" d="M13.82,14.77v-4.95l-.1-.06c-.65.56-1.2.84-2.13.84v.23c.84,0,1.13.08,1.13.86v2.95c0,.52-.71,1.16-1.33,1.16-.52,0-1.07-.36-1.07-1.44v-4.55l-.1-.06c-.63.55-1.18.82-2.08.84-.22-.54-.67-.84-1.43-.84-1.13,0-2.42.74-2.42,1.45,0,.25.16.53.61.53,1.08,0,.17-1.64,1.37-1.64.66,0,.94.54.94,1.78v1.29l-1.33.44c-1.3.43-1.76.79-1.76,1.52,0,.61.35,1.34,1.27,1.34.67,0,1.3-.41,1.82-.82v.7h2v-.23c-.85-.08-.9-.1-.9-1.35v-3.23c0-.27-.03-.51-.08-.72.73.01,1,.13,1,.86v3.24c0,.89.42,1.55,1.4,1.55.67,0,1.08-.3,2.1-1.04v.92h2.12v-.23c-.97-.08-1.02-.1-1.02-1.35ZM7.2,14.77c-.1.78-.8,1.07-1.25,1.07-.5,0-.72-.42-.72-.84,0-.48.24-.85,1.07-1.13l.9-.29v1.19Z"/><path class="cls-1" d="M21.47,14.77v-4.95l-.1-.06c-.63.55-1.18.82-2.07.83v-3.87l-.1-.06c-.65.56-1.2.84-2.13.84v.23c.84,0,1.13.08,1.13.86v1.5c-.3-.18-.79-.34-1.29-.34-1.44,0-2.75,1.33-2.75,3.53,0,1.99.95,3.19,2.17,3.19.76,0,1.33-.47,1.87-1.24v1.12h4.17v-.23c-.85-.08-.9-.1-.9-1.35ZM18.2,14.21c-.26,1.15-.88,1.72-1.51,1.72-.82,0-1.34-.94-1.34-2.78,0-2.05.58-3,1.5-3,.61,0,1.36.42,1.36,1.64v2.42ZM20.36,14.77c0,1.01-.03,1.22-.54,1.31-.48-.08-.52-.28-.52-1.31v-3.94c.78,0,1.06.11,1.06.86v3.08Z"/><path class="cls-1" d="M19.99,8.6c0,.46.36.8.82.8s.8-.35.8-.8-.35-.82-.8-.82-.82.36-.82.82Z"/><path class="cls-1" d="M24.56,9.76c-1.7,0-2.79,1.4-2.79,3.54,0,1.97.9,3.18,2.64,3.18s2.79-1.4,2.79-3.53c0-1.98-.94-3.19-2.64-3.19ZM24.61,16.16c-1.13,0-1.58-1.67-1.58-3.49s.49-2.6,1.29-2.6c1.18,0,1.66,1.69,1.66,3.47s-.6,2.63-1.37,2.63Z"/><path class="cls-1" d="M44.27,14.8v-2.99c0-1.37-.42-2.03-1.4-2.03-.67,0-1.08.3-2.1,1.04v-.98l-.1-.06c-.65.56-1.2.84-2.13.84v.11c-.45-.6-1.12-.95-2.02-.95-1.7,0-2.79,1.4-2.79,3.54,0,.68.12,1.27.33,1.75-.48.44-1.04.74-1.53.74-1.16,0-1.81-1.55-1.81-3.25,0-1.4.47-2.43,1.32-2.43.92,0,.68,1.22,1.46,1.22.41,0,.64-.35.64-.67,0-.44-.52-.9-1.64-.9-2.01,0-2.95,1.52-2.95,3.51,0,2.1,1.12,3.2,2.47,3.2,1,0,1.68-.6,2.18-1.17.43.75,1.15,1.17,2.18,1.17,1.68,0,2.79-1.4,2.79-3.53,0-.87-.19-1.59-.54-2.12.77,0,1.05.11,1.05.86v3.08c0,1.26-.04,1.28-1.01,1.35v.23h3.01v-.23c-.85-.08-.9-.1-.9-1.35v-2.58c0-1.12.71-1.76,1.33-1.76.52,0,1.07.36,1.07,1.92v2.42c0,1.26-.04,1.28-.89,1.35v.23h3.01v-.23c-.97-.08-1.02-.1-1.02-1.35ZM36.57,16.19c-1.13,0-1.58-1.67-1.58-3.49s.49-2.6,1.29-2.6c1.18,0,1.66,1.69,1.66,3.47s-.6,2.63-1.37,2.63Z"/><path class="cls-1" d="M50.16,10.26v-.23c-.29.02-.61.05-.96.05s-.68-.02-1.04-.05v.23c.54.01.77.05.77.37,0,.22-.1.56-.28,1.1l-1.07,3.27-1.24-3.73c-.11-.34-.18-.56-.18-.71,0-.28.23-.3.76-.31v-.23c-.47.02-.95.05-1.42.05s-.91-.02-1.33-.05v.23c.48.01.59.05.89.85l2.04,5.46h.29l1.9-5.37c.3-.85.35-.91.88-.94Z"/><path class="cls-1" d="M59.79,15.98c-.43,0-.66-.26-.66-.95v-4.61l1.46-.14v-.25l-1.46-.17v-1.27h-.23c-.07.65-.43,1.12-.97,1.33-.15-.08-.33-.13-.54-.13-.56,0-1.06.3-1.66,1.09v-1.03l-.22-.06c-.48.51-.98.77-1.76.82-.41-.6-1.05-.82-1.64-.82-1.62,0-2.6,1.52-2.6,3.51,0,2.12,1.15,3.2,2.46,3.2,1.09,0,1.86-.77,2.38-1.39l-.14-.19c-.5.53-1.13.9-1.7.9-1.15,0-1.8-1.51-1.81-3.2l3.49-.36c0-.59-.11-1.03-.29-1.39.53.04.73.21.73.85v3.08c0,1.26-.04,1.28-1.01,1.35v.23h3.37v-.23c-1.21-.08-1.26-.1-1.26-1.35v-1.99c0-1.59.52-2.35,1.04-2.35.44,0,.42.62.92.62.13,0,.24-.05.33-.12v4.23c0,.84.55,1.31,1.31,1.31.63,0,1.12-.32,1.44-.71l-.13-.22c-.22.22-.49.4-.85.4ZM50.72,12.06c.1-1.13.52-1.92,1.25-1.92.36,0,1.01.19,1.08,1.92h-2.33Z"/><path class="cls-1" d="M67.93,9.79c-.56,0-1.06.3-1.66,1.09v-1.03l-.22-.06c-.48.51-.99.77-1.76.82-.41-.6-1.05-.82-1.64-.82-1.62,0-2.6,1.52-2.6,3.51,0,2.12,1.15,3.2,2.46,3.2,1.09,0,1.86-.77,2.38-1.39l-.14-.19c-.5.53-1.13.9-1.7.9-1.15,0-1.8-1.51-1.81-3.2l3.49-.36c0-.59-.11-1.03-.29-1.39.53.04.73.21.73.85v3.08c0,1.26-.04,1.28-1.01,1.35v.23h3.37v-.23c-1.21-.08-1.26-.1-1.26-1.35v-1.99c0-1.59.52-2.35,1.04-2.35.44,0,.42.62.92.62.36,0,.59-.31.59-.64,0-.41-.37-.66-.9-.66ZM61.25,12.06c.1-1.13.52-1.92,1.25-1.92.36,0,1.01.19,1.08,1.92h-2.33Z"/></svg></h1>
   <div class="hd">
     <p>Everything happens in this browser tab. Your files never get uploaded.</p>
+    <button class="grain-btn" id="grain" aria-pressed="true">Grain: on</button>
     <div class="theme">
       <button class="sw" id="tbtn" aria-label="Theme colors" aria-expanded="false" aria-controls="pop"></button>
       <div class="pop" id="pop" hidden>
@@ -104,6 +245,7 @@ textarea{resize:vertical;min-height:64px;display:block}
   </section>
 
   <aside class="insp" aria-label="Output settings">
+<div class="insp-in">
     <div class="tabs" role="tablist">
       <button role="tab" id="tAudio" aria-selected="true">Audio</button>
       <button role="tab" id="tMeta" aria-selected="false">Metadata</button>
@@ -155,6 +297,7 @@ textarea{resize:vertical;min-height:64px;display:block}
       <div class="row one"><label><input type="checkbox" class="mt" id="m_compilation">Part of a compilation</label></div>
       <div class="row one"><span><button class="link" id="clearTags">Clear this file&rsquo;s tags</button> &nbsp; <button class="link" id="allTags">Copy to all files</button></span></div>
     </div>
+  </div>
   </aside>
 </main>
 
@@ -677,6 +820,12 @@ fillP();
 const safari=/^((?!chrome|chromium|android|crios|fxios|edg|opr).)*safari/i.test(navigator.userAgent);
 $('#notice').hidden=safari;
 draw();
+</script>
+<script>
+(()=>{const b=document.getElementById('grain'),r=document.documentElement;
+function set(on){r.classList.toggle('nograin',!on);b.setAttribute('aria-pressed',on);b.textContent='Grain: '+(on?'on':'off');try{localStorage.setItem('aac-grain',on?'1':'0')}catch{}}
+let on=true;try{on=localStorage.getItem('aac-grain')!=='0'}catch{}
+set(on);b.onclick=()=>set(r.classList.contains('nograin'));})();
 </script>
 </body>
 </html>
