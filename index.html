@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>try{var _d=document.documentElement;_d.dataset.theme=localStorage.getItem('aos_theme_v2')||'red';_d.dataset.font=localStorage.getItem('aos_font')||'original';}catch(e){}</script>
     <title>✶ claim to fame ✶</title>
     <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -16,7 +20,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/framer-motion@10.16.4/dist/framer-motion.js"></script>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Courier New', monospace; transition: background 0.5s ease; background-color: #000; cursor: crosshair; }
+        body { margin: 0; padding: 0; overflow: hidden; font-family: var(--font-ui); transition: background 0.5s ease; background-color: var(--bg-deep); cursor: default; }
         
         /* Cursor Sparkle Styles */
         .sparkle-star {
@@ -41,8 +45,8 @@
             z-index: 0; background-size: cover; background-position: center;
         }
         
-        .glass-panel { backdrop-filter: blur(25px); background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .dark .glass-panel { background: rgba(15, 15, 15, 0.75); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-panel { backdrop-filter: blur(25px) saturate(var(--glass-sat)); background: var(--glass-bg); border: var(--glass-bw) solid var(--glass-bd); box-shadow: var(--glass-shadow); }
+        .dark .glass-panel { background: var(--glass-bg-d); border: var(--glass-bw) solid var(--glass-bd-d); }
         .window-titlebar { backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
 
         .illuminati-logo {
@@ -52,21 +56,22 @@
         .glow-triangle { filter: drop-shadow(0 0 8px currentColor); animation: pulse-glow 2s infinite alternate ease-in-out; cursor: pointer; }
         @keyframes pulse-glow { 0% { filter: drop-shadow(0 0 4px currentColor); } 100% { filter: drop-shadow(0 0 12px currentColor); } }
 
-        .traffic-light { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
-        .close-btn { background: #ff5f56; }
-        .minimize-btn { background: #ffbd2e; }
-        .expand-btn { background: #27c93f; }
+        .traffic-light { width: var(--tl-size); height: var(--tl-size); border-radius: 50%; cursor: pointer; border: var(--tl-bw) solid rgba(255,255,255,0.7); transition: transform 0.15s cubic-bezier(.34,1.56,.64,1); }
+        .traffic-light:hover { transform: scale(var(--tl-hover)); }
+        .close-btn { background: var(--tl-close); }
+        .minimize-btn { background: var(--tl-min); }
+        .expand-btn { background: var(--tl-max); }
 
         .iphone-frame {
-            width: 320px; height: 640px; background: #1a1a1a; border-radius: 50px; border: 6px solid #333;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5); position: relative; padding: 15px; display: flex; flex-direction: column;
+            width: 320px; height: 640px; background: var(--phone-bg); border-radius: var(--phone-radius); border: 6px solid var(--phone-bd);
+            box-shadow: 0 0 50px var(--phone-glow); position: relative; padding: 15px; display: flex; flex-direction: column;
         }
-        .mobile-screen { flex: 1; border-radius: 4px; overflow: hidden; position: relative; background-size: cover; background-position: center; }
+        .mobile-screen { flex: 1; border-radius: var(--screen-radius); overflow: hidden; position: relative; background-size: cover; background-position: center; }
         .home-button {
-            width: 50px; height: 50px; border-radius: 50%; border: 2px solid #333;
+            width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--phone-bd);
             margin: 10px auto 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
-        .home-button-inner { width: 18px; height: 18px; border: 1px solid #444; border-radius: 4px; }
+        .home-button-inner { width: 18px; height: 18px; border: 1px solid var(--phone-bd2); border-radius: var(--home-inner-radius); }
         
         .winston-discord-btn { 
             background: #7289da; color: white !important; padding: 12px 24px; 
@@ -78,6 +83,106 @@
         .xxxo-container { background: #000; color: white; height: 100%; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .xxxo-flash { animation: flash-effect 0.14s infinite; font-weight: bold; text-transform: uppercase; text-align: center; margin: 15px 0; font-size: 1.2rem; }
         @keyframes flash-effect { 0%, 49% { color: red; } 50%, 100% { color: white; } }
+
+        /* ===== themes + fonts (switchable in Settings) ===== */
+        :root {
+            --font-ui: 'Courier New', monospace; --fs-label: 10px; --fs-ctx: 11px;
+            --bg-deep: #000; --screen-bg: #000;
+            --glass-bg: rgba(255,255,255,0.1); --glass-bd: rgba(255,255,255,0.1);
+            --glass-bg-d: rgba(15,15,15,0.75); --glass-bd-d: rgba(255,255,255,0.05);
+            --glass-bw: 1px; --glass-shadow: none; --glass-sat: 1;
+            --tl-size: 12px; --tl-bw: 0px; --tl-hover: 1; --tl-close: #ff5f56; --tl-min: #ffbd2e; --tl-max: #27c93f;
+            --dock-bg: rgba(255,255,255,0.1); --dock-bd: rgba(255,255,255,0.1); --dock-bw: 1px; --dock-radius: 28px; --dock-shadow: 0 8px 40px rgba(0,0,0,0.4);
+            --label-bg: rgba(30,30,30,0.92); --label-bd: rgba(255,255,255,0.1); --label-radius: 8px;
+            --dot-on: rgba(255,255,255,0.9); --dot-glow: none; --dot-icon: #fff; --dot-icon-glow: rgba(255,255,255,0.8);
+            --icon-radius: 16px; --icon-bg: rgba(255,255,255,0.1); --icon-bd: rgba(255,255,255,0.12); --icon-bw: 1px; --icon-shadow: 0 6px 20px rgba(0,0,0,0.35);
+            --chip-radius: 6px; --sel-bg: rgba(60,110,230,0.85);
+            --wall-tint: transparent;
+            --ctx-bg: rgba(20,20,20,0.95); --ctx-bd: 1px solid rgba(255,255,255,0.12); --ctx-radius: 12px; --ctx-hover: rgba(255,255,255,0.1); --ctx-item-radius: 7px;
+            --phone-bg: #1a1a1a; --phone-bd: #333; --phone-bd2: #444; --phone-glow: rgba(0,0,0,0.5); --phone-radius: 50px; --screen-radius: 4px; --home-inner-radius: 4px;
+            --scroll: #ffffff55;
+        }
+        html[data-font="helvetica"] { --font-ui: 'Helvetica Neue', Helvetica, Arial, sans-serif; --fs-label: 11px; --fs-ctx: 12px; }
+        html[data-font="cute"] { --font-ui: 'Fredoka', 'Nunito', ui-rounded, system-ui, sans-serif; --fs-label: 12px; --fs-ctx: 13px; }
+
+        html[data-theme="red"] {
+            --bg-deep: #1c0a0e;
+            --screen-bg: radial-gradient(ellipse 70% 55% at 50% -8%, rgba(210,35,45,0.55) 0%, transparent 70%), radial-gradient(circle at 92% 105%, #6a2208 0%, transparent 45%), #140508;
+            --glass-bg: rgba(255,200,200,0.14); --glass-bd: rgba(255,150,150,0.36); --glass-bg-d: rgba(46,14,20,0.66); --glass-bd-d: rgba(255,120,120,0.3);
+            --glass-bw: 1.5px; --glass-shadow: 0 8px 30px rgba(255,110,40,0.14); --glass-sat: 1.3;
+            --tl-size: 14px; --tl-bw: 1.5px; --tl-hover: 1.3; --tl-close: #ff8a8a; --tl-min: #ffd0a8; --tl-max: #c3ebcf;
+            --dock-bg: rgba(255,200,200,0.18); --dock-bd: rgba(255,150,150,0.42); --dock-bw: 1.5px; --dock-radius: 34px; --dock-shadow: 0 10px 40px rgba(200,40,30,0.3);
+            --label-bg: rgba(239,68,68,0.96); --label-bd: rgba(255,255,255,0.55); --label-radius: 99px;
+            --dot-on: #ff8a8a; --dot-glow: 0 0 6px #ff8a8a; --dot-icon: #ff8a8a; --dot-icon-glow: #ff8a8a;
+            --icon-radius: 22px; --icon-bg: rgba(255,200,200,0.2); --icon-bd: rgba(255,150,150,0.48); --icon-bw: 1.5px; --icon-shadow: 0 8px 22px rgba(255,60,60,0.28);
+            --chip-radius: 99px; --sel-bg: rgba(239,68,68,0.88);
+            --wall-tint: linear-gradient(180deg, rgba(220,50,50,0.14), rgba(255,140,60,0.07));
+            --ctx-bg: rgba(46,14,20,0.94); --ctx-bd: 1.5px solid rgba(255,130,130,0.4); --ctx-radius: 18px; --ctx-hover: rgba(255,130,130,0.28); --ctx-item-radius: 12px;
+            --phone-bg: #2e1016; --phone-bd: #ff9a9a; --phone-bd2: #ff9a9a; --phone-glow: rgba(255,80,80,0.35); --phone-radius: 52px; --screen-radius: 24px; --home-inner-radius: 50%;
+            --scroll: #ff8a8aaa;
+        }
+        html[data-theme="cute"] {
+            --bg-deep: #2a1a33;
+            --screen-bg: radial-gradient(circle at 20% 15%, #5a2d6e 0%, transparent 45%), radial-gradient(circle at 85% 85%, #7a2f66 0%, transparent 50%), #2a1a33;
+            --glass-bg: rgba(255,214,235,0.16); --glass-bd: rgba(255,182,215,0.38); --glass-bg-d: rgba(58,30,70,0.62); --glass-bd-d: rgba(255,158,199,0.3);
+            --glass-bw: 1.5px; --glass-shadow: 0 8px 30px rgba(255,120,180,0.18); --glass-sat: 1.3;
+            --tl-size: 14px; --tl-bw: 1.5px; --tl-hover: 1.3; --tl-close: #ff8fab; --tl-min: #ffd6a5; --tl-max: #b5ead7;
+            --dock-bg: rgba(255,214,235,0.2); --dock-bd: rgba(255,182,215,0.45); --dock-bw: 1.5px; --dock-radius: 34px; --dock-shadow: 0 10px 40px rgba(255,100,170,0.28);
+            --label-bg: rgba(255,111,168,0.96); --label-bd: rgba(255,255,255,0.55); --label-radius: 99px;
+            --dot-on: #ff9ec7; --dot-glow: 0 0 6px #ff9ec7; --dot-icon: #ff9ec7; --dot-icon-glow: #ff9ec7;
+            --icon-radius: 22px; --icon-bg: rgba(255,214,235,0.22); --icon-bd: rgba(255,182,215,0.5); --icon-bw: 1.5px; --icon-shadow: 0 8px 22px rgba(255,100,170,0.28);
+            --chip-radius: 99px; --sel-bg: rgba(255,111,168,0.88);
+            --wall-tint: linear-gradient(160deg, rgba(255,150,200,0.2), rgba(180,150,255,0.16));
+            --ctx-bg: rgba(58,30,70,0.94); --ctx-bd: 1.5px solid rgba(255,158,199,0.4); --ctx-radius: 18px; --ctx-hover: rgba(255,158,199,0.28); --ctx-item-radius: 12px;
+            --phone-bg: #3a2142; --phone-bd: #ffb3d1; --phone-bd2: #ffb3d1; --phone-glow: rgba(255,120,180,0.35); --phone-radius: 52px; --screen-radius: 24px; --home-inner-radius: 50%;
+            --scroll: #ff9ec7aa;
+        }
+        html[data-theme="blue"] {
+            --bg-deep: #0b1020;
+            --screen-bg: radial-gradient(ellipse 55% 60% at 12% -5%, #1f6a9c 0%, transparent 65%), radial-gradient(circle at 100% 100%, #2e2a7a 0%, transparent 50%), #0a0f1e;
+            --glass-bg: rgba(160,205,255,0.15); --glass-bd: rgba(150,200,255,0.36); --glass-bg-d: rgba(14,24,56,0.66); --glass-bd-d: rgba(125,180,255,0.3);
+            --glass-bw: 1.5px; --glass-shadow: 0 8px 30px rgba(60,80,230,0.2); --glass-sat: 1.3;
+            --tl-size: 14px; --tl-bw: 1.5px; --tl-hover: 1.3; --tl-close: #a5b4fc; --tl-min: #bae6fd; --tl-max: #a7f3d0;
+            --dock-bg: rgba(160,205,255,0.18); --dock-bd: rgba(150,200,255,0.42); --dock-bw: 1.5px; --dock-radius: 34px; --dock-shadow: 0 10px 40px rgba(40,100,230,0.3);
+            --label-bg: rgba(59,130,246,0.96); --label-bd: rgba(255,255,255,0.55); --label-radius: 99px;
+            --dot-on: #7dd3fc; --dot-glow: 0 0 6px #7dd3fc; --dot-icon: #7dd3fc; --dot-icon-glow: #7dd3fc;
+            --icon-radius: 22px; --icon-bg: rgba(160,205,255,0.2); --icon-bd: rgba(150,200,255,0.48); --icon-bw: 1.5px; --icon-shadow: 0 8px 22px rgba(30,90,230,0.3);
+            --chip-radius: 99px; --sel-bg: rgba(56,130,255,0.88);
+            --wall-tint: linear-gradient(200deg, rgba(40,150,210,0.16), rgba(90,70,200,0.1));
+            --ctx-bg: rgba(14,24,56,0.94); --ctx-bd: 1.5px solid rgba(125,180,255,0.4); --ctx-radius: 18px; --ctx-hover: rgba(125,180,255,0.28); --ctx-item-radius: 12px;
+            --phone-bg: #14224a; --phone-bd: #8ec5ff; --phone-bd2: #8ec5ff; --phone-glow: rgba(60,120,255,0.35); --phone-radius: 52px; --screen-radius: 24px; --home-inner-radius: 50%;
+            --scroll: #7dd3fcaa;
+        }
+        html[data-theme="matcha"] {
+            --bg-deep: #0d1a12;
+            --screen-bg: radial-gradient(ellipse 55% 60% at 88% -5%, #66742a 0%, transparent 62%), radial-gradient(circle at 0% 100%, #115048 0%, transparent 52%), #0d1a12;
+            --glass-bg: rgba(180,235,200,0.15); --glass-bd: rgba(170,230,190,0.36); --glass-bg-d: rgba(14,34,22,0.66); --glass-bd-d: rgba(110,231,183,0.3);
+            --glass-bw: 1.5px; --glass-shadow: 0 8px 30px rgba(170,190,50,0.14); --glass-sat: 1.3;
+            --tl-size: 14px; --tl-bw: 1.5px; --tl-hover: 1.3; --tl-close: #f4a6a6; --tl-min: #f3e3a0; --tl-max: #b7f0c8;
+            --dock-bg: rgba(180,235,200,0.18); --dock-bd: rgba(170,230,190,0.42); --dock-bw: 1.5px; --dock-radius: 34px; --dock-shadow: 0 10px 40px rgba(20,150,90,0.28);
+            --label-bg: rgba(16,185,129,0.96); --label-bd: rgba(255,255,255,0.55); --label-radius: 99px;
+            --dot-on: #6ee7b7; --dot-glow: 0 0 6px #6ee7b7; --dot-icon: #6ee7b7; --dot-icon-glow: #6ee7b7;
+            --icon-radius: 22px; --icon-bg: rgba(180,235,200,0.2); --icon-bd: rgba(170,230,190,0.48); --icon-bw: 1.5px; --icon-shadow: 0 8px 22px rgba(20,150,90,0.28);
+            --chip-radius: 99px; --sel-bg: rgba(16,185,129,0.88);
+            --wall-tint: linear-gradient(160deg, rgba(190,200,70,0.14), rgba(20,140,120,0.1));
+            --ctx-bg: rgba(14,34,22,0.94); --ctx-bd: 1.5px solid rgba(110,231,183,0.4); --ctx-radius: 18px; --ctx-hover: rgba(110,231,183,0.28); --ctx-item-radius: 12px;
+            --phone-bg: #163323; --phone-bd: #8fe3b5; --phone-bd2: #8fe3b5; --phone-glow: rgba(40,190,120,0.33); --phone-radius: 52px; --screen-radius: 24px; --home-inner-radius: 50%;
+            --scroll: #6ee7b7aa;
+        }
+        .theme-bg { background: var(--screen-bg); }
+        .custom-wallpaper::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: var(--wall-tint); }
+        html:not([data-theme="classic"]) * { scrollbar-width: thin; scrollbar-color: var(--scroll) transparent; }
+        html:not([data-theme="classic"]) ::-webkit-scrollbar { width: 10px; height: 10px; }
+        html:not([data-theme="classic"]) ::-webkit-scrollbar-thumb { background: var(--scroll); border-radius: 99px; border: 2px solid transparent; background-clip: padding-box; }
+        html:not([data-theme="classic"]) ::-webkit-scrollbar-track { background: transparent; }
+        html:not([data-theme="classic"]) .win-title { text-transform: lowercase; font-size: 12px; letter-spacing: 0.03em; font-weight: 600; }
+        html:not([data-theme="classic"]) .cd-art { border-radius: 50%; border: 2px solid var(--dot-on); }
+        html:not([data-theme="classic"]) .cd-art[data-playing="true"] { animation: cd-spin 8s linear infinite; }
+        html[data-theme="red"] ::selection { background: #ff8a8a; color: #2e1016; }
+        html[data-theme="cute"] ::selection { background: #ff9ec7; color: #3a2347; }
+        html[data-theme="blue"] ::selection { background: #7dd3fc; color: #14224a; }
+        html[data-theme="matcha"] ::selection { background: #6ee7b7; color: #163323; }
+        @keyframes cd-spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -137,7 +242,111 @@
             });
         };
 
-        const APP_ACCENTS = {"VIDEOS": "#fb923c", "PHOTOS": "#e879f9", "CHAT": "#22d3ee", "XXXO": "#ef4444", "WINSTON": "#fde047", "AGARIO": "#4ade80", "SHEETS": "#f472b6", "PAINT": "#60a5fa", "SPECTRO": "#a78bfa", "ARTWORK": "#5eead4", "AUDIO": "#f59e0b", "ALPHA": "#a3e635"};
+        const APP_ACCENTS = {"VIDEOS": "#fb923c", "PHOTOS": "#e879f9", "CHAT": "#22d3ee", "XXXO": "#ef4444", "WINSTON": "#fde047", "AGARIO": "#4ade80", "SHEETS": "#f472b6", "PAINT": "#60a5fa", "SPECTRO": "#a78bfa", "ARTWORK": "#5eead4", "AUDIO": "#f59e0b", "ALPHA": "#a3e635", "SETTINGS": "#c4b5fd"};
+
+        const GBTV_LOGO_SVG = `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 93.89 13.02"><path fill="currentColor" d="M3.24,3.71C1.45,3.71.09,5.13,0,6.97c-.06,1.73,1.6,3.29,3.23,3.2.67-.02,1.27-.2,1.67-.44v-1.21l-.3.18c-.46.26-.78.34-1.3.37-1.28.02-2.07-.95-2.1-2.1-.01-1.16.88-2.16,2.04-2.19,1.26-.01,2.06,1.06,2.06,2.53v2.33c0,1.12-.11,1.73-1.27,2.12-.48.16-1.28.18-2.09-.04l-.55-.16-.3,1.15.4.1s1.85.54,3.35-.16c1.2-.53,1.7-1.51,1.7-2.9v-2.57c0-1.86-1.18-3.5-3.3-3.48Z"/><path fill="currentColor" d="M10.8,3.81s-1.2-.07-1.76.23c-.26.12-.43.23-.6.41v-.64h-1.2v6.33h1.3v-3.17c0-.6.04-.95.38-1.4.48-.62,1.16-.52,1.88-.52v-1.25Z"/><path fill="currentColor" d="M13.58,3.72c-1.81,0-3.33,1.51-3.3,3.32.05,1.76,1.49,3.18,3.24,3.19,1.82.02,3.36-1.51,3.32-3.33-.04-1.76-1.5-3.17-3.26-3.18ZM13.54,9.12c-1.14-.01-2.03-1-2.03-2.15s.96-2.21,2.13-2.16c1.13.02,1.98.98,2,2.1.01,1.18-.92,2.22-2.11,2.21Z"/><path fill="currentColor" d="M18.17,7.04c.02-.89.41-1.99,2.37-1.99h.62v-1.25h-1.18c-1.74,0-3.09,1.44-3.11,3.17,0,1.73,1.46,3.17,3.2,3.17h1.1v-1.26h-1.22c-.94,0-1.82-.82-1.8-1.84Z"/><path fill="currentColor" d="M24.73,9.1c-1.15,0-2.1-.95-2.11-2.1,0-1.12.83-2.1,1.96-2.12.59-.02,1.14.2,1.44.55l-3.08,1.76.54.94,4.17-2.42c-.58-1.18-1.62-1.97-3-1.97-1.76,0-3.23,1.4-3.27,3.17-.04,1.8,1.4,3.31,3.2,3.36,1.7.02,3.13-1.14,3.31-2.93l-1.2-.13c-.04,1.19-1.01,1.88-1.96,1.9Z"/><path fill="currentColor" d="M35.69,7.5c0,1.07-.54,1.63-1.35,1.65-.8.02-1.48-.59-1.48-1.45v-3.9h-1.07s-1.2-.07-1.76.23c-.26.12-.43.23-.6.41v-.64h-1.2v6.33h1.3v-3.17c0-.6.04-.95.38-1.4.43-.56,1.04-.53,1.68-.52v1.73c0,.66-.04,2.02.82,2.78.38.35.73.55,1.26.67v2.78h1.26v-2.81c.58-.11.92-.3,1.32-.71.47-.49.68-1.16.68-1.61V3.81h-1.24v3.69Z"/><path fill="currentColor" d="M47.45,3.78c-1.89-.09-3.18,1.34-3.31,3.02-.08-1.67-1.59-3.07-3.08-3.07-.56,0-.92.05-1.44.25l-.48.19v1.24l.17-.12c.49-.4.9-.44,1.54-.46,1.15-.01,2.03.94,2.06,2.06.05,1.26-.89,2.22-2.1,2.21-.08,0-2.04-.13-2.04-2.27l-.02-5.82h-1.21v5.95c0,1.61,1.24,3.17,3.21,3.24,1.9.07,3.25-1.34,3.39-3.02.08,1.65,1.42,2.9,2.99,3.07.77.07,1.85-.42,1.93-.46v-1.25c-.08.08-1.01.64-1.7.6-1.14-.11-1.97-.92-2.02-2.01-.07-1.18.83-2.3,2-2.27.1,0,2.11,0,2.1,2.55v2.71h1.21v-3.12c0-1.63-1.21-3.18-3.21-3.24Z"/><path fill="currentColor" d="M54.19,3.71c-1.79,0-3.15,1.42-3.24,3.26-.06,1.73,1.6,3.29,3.23,3.2.67-.02,1.27-.2,1.67-.44v-1.21l-.3.18c-.46.26-.78.34-1.3.37-1.28.02-2.07-.95-2.1-2.1-.01-1.16.88-2.16,2.04-2.19,1.26-.01,2.06,1.06,2.06,2.53v2.33c0,1.12-.11,1.73-1.27,2.12-.48.16-1.28.18-2.09-.04l-.55-.16-.3,1.15.4.1s1.85.54,3.35-.16c1.2-.53,1.7-1.51,1.7-2.9v-2.57c0-1.86-1.18-3.5-3.3-3.48Z"/><polygon fill="currentColor" points="61.84 .61 62.92 .61 62.92 0 60.6 0 60.6 11.24 62.95 11.24 62.95 10.53 61.84 10.53 61.84 .61"/><path fill="currentColor" d="M67.91,6.94c0,2.12-1.92,2.19-2.01,2.19-1.26-.06-2.06-1.03-2-2.29.02-1.08.82-2,1.94-2.02.61-.01,1.35.32,1.51.48l.2.22v-1.33l-.49-.23c-.25-.1-.7-.24-1.14-.24-1.88-.01-3.33,1.54-3.23,3.31.05,1.58,1.12,3.12,3.17,3.2,1.99.1,3.31-1.62,3.31-3.26V1.01h-1.26v5.94Z"/><path fill="currentColor" d="M72.64,3.71c-1.81,0-3.33,1.51-3.3,3.32.05,1.76,1.49,3.18,3.24,3.19,1.82.02,3.36-1.51,3.32-3.33-.04-1.76-1.5-3.17-3.26-3.18ZM72.59,9.1c-1.14-.01-2.03-1-2.03-2.15s.96-2.21,2.13-2.16c1.13.02,1.98.98,2,2.1.01,1.18-.92,2.22-2.11,2.21Z"/><path fill="currentColor" d="M79.73,8.86h-.71c-.3,0-.76.04-1.07-.24-.31-.26-.34-.47-.34-.86v-2.72h2.06v-1.25h-2.09v-1.55h-1.22v5.76c0,.46.13.91.44,1.32.49.7,1.19.8,2.01.8h.9v-1.26Z"/><polygon fill="currentColor" points="79.48 .61 80.57 .61 80.57 10.53 79.44 10.53 79.44 11.24 81.78 11.24 81.78 0 79.48 0 79.48 .61"/><path fill="currentColor" d="M92.59,3.76l-1.8,4.77-1.8-4.77h-2.88v-1.55h-1.22v5.76c0,.46.13.91.44,1.32.49.7,1.19.8,2.01.8h.9v-1.26h-.71c-.3,0-.76.04-1.07-.24-.31-.26-.34-.47-.34-.86v-2.72h2.03l1.72,4.45c.17.41.47.76.91.73.53-.01.84-.5,1.06-1.04l2.03-5.38h-1.3Z"/></svg>`;
+
+        const THEMES = {
+            red: {
+                label: 'dark red', emoji: '🩸', swatch: ['#1c0a0e', '#ff8a8a', '#ef4444'],
+                dark: { bg: "bg-[#1c0a0e]", text: "text-red-200", winBg: "bg-[#2e1016]", titleBar: "bg-red-300/10", mobileText: "text-white" },
+                light: { bg: "bg-[#ffe3e0]", text: "text-[#7a2e33]", winBg: "bg-[#fff4f2]", titleBar: "bg-red-300/40", mobileText: "text-[#7a2e33]" },
+                ui: { winBorder: "border-2 border-red-200/30", ringA: "66", ringW: "2px", glow: "rgba(255,70,70,0.25)", loginText: "text-red-200",
+                      loginInput: "bg-white/10 border border-red-300/40 rounded-full placeholder-red-200/50 outline-none focus:border-red-300",
+                      loginBtn: "bg-red-400/30 hover:bg-red-400/50 border border-red-300/50 rounded-full transition",
+                      mobileBg: ['#1c0a0e', '#ffe3e0'], bootBar: "bg-gradient-to-r from-red-300 to-rose-300", bootTrack: "bg-red-200/20", logo: "text-red-200", btn: "bg-red-300/10 border-red-300/30" }
+            },
+            classic: {
+                label: 'classic', emoji: '🔺', swatch: ['#000000', '#7f1d1d', '#dc2626'],
+                dark: { bg: "bg-black", text: "text-red-600", winBg: "bg-zinc-900", titleBar: "bg-red-950/40", mobileText: "text-white" },
+                light: { bg: "bg-[#d6d2c4]", text: "text-[#4a3f35]", winBg: "bg-[#eceae0]", titleBar: "bg-[#b0ab99]/40", mobileText: "text-black" },
+                ui: { winBorder: "border border-white/10", ringA: "33", ringW: "1px", glow: "rgba(0,0,0,0.5)", loginText: "text-red-600",
+                      loginInput: "bg-black/50 border border-red-900/30 rounded-lg", loginBtn: "bg-red-900/20 border border-red-900/40 rounded-lg",
+                      mobileBg: ['#000', '#d6d2c4'], bootBar: "bg-white", bootTrack: "bg-zinc-800", logo: "text-white", btn: "bg-red-950/20 border-red-500/20" }
+            },
+            cute: {
+                label: 'cute pink', emoji: '🌸', swatch: ['#2a1a33', '#ff9ec7', '#ff6fa8'],
+                dark: { bg: "bg-[#2a1a33]", text: "text-pink-200", winBg: "bg-[#3a2347]", titleBar: "bg-pink-300/10", mobileText: "text-white" },
+                light: { bg: "bg-[#ffe3ef]", text: "text-[#7a3358]", winBg: "bg-[#fff4f9]", titleBar: "bg-pink-300/40", mobileText: "text-[#7a3358]" },
+                ui: { winBorder: "border-2 border-pink-200/30", ringA: "66", ringW: "2px", glow: "rgba(255,100,170,0.25)", loginText: "text-pink-200",
+                      loginInput: "bg-white/10 border border-pink-300/40 rounded-full placeholder-pink-200/50 outline-none focus:border-pink-300",
+                      loginBtn: "bg-pink-400/30 hover:bg-pink-400/50 border border-pink-300/50 rounded-full transition",
+                      mobileBg: ['#2a1a33', '#ffe3ef'], bootBar: "bg-gradient-to-r from-pink-300 to-purple-300", bootTrack: "bg-pink-200/20", logo: "text-pink-200", btn: "bg-pink-300/10 border-pink-300/30" }
+            },
+            blue: {
+                label: 'midnight blue', emoji: '🌙', swatch: ['#0b1020', '#16306b', '#38bdf8'],
+                dark: { bg: "bg-[#0b1020]", text: "text-sky-200", winBg: "bg-[#16224a]", titleBar: "bg-sky-300/10", mobileText: "text-white" },
+                light: { bg: "bg-[#dbe7f5]", text: "text-[#24415f]", winBg: "bg-[#eef4fb]", titleBar: "bg-[#9db8d6]/40", mobileText: "text-[#24415f]" },
+                ui: { winBorder: "border-2 border-sky-200/30", ringA: "66", ringW: "2px", glow: "rgba(56,130,255,0.25)", loginText: "text-sky-200",
+                      loginInput: "bg-white/10 border border-sky-300/40 rounded-full placeholder-sky-200/50 outline-none focus:border-sky-300",
+                      loginBtn: "bg-sky-400/30 hover:bg-sky-400/50 border border-sky-300/50 rounded-full transition",
+                      mobileBg: ['#0b1020', '#dbe7f5'], bootBar: "bg-gradient-to-r from-sky-300 to-indigo-300", bootTrack: "bg-sky-200/20", logo: "text-sky-200", btn: "bg-sky-300/10 border-sky-300/30" }
+            },
+            matcha: {
+                label: 'matcha', emoji: '🍵', swatch: ['#0d1a12', '#1d4a31', '#34d399'],
+                dark: { bg: "bg-[#0d1a12]", text: "text-emerald-200", winBg: "bg-[#163323]", titleBar: "bg-emerald-300/10", mobileText: "text-white" },
+                light: { bg: "bg-[#dfead8]", text: "text-[#2f4a33]", winBg: "bg-[#f1f6ec]", titleBar: "bg-[#a9c4a0]/40", mobileText: "text-[#2f4a33]" },
+                ui: { winBorder: "border-2 border-emerald-200/30", ringA: "66", ringW: "2px", glow: "rgba(30,180,110,0.25)", loginText: "text-emerald-200",
+                      loginInput: "bg-white/10 border border-emerald-300/40 rounded-full placeholder-emerald-200/50 outline-none focus:border-emerald-300",
+                      loginBtn: "bg-emerald-400/30 hover:bg-emerald-400/50 border border-emerald-300/50 rounded-full transition",
+                      mobileBg: ['#0d1a12', '#dfead8'], bootBar: "bg-gradient-to-r from-emerald-300 to-lime-200", bootTrack: "bg-emerald-200/20", logo: "text-emerald-200", btn: "bg-emerald-300/10 border-emerald-300/30" }
+            }
+        };
+
+        const FONTS = {
+            original: { label: 'original', note: 'Courier New', family: "'Courier New', monospace" },
+            helvetica: { label: 'helvetica', note: 'clean and simple', family: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
+            cute: { label: 'cute', note: 'Fredoka, round and bubbly', family: "'Fredoka', 'Nunito', ui-rounded, system-ui, sans-serif" }
+        };
+
+        const SPARKLES = {
+            red: { chars: ['✦'], colors: ['#fff', 'red'] },
+            cute: { chars: ['✦', '♡', '✿', '✧', '♥', '★', '✨'], colors: ['#ffb3d1', '#ff8fb8', '#cdb4ff', '#b5ead7', '#ffd6a5', '#fff'] },
+            blue: { chars: ['✦', '✧'], colors: ['#fff', '#7dd3fc', '#93c5fd'] },
+            matcha: { chars: ['✦', '❀', '✿'], colors: ['#fff', '#6ee7b7', '#bef264'] }
+        };
+
+        function AppearancePicker({ themeName, setThemeName, fontName, setFontName, compact }) {
+            const head = { fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', opacity: 0.6, marginBottom: 10 };
+            return (
+                <div style={{ padding: compact ? '4px 0 0' : 20, display: 'flex', flexDirection: 'column', gap: 22, fontFamily: 'var(--font-ui)' }}>
+                    <div>
+                        <div style={head}>THEMES</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+                            {Object.entries(THEMES).map(([key, t]) => {
+                                const on = themeName === key;
+                                return (
+                                    <button key={key} onClick={() => setThemeName(key)}
+                                        style={{ textAlign: 'left', padding: 12, borderRadius: 16, background: 'rgba(255,255,255,0.05)', color: 'inherit',
+                                                 border: on ? `2px solid ${t.swatch[2]}` : '2px solid rgba(255,255,255,0.12)' }}>
+                                        <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                                            {t.swatch.map((c, i) => <span key={i} style={{ width: 18, height: 18, borderRadius: '50%', background: c, border: '1px solid rgba(255,255,255,0.35)' }} />)}
+                                        </div>
+                                        <div style={{ fontSize: 12, fontWeight: 700 }}>{t.emoji} {t.label}{on ? ' ✓' : ''}</div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                    <div>
+                        <div style={head}>FONT</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            {Object.entries(FONTS).map(([key, f]) => {
+                                const on = fontName === key;
+                                return (
+                                    <button key={key} onClick={() => setFontName(key)}
+                                        style={{ textAlign: 'left', padding: 12, borderRadius: 16, background: 'rgba(255,255,255,0.05)', color: 'inherit',
+                                                 border: on ? '2px solid currentColor' : '2px solid rgba(255,255,255,0.12)' }}>
+                                        <div style={{ fontSize: 11, fontWeight: 700, opacity: 0.75, marginBottom: 6 }}>{f.label} · {f.note}{on ? ' ✓' : ''}</div>
+                                        <div style={{ fontFamily: f.family, fontSize: 15 }}>The quick brown fox jumps over the lazy dog</div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
 
         function App() {
             const [isBooting, setIsBooting] = useState(true);
@@ -145,15 +354,19 @@
             const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('aos_username'));
             const [username, setUsername] = useState(() => localStorage.getItem('aos_username') || "");
             const [isDark, setIsDark] = useState(true);
+            const [themeName, setThemeName] = useState(() => localStorage.getItem('aos_theme_v2') || 'red');
+            const [fontName, setFontName] = useState(() => localStorage.getItem('aos_font') || 'original');
+            useEffect(() => { document.documentElement.dataset.theme = themeName; try { localStorage.setItem('aos_theme_v2', themeName); } catch (e) {} }, [themeName]);
+            useEffect(() => { document.documentElement.dataset.font = fontName; try { localStorage.setItem('aos_font', fontName); } catch (e) {} }, [fontName]);
             const [isMuted, setIsMuted] = useState(false);
             const [wallpaper, setWallpaper] = useState(DEFAULT_WALLPAPER);
             const [ctxMenu, setCtxMenu] = useState(null);
             const handleCtx = (e) => { e.preventDefault(); setCtxMenu({x: e.clientX, y: e.clientY}); };
             const closeCtx = () => setCtxMenu(null);
             
-            const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false, XXXO: false, AGARIO: false, SHEETS: false, PAINT: false, SPECTRO: false, ARTWORK: false, AUDIO: false, ALPHA: false });
+            const [openApps, setOpenApps] = useState({ VIDEOS: false, PHOTOS: false, WINSTON: false, CHAT: false, XXXO: false, AGARIO: false, SHEETS: false, PAINT: false, SPECTRO: false, ARTWORK: false, AUDIO: false, ALPHA: false, SETTINGS: false });
             const [activeMobileApp, setActiveMobileApp] = useState(null);
-            const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10, XXXO: 10, AGARIO: 10, SHEETS: 10, PAINT: 10, SPECTRO: 10, ARTWORK: 10, AUDIO: 10, ALPHA: 10 });
+            const [zIndices, setZIndices] = useState({ VIDEOS: 10, PHOTOS: 10, WINSTON: 10, CHAT: 10, XXXO: 10, AGARIO: 10, SHEETS: 10, PAINT: 10, SPECTRO: 10, ARTWORK: 10, AUDIO: 10, ALPHA: 10, SETTINGS: 10 });
             const [topZ, setTopZ] = useState(20);
             const [minApps, setMinApps] = useState({});
             
@@ -173,15 +386,16 @@
                         lastSparkle = now;
                         const star = document.createElement('div');
                         star.className = 'sparkle-star';
-                        star.innerHTML = '✦';
+                        const _sp = SPARKLES[document.documentElement.dataset.theme] || SPARKLES.red;
+                        const _pick = (a) => a[Math.floor(Math.random() * a.length)];
+                        const _c = _pick(_sp.colors);
+                        star.innerHTML = _pick(_sp.chars);
+                        star.style.color = _c;
+                        star.style.textShadow = _c === 'red' ? '0 0 10px red, 0 0 20px #ff0000' : `0 0 10px ${_c}`;
                         const destinationX = (Math.random() - 0.5) * 100;
                         const destinationY = (Math.random() - 0.5) * 100;
                         star.style.setProperty('--x', destinationX + 'px');
                         star.style.setProperty('--y', destinationY + 'px');
-                        if(Math.random() > 0.5) {
-                            star.style.color = 'red';
-                            star.style.textShadow = '0 0 10px red, 0 0 20px #ff0000';
-                        }
                         star.style.left = e.pageX + 'px';
                         star.style.top = e.pageY + 'px';
                         document.body.appendChild(star);
@@ -207,11 +421,8 @@
                 };
             }, []);
 
-            const theme = isDark ? {
-                bg: "bg-black", text: "text-red-600", winBg: "bg-zinc-900", titleBar: "bg-red-950/40", mobileText: "text-white"
-            } : {
-                bg: "bg-[#d6d2c4]", text: "text-[#4a3f35]", winBg: "bg-[#eceae0]", titleBar: "bg-[#b0ab99]/40", mobileText: "text-black"
-            };
+            const _T = THEMES[themeName] || THEMES.red;
+            const theme = { ...(isDark ? _T.dark : _T.light), ..._T.ui };
 
             const bringFront = (app) => {
                 const z = topZ + 1;
@@ -258,16 +469,16 @@
             };
 
             if (isBooting) return (
-                <div className="h-screen w-full bg-black flex flex-col items-center justify-center">
-                    <div className="illuminati-logo text-white scale-[4] mb-16"></div>
-                    <div className="w-48 h-1 bg-zinc-800 rounded-full overflow-hidden">
-                        <motion.div initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: 2.5 }} className="h-full bg-white"/>
+                <div className="h-screen w-full theme-bg flex flex-col items-center justify-center">
+                    <div className={`${theme.logo} mb-14`} style={{width:'min(300px, 70vw)', aspectRatio:'93.89 / 13.02', filter:'drop-shadow(0 0 8px currentColor)'}} dangerouslySetInnerHTML={{__html: GBTV_LOGO_SVG}}></div>
+                    <div className={`w-48 h-1 ${theme.bootTrack} rounded-full overflow-hidden`}>
+                        <motion.div initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: 2.5 }} className={`h-full ${theme.bootBar}`}/>
                     </div>
                 </div>
             );
 
             if (viewMode === 'choice') return (
-                <div className="h-screen w-full bg-black flex flex-col items-center justify-center gap-8 text-white">
+                <div className="h-screen w-full theme-bg flex flex-col items-center justify-center gap-8 text-white">
                     <div className="flex gap-12">
                         <button onClick={() => handleSetViewMode('desktop')} className="glass-panel p-10 rounded-3xl hover:scale-105 transition-all">
                             <div className="text-5xl mb-4">💻</div><div className="text-[10px] font-bold">DESKTOP</div>
@@ -280,11 +491,11 @@
             );
 
             if (!isLoggedIn) return (
-                <div className="h-screen w-full bg-black flex items-center justify-center p-4">
-                    <div className="glass-panel p-8 rounded-[24px] text-center space-y-5 text-red-600" style={{width:'260px'}}>
+                <div className="h-screen w-full theme-bg flex items-center justify-center p-4">
+                    <div className={`glass-panel p-8 rounded-[24px] text-center space-y-5 ${theme.loginText}`} style={{width:'260px'}}>
                         <div className="illuminati-logo scale-150 mx-auto"></div>
-                        <input type="text" placeholder="username" className="w-full bg-black/50 border border-red-900/30 p-2 rounded-lg text-center text-xs" value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleLogin()}/>
-                        <button onClick={handleLogin} className="w-full bg-red-900/20 border border-red-900/40 py-2 rounded-lg text-xs font-bold">LOGIN</button>
+                        <input type="text" placeholder="username" className={`w-full ${theme.loginInput} p-2 text-center text-xs`} value={username} onChange={(e) => setUsername(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleLogin()}/>
+                        <button onClick={handleLogin} className={`w-full ${theme.loginBtn} py-2 text-xs font-bold`}>LOGIN</button>
                     </div>
                 </div>
             );
@@ -294,7 +505,7 @@
                 <div className="h-screen w-full flex items-center justify-center bg-zinc-950">
                     <audio ref={audioRef} autoPlay loop src="https://grocerybag.tv/media/SONG.mp3" muted={isMuted} />
                     <div className="iphone-frame">
-                        <div className="mobile-screen" style={{backgroundImage: wallpaper ? `url(${wallpaper})` : 'none', backgroundColor: isDark ? '#000' : '#d6d2c4'}}>
+                        <div className="mobile-screen" style={{backgroundImage: wallpaper ? `url(${wallpaper})` : 'none', backgroundColor: isDark ? theme.mobileBg[0] : theme.mobileBg[1]}}>
                             <div className="flex justify-between px-4 py-1 text-[9px] text-white bg-black/30 backdrop-blur-md"><span>AOS</span><span>12:00</span><span>100% 🔋</span></div>
                             <div className="grid grid-cols-3 gap-6 p-6 mt-4">
                                 <MobileIcon icon="🐶" label="Winston" onClick={() => setActiveMobileApp('WINSTON')} theme={theme} />
@@ -368,8 +579,9 @@
                                         {activeMobileApp === 'SETTINGS' && (
                                             <div className={`space-y-4 pt-4 ${theme.text}`}>
                                                 <div onClick={() => setIsDark(!isDark)} className="p-4 bg-white/5 rounded-xl border border-white/10 flex justify-between"><span>Lite Mode</span><span>{isDark ? 'OFF' : 'ON'}</span></div>
-                                                <div onClick={() => handleSetViewMode('choice')} className="p-4 bg-red-950/20 rounded-xl border border-red-500/20 font-bold text-center">Switch Version</div>
-                                                <div onClick={handleLogout} className="p-4 bg-red-950/20 rounded-xl border border-red-500/20 font-bold text-center">Log Out</div>
+                                                <div onClick={() => handleSetViewMode('choice')} className={`p-4 ${theme.btn} rounded-xl border font-bold text-center`}>Switch Version</div>
+                                                <div onClick={handleLogout} className={`p-4 ${theme.btn} rounded-xl border font-bold text-center`}>Log Out</div>
+                                                <AppearancePicker compact themeName={themeName} setThemeName={setThemeName} fontName={fontName} setFontName={setFontName} />
                                             </div>
                                         )}
                                     </motion.div>
@@ -386,9 +598,10 @@
                 <>
                 <div ref={desktopRef} className={`h-screen w-full relative overflow-hidden ${isDark ? 'dark' : ''} ${theme.text}`} style={{background: wallpaper ? 'transparent' : ''}} onContextMenu={handleCtx} onClick={closeCtx}>
                     {ctxMenu && (
-                        <div style={{position:'fixed',left:ctxMenu.x,top:ctxMenu.y,zIndex:99999,background:'rgba(20,20,20,0.95)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:'12px',padding:'6px',minWidth:'170px',boxShadow:'0 8px 32px rgba(0,0,0,0.6)',fontFamily:"'Courier New',monospace",fontSize:'11px',color:'#fff',backdropFilter:'blur(20px)'}} onClick={e=>e.stopPropagation()}>
+                        <div style={{position:'fixed',left:ctxMenu.x,top:ctxMenu.y,zIndex:99999,background:'var(--ctx-bg)',border:'var(--ctx-bd)',borderRadius:'var(--ctx-radius)',padding:'6px',minWidth:'170px',boxShadow:'0 8px 32px rgba(0,0,0,0.6)',fontFamily:"var(--font-ui)",fontSize:'var(--fs-ctx)',color:'#fff',backdropFilter:'blur(20px)'}} onClick={e=>e.stopPropagation()}>
                             {[
                                 {label:'🖼️  Change Wallpaper', action:()=>{toggleApp('PHOTOS');setCtxMenu(null);}},
+                                {label:'⚙️  Settings', action:()=>{toggleApp('SETTINGS');setCtxMenu(null);}},
                                 {label: isDark ? '☀️  Light Mode' : '🌑  Dark Mode', action:()=>{setIsDark(!isDark);setCtxMenu(null);}},
                                 {label:'📱  Switch Version', action:()=>{handleSetViewMode('choice');setCtxMenu(null);}},
                                 {label:'🚪  Log Out', action:()=>{handleLogout();setCtxMenu(null);}},
@@ -402,13 +615,13 @@
                                 {label:'〰️  Spectro', action:()=>{openApp('SPECTRO');setCtxMenu(null);}},
                                 {label:'❄️  Art Ripper', action:()=>{openApp('ARTWORK');setCtxMenu(null);}},
                                 {label:'🎧  Audio Converter', action:()=>{openApp('AUDIO');setCtxMenu(null);}},
-                                {label:'🪄  White to Transparent', action:()=>{openApp('ALPHA');setCtxMenu(null);}},
+                                {label:"🪄  Guppy's Print and Mockup Helper", action:()=>{openApp('ALPHA');setCtxMenu(null);}},
                                 wallpaper ? null : null,
                                 wallpaper ? {label:'✕  Clear Wallpaper', action:()=>{setWallpaper(null);setCtxMenu(null);}} : null,
                             ].filter(Boolean).map((item,i) => item === null ? (
                                 <div key={i} style={{height:'1px',background:'rgba(255,255,255,0.08)',margin:'4px 0'}} />
                             ) : (
-                                <div key={i} onClick={item.action} style={{padding:'7px 12px',borderRadius:'7px',cursor:'pointer',transition:'background 0.1s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>{item.label}</div>
+                                <div key={i} onClick={item.action} style={{padding:'7px 12px',borderRadius:'var(--ctx-item-radius)',cursor:'pointer',transition:'background 0.1s'}} onMouseEnter={e=>e.currentTarget.style.background='var(--ctx-hover)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>{item.label}</div>
                             ))}
                         </div>
                     )}
@@ -426,6 +639,7 @@
                             <div className="flex gap-4 items-center">
                                 <button className="text-[9px] border px-3 py-1 rounded-full border-current" onClick={() => setIsDark(!isDark)}>{isDark ? 'LIGHT' : 'DARK'}</button>
                                 <button className="text-[9px] border px-3 py-1 rounded-full border-current" onClick={() => toggleApp('PHOTOS')}>🖼️ WALLPAPER</button>
+                                <button className="text-[9px] border px-3 py-1 rounded-full border-current" onClick={() => toggleApp('SETTINGS')}>⚙️ SETTINGS</button>
                                 {wallpaper && <button className="text-[9px] border px-3 py-1 rounded-full border-current opacity-50 hover:opacity-100" onClick={() => setWallpaper(null)}>✕ CLEAR</button>}
                             </div>
                         </div>
@@ -433,7 +647,7 @@
 
                     {/* Restored Mini Player */}
                     <motion.div drag dragMomentum={false} className="fixed bottom-24 right-8 z-[5000] glass-panel p-4 rounded-3xl flex items-center gap-4 border border-white/5 cursor-move">
-                        <div className="w-10 h-10 bg-black rounded-lg overflow-hidden pointer-events-none"><img src="https://grocerybag.tv/media/winston.JPG" className="w-full h-full object-cover opacity-60" /></div>
+                        <div className="cd-art w-10 h-10 bg-black rounded-lg overflow-hidden pointer-events-none" data-playing={String(!isMuted)}><img src="https://grocerybag.tv/media/winston.JPG" className="w-full h-full object-cover opacity-60" /></div>
                         <div className="pointer-events-none">
                             <div className="text-[10px] font-bold">Winnies_JAMz.mp3</div>
                             <div className="text-[8px] opacity-40 uppercase">Now Playing</div>
@@ -448,7 +662,7 @@
                         {icon:'〰️',label:'Spectro',app:'SPECTRO'},
                         {icon:'❄️',label:'Art Ripper',app:'ARTWORK'},
                         {icon:'🎧',label:"Amy's Audio Converter",app:'AUDIO'},
-                        {icon:'🪄',label:'White to Transparent',app:'ALPHA'},
+                        {icon:'🪄',label:"Guppy's Print and Mockup Helper",app:'ALPHA'},
                     ].map(({icon,label,app},i) => (
                         <DesktopIcon key={app} id={app} isOpen={!!openApps[app]} isMin={!!minApps[app]} icon={icon} label={label} constraintsRef={desktopRef} x={28} y={96 + i*104} onOpen={() => openApp(app)} />
                     ))}
@@ -537,35 +751,40 @@
                         </Window>
                     )}
 
+                    {openApps.SETTINGS && (
+                        <Window key="SETTINGS" accent={APP_ACCENTS.SETTINGS} minimized={!!minApps.SETTINGS} onMinimize={() => minimizeApp('SETTINGS')} onFocus={() => focusApp('SETTINGS')} title="SETTINGS ⚙️" theme={theme} onClose={() => toggleApp('SETTINGS')} zIndex={zIndices.SETTINGS} initialX={220} initialY={110} width={460} height={560}>
+                            <AppearancePicker themeName={themeName} setThemeName={setThemeName} fontName={fontName} setFontName={setFontName} />
+                        </Window>
+                    )}
                     {openApps.ALPHA && (
-                        <Window key="ALPHA" accent={APP_ACCENTS.ALPHA} minimized={!!minApps.ALPHA} onMinimize={() => minimizeApp('ALPHA')} onFocus={() => focusApp('ALPHA')} title="WHITE_TO_TRANSPARENT 🪄" theme={theme} onClose={() => toggleApp('ALPHA')} zIndex={zIndices.ALPHA} initialX={160} initialY={80} width={900} height={600}>
-                            <iframe src="White_to_transparent.html" style={{width:'100%',height:'100%',border:'none'}} title="White to transparent" />
+                        <Window key="ALPHA" accent={APP_ACCENTS.ALPHA} minimized={!!minApps.ALPHA} onMinimize={() => minimizeApp('ALPHA')} onFocus={() => focusApp('ALPHA')} title="GUPPYS_PRINT_AND_MOCKUP_HELPER 🪄" theme={theme} onClose={() => toggleApp('ALPHA')} zIndex={zIndices.ALPHA} initialX={160} initialY={80} width={900} height={600}>
+                            <iframe src="White_to_transparent.html" style={{width:'100%',height:'100%',border:'none'}} title="Guppy's Print and Mockup Helper" />
                         </Window>
                     )}
                     </AnimatePresence>
 
                     <style>{`
                         .dock-wrap { position:fixed; bottom:18px; width:100%; display:flex; justify-content:center; z-index:5000; pointer-events:none; overflow:visible; }
-                        .dock { pointer-events:all; display:flex; align-items:flex-end; gap:18px; padding:10px 24px; backdrop-filter:blur(25px); background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.1); border-radius:28px; box-shadow:0 8px 40px rgba(0,0,0,0.4); overflow:visible; }
+                        .dock { pointer-events:all; display:flex; align-items:flex-end; gap:18px; padding:10px 24px; backdrop-filter:blur(25px); background:var(--dock-bg); border:var(--dock-bw) solid var(--dock-bd); border-radius:var(--dock-radius); box-shadow:var(--dock-shadow); overflow:visible; }
                         .dock-item { display:flex; flex-direction:column; align-items:center; position:relative; cursor:pointer; overflow:visible; }
-                        .dock-label { position:absolute; bottom:100%; margin-bottom:14px; background:rgba(30,30,30,0.92); color:#fff; font-size:10px; font-family:'Courier New',monospace; font-weight:700; letter-spacing:0.06em; padding:4px 10px; border-radius:8px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity 0.15s; border:1px solid rgba(255,255,255,0.1); z-index:9999; }
+                        .dock-label { position:absolute; bottom:100%; margin-bottom:14px; background:var(--label-bg); color:#fff; font-size:var(--fs-label); font-family:var(--font-ui); font-weight:700; letter-spacing:0.06em; padding:4px 10px; border-radius:var(--label-radius); white-space:nowrap; opacity:0; pointer-events:none; transition:opacity 0.15s; border:1px solid var(--label-bd); z-index:9999; }
                         .dock-item:hover .dock-label { opacity:1; }
                         .dock-icon { font-size:32px; display:block; transform-origin:bottom center; transition:transform 0.15s cubic-bezier(.34,1.56,.64,1); will-change:transform; line-height:1; padding:2px 4px; }
                         .dock-item:hover .dock-icon { transform:scale(1.65) translateY(-8px); }
                         .dock-item:hover + .dock-item .dock-icon,
                         .dock-item:has(+ .dock-item:hover) .dock-icon { transform:scale(1.3) translateY(-4px); }
                         .dock-dot { width:4px; height:4px; border-radius:50%; margin-top:5px; background:transparent; transition:background 0.2s, opacity 0.2s; }
-                        .dock-dot.on { background:rgba(255,255,255,0.9); }
+                        .dock-dot.on { background:var(--dot-on); box-shadow:var(--dot-glow); }
                         .dock-dot.min { opacity:0.4; }
-                        .desk-icon-dot { position:absolute; left:-3px; top:30px; width:5px; height:5px; border-radius:50%; background:#fff; box-shadow:0 0 6px rgba(255,255,255,0.8); }
+                        .desk-icon-dot { position:absolute; left:-3px; top:30px; width:5px; height:5px; border-radius:50%; background:var(--dot-icon); box-shadow:0 0 6px var(--dot-icon-glow); }
                         .desk-icon-dot.min { opacity:0.4; }
                         .desk-icon { position:absolute; width:92px; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:grab; user-select:none; -webkit-user-select:none; z-index:5; touch-action:none; }
                         .desk-icon:active { cursor:grabbing; }
-                        .desk-icon-art { position:relative; width:64px; height:64px; display:grid; place-items:center; font-size:38px; line-height:1; border-radius:16px; backdrop-filter:blur(14px); background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.12); box-shadow:0 6px 20px rgba(0,0,0,0.35); transition:transform 0.15s; }
+                        .desk-icon-art { position:relative; width:64px; height:64px; display:grid; place-items:center; font-size:38px; line-height:1; border-radius:var(--icon-radius); backdrop-filter:blur(14px); background:var(--icon-bg); border:var(--icon-bw) solid var(--icon-bd); box-shadow:var(--icon-shadow); transition:transform 0.15s; }
                         .desk-icon:hover .desk-icon-art { transform:translateY(-2px) scale(1.05); }
                         .desk-icon-alias { position:absolute; right:-3px; bottom:-3px; width:20px; height:20px; border-radius:6px; display:grid; place-items:center; font-size:12px; font-weight:900; color:#111; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.5); }
-                        .desk-icon-label { font-family:'Courier New',monospace; font-size:10px; font-weight:700; letter-spacing:0.04em; line-height:1.25; text-align:center; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.9); padding:2px 6px; border-radius:6px; word-break:break-word; }
-                        .desk-icon.sel .desk-icon-label { background:rgba(60,110,230,0.85); }
+                        .desk-icon-label { font-family:var(--font-ui); font-size:var(--fs-label); font-weight:700; letter-spacing:0.04em; line-height:1.25; text-align:center; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.9); padding:2px 6px; border-radius:var(--chip-radius); word-break:break-word; }
+                        .desk-icon.sel .desk-icon-label { background:var(--sel-bg); }
                         .desk-icon.sel .desk-icon-art { border-color:rgba(255,255,255,0.5); }
                     `}</style>
                 </div>
@@ -580,6 +799,7 @@
                             {icon:'👾',label:'Wobbles',app:'AGARIO'},
                             {icon:'📋',label:'Uploads',app:'SHEETS'},
                             {icon:'🎨',label:'Paint',app:'PAINT'},
+                            {icon:'⚙️',label:'Settings',app:'SETTINGS'},
                         ].map(({icon,label,app}) => (
                             <div key={app} className="dock-item" onClick={() => toggleApp(app)}>
                                 <span className="dock-label">{label}</span>
@@ -904,7 +1124,7 @@
             };
 
             return (
-                <div style={{display:'flex', flexDirection:'column', height:'100%', background:'#c0c0c0', fontFamily:"'Courier New',monospace"}}>
+                <div style={{display:'flex', flexDirection:'column', height:'100%', background:'#c0c0c0', fontFamily:"var(--font-ui)"}}>
                     {/* Menu bar */}
                     <div style={{display:'flex', gap:'2px', padding:'2px 6px', background:'#c0c0c0', borderBottom:'1px solid #808080', fontSize:'11px', alignItems:'center', flexWrap:'wrap'}}>
                         <span style={{cursor:'pointer', padding:'2px 8px', background:'rgba(0,0,0,0.08)', border:'1px solid #999', borderRadius:'2px'}} onClick={clearCanvas}>New</span>
@@ -1027,14 +1247,14 @@
             };
 
             return (
-                <div style={{display:'flex', flexDirection:'column', height:'100%', background:palette.bg, fontFamily:"'Courier New', monospace", color:palette.text}}>
+                <div style={{display:'flex', flexDirection:'column', height:'100%', background:palette.bg, fontFamily:"var(--font-ui)", color:palette.text}}>
                     <div style={{padding:'10px 14px', borderBottom:`1px solid ${palette.border}`, display:'flex', alignItems:'center', gap:'10px', background:palette.header}}>
                         <div style={{fontSize:'10px', color:palette.muted, letterSpacing:'0.08em', textTransform:'uppercase'}}>ANGELS OF SICMR 💕 — Mars Argo YouTube Uploads</div>
                         <input
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             placeholder="search..."
-                            style={{marginLeft:'auto', background:'rgba(0,0,0,0.3)', border:`1px solid ${palette.border}`, borderRadius:'6px', padding:'4px 10px', color:palette.text, fontSize:'11px', outline:'none', fontFamily:"'Courier New', monospace", width:'180px'}}
+                            style={{marginLeft:'auto', background:'rgba(0,0,0,0.3)', border:`1px solid ${palette.border}`, borderRadius:'6px', padding:'4px 10px', color:palette.text, fontSize:'11px', outline:'none', fontFamily:"var(--font-ui)", width:'180px'}}
                         />
                         <div style={{fontSize:'10px', color:palette.muted}}>{sorted.length} rows</div>
                     </div>
@@ -1463,10 +1683,10 @@
                         borderRadius: maxed ? '18px' : '24px', overflow: 'hidden', display: 'flex', flexDirection: 'column',
                         transformOrigin: '50% 100%',
                         pointerEvents: minimized ? 'none' : 'auto',
-                        boxShadow: `0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px ${ac}33`,
+                        boxShadow: `0 20px 60px ${theme.glow}, 0 0 0 ${theme.ringW} ${ac}${theme.ringA}`,
                         transition: anim ? 'left .3s ease, top .3s ease, width .3s ease, height .3s ease, border-radius .3s ease' : 'none',
                     }}
-                    className={`border ${theme.winBg} border-white/10`}>
+                    className={`${theme.winBorder} ${theme.winBg}`}>
                     <div className={`window-titlebar p-4 flex justify-between items-center ${theme.titleBar}`}
                         style={{ flexShrink: 0, touchAction: 'none', cursor: maxed ? 'default' : 'grab',
                                  backgroundImage: `linear-gradient(90deg, ${ac}55, ${ac}0f 75%)`, borderBottom: `1px solid ${ac}55` }}
@@ -1477,7 +1697,7 @@
                             <div onClick={() => onMinimize && onMinimize()} className="traffic-light minimize-btn" title="Minimize"></div>
                             <div onClick={toggleMax} className="traffic-light expand-btn" title={maxed ? 'Restore' : 'Fullscreen'}></div>
                         </div>
-                        <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: ac, opacity: 0.9 }}>{title}</span>
+                        <span className="win-title text-[9px] font-bold uppercase tracking-widest" style={{ color: ac, opacity: 0.9 }}>{title}</span>
                         <div className="w-12"></div>
                     </div>
                     <div className={`flex-1 overflow-y-auto ${isWinston ? 'bg-white text-black' : ''}`}>{children}</div>
