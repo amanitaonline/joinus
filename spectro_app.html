@@ -1,333 +1,267 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spectrogram Viewer</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<title>spectogram viewer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
 
-  /* ── base vars (overridden by JS applyAccent) ── */
-  :root, [data-theme="dark"] {
-    --accent:        #7c3aed;
-    --surface:       rgba(124,58,237,0.10);
-    --surface-solid: rgba(124,58,237,0.18);
-    --border:        rgba(124,58,237,0.35);
-    --border-hi:     #7c3aed;
-    --text:          rgba(200,180,255,0.80);
-    --text-dim:      rgba(180,150,255,0.42);
-    --text-hi:       #e0d0ff;
-    --purple:        #7c3aed;
-    --shadow:        0 20px 60px rgba(124,58,237,0.22), 0 4px 16px rgba(80,30,180,0.18);
-    --shadow-sm:     0 2px 16px rgba(124,58,237,0.14);
-    --modal-bg:      rgba(0,0,0,0.80);
-    --card-bg:       rgba(124,58,237,0.08);
-    --drop-bg:       #12102a;
-    --separator:     rgba(124,58,237,0.14);
-    --font-mono:     'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
-    --radius-md:     8px;
-    --radius-lg:     12px;
+  :root {
+    --bg: #fff0f6; --bg2: #ffeaf6; --card: #ffffff;
+    --ink: #4a2a3a; --ink-soft: #94677f; --line: #4a2a3a;
+    --accent: #ff8fc0; --accent-deep: #e0488f; --accent-soft: #ffd9ea;
+    --font-display: 'Fredoka', 'Nunito', system-ui, sans-serif;
+    --font-body: 'Nunito', system-ui, -apple-system, sans-serif;
+    --font-mono: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+    --r-lg: 24px; --r-md: 16px;
   }
 
-  html, body {
-    min-height: 100vh;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: var(--text);
-    transition: background 0.25s, color 0.25s;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  #app {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 48px 24px 100px;
-  }
-
-  /* ── HEADER ── */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 2rem;
-  }
-
-  header h1 {
-    font-size: 0.78rem;
+  html, body { min-height: 100vh; }
+  body {
+    font-family: var(--font-body);
     font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-hi);
+    color: var(--ink);
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(var(--accent-soft) 2.2px, transparent 2.6px),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    background-size: 26px 26px, 100% 100%;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color .25s, color .25s;
+    position: relative; overflow-x: hidden;
   }
 
-  header h1 i { margin-right: 6px; opacity: 0.7; }
+  /* floating sparkles */
+  .deco { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .deco svg { position: absolute; fill: var(--accent); opacity: .55; animation: bob 7s ease-in-out infinite; }
+  @keyframes bob { 0%,100% { transform: translateY(0) rotate(0deg) } 50% { transform: translateY(-14px) rotate(14deg) } }
+  @media (prefers-reduced-motion: reduce) { .deco svg { animation: none; } }
 
-  .theme-toggle {
-    background: var(--surface-solid);
-    border: 1.5px solid var(--border);
-    border-radius: 980px;
-    color: var(--text);
-    font-family: inherit;
-    font-size: 0.7rem;
-    font-weight: 500;
-    padding: 5px 14px;
-    cursor: pointer;
-    letter-spacing: 0.02em;
-    transition: border-color 0.15s, color 0.15s, background 0.15s;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+  #app { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 28px 20px 110px; }
+
+  /* header */
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+  .logo { height: 76px; display: flex; align-items: center; }
+  .logo svg { height: 100%; width: auto; fill: var(--ink); filter: drop-shadow(3px 3px 0 var(--accent)); transition: transform .2s; }
+  .logo:hover svg { transform: rotate(-2deg) scale(1.03); }
+  .head-tools { display: flex; align-items: center; gap: 12px; }
+  #accent-dots { display: flex; gap: 7px; }
+  .dot {
+    width: 24px; height: 24px; border-radius: 50%; border: 2.5px solid var(--line);
+    cursor: pointer; box-shadow: 0 2px 0 var(--line); transition: transform .12s;
   }
-  .theme-toggle:hover { border-color: var(--border-hi); color: var(--text-hi); }
+  .dot:hover { transform: translateY(-2px) scale(1.1); }
+  .dot.on { transform: scale(1.18); outline: 2.5px solid var(--line); outline-offset: 2px; }
 
-  /* ── DROP ZONE ── */
+  /* stickers: buttons + cards */
+  .btn {
+    font-family: var(--font-display); font-weight: 600; font-size: 14px; color: var(--ink);
+    background: var(--card); border: 2.5px solid var(--line); border-radius: 999px;
+    padding: 8px 18px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+    box-shadow: 0 4px 0 var(--line); transition: transform .08s, box-shadow .08s, background .15s;
+    letter-spacing: .01em;
+  }
+  .btn:hover { background: var(--accent-soft); }
+  .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--line); }
+  .btn.primary { background: var(--accent); }
+  .btn.primary:hover { background: var(--accent-deep); color: #fff; }
+  .btn.big { font-size: 18px; padding: 12px 30px; }
+  .btn.small { font-size: 12px; padding: 5px 13px; box-shadow: 0 3px 0 var(--line); }
+  .btn:disabled { opacity: .55; cursor: wait; transform: none; }
+  .icon-btn { width: 42px; height: 42px; padding: 0; justify-content: center; }
+  .ico { display: inline-flex; width: 1.15em; height: 1.15em; }
+  .ico svg { width: 100%; height: 100%; }
+
+  .card {
+    background: var(--card); border: 2.5px solid var(--line); border-radius: var(--r-lg);
+    box-shadow: 0 6px 0 var(--line); padding: 18px 20px; margin-bottom: 26px;
+  }
+  .card h3 { font-family: var(--font-display); font-weight: 600; font-size: 20px; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .card h3 .ico { color: var(--accent-deep); }
+  .hint { font-size: 13px; color: var(--ink-soft); margin-bottom: 14px; line-height: 1.45; }
+
+  /* drop zone */
   #drop-zone {
-    border: 1.5px dashed var(--border-hi);
-    border-radius: 22px;
-    padding: 4rem 2rem;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-    background: var(--surface);
-    position: relative;
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    border: 3px dashed var(--line); border-radius: 32px; padding: 52px 24px 36px; text-align: center;
+    background: var(--card); box-shadow: 0 7px 0 var(--line); position: relative; transition: background .2s, transform .2s;
   }
-  #drop-zone.drag-over { background: var(--surface-solid); }
-  #drop-zone input[type=file] {
-    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-  }
-  .drop-icon { font-size: 40px; color: var(--text-dim); margin-bottom: 14px; }
-  .drop-title { font-size: 15px; font-weight: 500; margin-bottom: 8px; color: var(--text-hi); }
-  .drop-sub { font-size: 11px; color: var(--text-dim); letter-spacing: 0.06em; }
+  #drop-zone.drag-over { background: var(--accent-soft); transform: scale(1.015) rotate(-.4deg); }
+  #drop-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; z-index: 1; }
+  .drop-art { width: 92px; height: 92px; margin: 0 auto 14px; color: var(--accent-deep); animation: bob 5s ease-in-out infinite; }
+  .drop-title { font-family: var(--font-display); font-size: 26px; font-weight: 600; margin-bottom: 6px; }
+  .drop-sub { font-size: 13px; color: var(--ink-soft); }
+  .blank-row { position: relative; z-index: 2; margin-top: 26px; display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--ink-soft); }
 
-  /* ── VIEWER ── */
+  /* viewer */
   #viewer { display: none; }
   #viewer.active { display: block; }
+  #filename-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  #fname { font-family: var(--font-display); font-size: 17px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
 
-  #filename-bar {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 1.25rem;
+  #waveform-wrap, #spec-wrap {
+    border: 2.5px solid var(--line); border-radius: var(--r-md); box-shadow: 0 5px 0 var(--line); margin-bottom: 14px; background: var(--card);
   }
-  #fname {
-    font-size: 13px; color: var(--text-dim); letter-spacing: 0.05em;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%;
-    font-family: var(--font-mono);
-  }
-  #reset-btn {
-    font-size: 11px; font-family: inherit; color: var(--text);
-    background: var(--surface); border: 1.5px solid var(--border);
-    border-radius: 980px; padding: 5px 14px; cursor: pointer;
-    transition: background 0.15s, border-color 0.15s; letter-spacing: 0.02em;
-    backdrop-filter: blur(12px);
-  }
-  #reset-btn:hover { background: var(--surface-solid); border-color: var(--border-hi); }
-
-  /* ── CANVAS WRAPS ── */
-  #waveform-wrap {
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    margin-bottom: 6px;
-    height: 80px;
-    border: 1.5px solid var(--border);
-  }
+  #waveform-wrap { overflow: hidden; height: 84px; }
   #waveform-canvas { width: 100%; height: 80px; display: block; }
-
-  #spec-wrap {
-    border-radius: var(--radius-md);
-    margin-bottom: 6px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    cursor: grab;
-    user-select: none;
-    -webkit-overflow-scrolling: touch;
-    border: 1.5px solid var(--border);
-  }
+  #spec-wrap { overflow-x: auto; overflow-y: hidden; cursor: grab; user-select: none; -webkit-overflow-scrolling: touch; background: #000; }
   #spec-wrap:active { cursor: grabbing; }
-  #spec-inner {
-    position: relative;
-    display: inline-block;
-    height: 100%;
-    min-width: 100%;
-  }
+  #spec-inner { position: relative; display: inline-block; height: 100%; min-width: 100%; vertical-align: top; }
   #spec-canvas { display: block; image-rendering: pixelated; }
+  #overlay { position: absolute; top: 0; left: 0; }
+  #overlay.has-layers { touch-action: none; }
+  #playhead { position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: #fff; box-shadow: 0 0 6px rgba(0,0,0,.6); pointer-events: none; display: none; }
+  #freq-labels { display: flex; flex-direction: column-reverse; position: absolute; top: 4px; right: 6px; height: calc(100% - 8px); justify-content: space-between; pointer-events: none; }
+  .freq-lbl { font-size: 10px; color: #fff; text-shadow: 0 0 3px #000, 0 0 3px #000; line-height: 1; font-family: var(--font-mono); }
 
-  #playhead {
-    position: absolute; top: 0; left: 0; width: 2px; height: 100%;
-    background: var(--border-hi); pointer-events: none; display: none; opacity: 0.85;
-  }
+  #legend-bar { height: 12px; border-radius: 99px; border: 2px solid var(--line); margin: 4px 0 3px; }
+  #legend-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-soft); margin-bottom: 22px; }
 
-  #freq-labels {
-    display: flex; flex-direction: column-reverse; position: absolute;
-    top: 4px; right: 6px; height: calc(100% - 8px);
-    justify-content: space-between; pointer-events: none;
-  }
-  .freq-lbl {
-    font-size: 9px; color: rgba(255,255,255,0.35); line-height: 1;
-    letter-spacing: 0.03em; font-family: var(--font-mono);
-  }
+  #controls { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; }
+  #play-btn { width: 52px; height: 52px; font-size: 22px; padding: 0; justify-content: center; flex-shrink: 0; }
+  #time-display { font-family: var(--font-mono); font-size: 13px; min-width: 104px; color: var(--ink-soft); }
+  input[type=range] { flex: 1; accent-color: var(--accent-deep); cursor: pointer; height: 6px; min-width: 60px; }
 
-  /* ── LEGEND ── */
-  #legend-bar {
-    height: 6px; border-radius: 3px; margin-bottom: 4px;
+  .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .row label, .lbl { font-size: 13px; color: var(--ink-soft); font-weight: 700; }
+  select, input[type=text] {
+    font-family: var(--font-body); font-weight: 700; font-size: 13px; color: var(--ink); background: var(--card);
+    border: 2.5px solid var(--line); border-radius: 12px; padding: 6px 10px; outline: none;
   }
-  #legend-labels {
-    display: flex; justify-content: space-between;
-    font-size: 9px; color: var(--text-dim); letter-spacing: 0.04em;
-    margin-bottom: 1.25rem;
+  input[type=text] { flex: 1; min-width: 130px; }
+  input[type=text]:focus, select:focus-visible { border-color: var(--accent-deep); }
+  input[type=color] {
+    -webkit-appearance: none; appearance: none; width: 34px; height: 34px; padding: 0; border: 2.5px solid var(--line);
+    border-radius: 50%; background: none; cursor: pointer; box-shadow: 0 2px 0 var(--line); overflow: hidden;
   }
+  input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
+  input[type=color]::-webkit-color-swatch { border: none; border-radius: 50%; }
+  input[type=color]::-moz-color-swatch { border: none; border-radius: 50%; }
+  .picker { display: flex; align-items: center; gap: 6px; }
+  .range-row { display: flex; align-items: center; gap: 10px; min-width: 240px; flex: 1; }
+  .range-row output { font-family: var(--font-mono); font-size: 12px; min-width: 42px; color: var(--ink-soft); }
+  .check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+  .check input { accent-color: var(--accent-deep); width: 17px; height: 17px; }
 
-  /* ── CONTROLS ROW ── */
-  #colormap-row {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap;
+  #layer-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; min-height: 4px; }
+  .chip {
+    font-family: var(--font-display); font-size: 13px; font-weight: 500; background: var(--accent-soft); color: var(--ink);
+    border: 2px solid var(--line); border-radius: 999px; padding: 3px 6px 3px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; max-width: 200px;
   }
-  #colormap-row label, #zoom-row label {
-    font-size: 11px; color: var(--text-dim); letter-spacing: 0.05em;
-  }
-  #colormap-row select, #window-select {
-    font-size: 11px; font-family: var(--font-mono);
-    background: var(--drop-bg);
-    color: var(--text-hi);
-    border: 1.5px solid var(--border);
-    border-radius: 8px; padding: 5px 10px; cursor: pointer;
-    outline: none;
-  }
+  .chip.sel { background: var(--accent); box-shadow: 0 2px 0 var(--line); }
+  .chip span.t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chip .x { width: 18px; height: 18px; border-radius: 50%; background: var(--card); display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--line); }
+  .chip .x .ico { width: 10px; height: 10px; }
+  #layer-tools { padding: 10px 14px; border: 2px dashed var(--line); border-radius: 14px; margin-bottom: 14px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
 
-  #controls {
-    display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;
-  }
-  #play-btn {
-    width: 36px; height: 36px; border-radius: 50%;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 16px; color: var(--text-hi);
-    transition: background 0.15s, border-color 0.15s; flex-shrink: 0;
-    outline: none;
-  }
-  #play-btn:hover { background: var(--surface-solid); border-color: var(--border-hi); }
+  #eng-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+  #eng-status { font-size: 13px; color: var(--ink-soft); margin-top: 12px; min-height: 18px; }
+  #eng-progress { height: 10px; border-radius: 99px; border: 2px solid var(--line); margin-top: 10px; overflow: hidden; background: var(--accent-soft); }
+  #eng-progress i { display: block; height: 100%; width: 0; background: var(--accent-deep); transition: width .1s; }
 
-  #time-display {
-    font-size: 12px; color: var(--text-dim);
-    min-width: 100px; letter-spacing: 0.04em; flex-shrink: 0;
-    font-family: var(--font-mono);
-  }
-
-  input[type=range] {
-    flex: 1; accent-color: var(--border-hi); cursor: pointer; height: 4px;
-  }
-
-  #meta-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 0.5rem; }
-  .meta-chip {
-    font-size: 11px; color: var(--text-dim); letter-spacing: 0.05em;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 980px; padding: 4px 12px;
-    font-family: var(--font-mono);
-  }
-  .meta-chip span { color: var(--text-hi); font-weight: 500; }
-
-  #zoom-row {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; flex-wrap: wrap;
-  }
-  #zoom-slider { flex: 1; max-width: 160px; accent-color: var(--border-hi); height: 4px; cursor: pointer; }
-  #zoom-reset {
-    font-size: 10px; font-family: inherit; color: var(--text);
-    background: var(--surface); border: 1.5px solid var(--border);
-    border-radius: 980px; padding: 3px 12px; cursor: pointer; letter-spacing: 0.02em;
-    transition: background 0.15s, border-color 0.15s;
-  }
-  #zoom-reset:hover { background: var(--surface-solid); border-color: var(--border-hi); }
-  #zoom-label { font-size: 11px; color: var(--text-dim); min-width: 36px; font-family: var(--font-mono); }
-
-  #dl-row { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
-  .dl-btn {
-    font-size: 11px; font-family: inherit;
-    background: var(--surface);
-    color: var(--text-hi);
-    border: 1.5px solid var(--border);
-    border-radius: 980px; padding: 6px 16px; cursor: pointer;
-    letter-spacing: 0.02em; transition: background 0.15s, border-color 0.15s;
-  }
-  .dl-btn:hover { background: var(--surface-solid); border-color: var(--border-hi); }
-  .dl-btn.accent { border-color: var(--border-hi); }
-
-  .sr-only {
-    position: absolute; width: 1px; height: 1px;
-    padding: 0; margin: -1px; overflow: hidden;
-    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
-  }
+  #dl-row { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  #meta-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .meta-chip { font-size: 12px; background: var(--card); border: 2px solid var(--line); border-radius: 999px; padding: 3px 12px; color: var(--ink-soft); }
+  .meta-chip span { color: var(--ink); font-weight: 800; }
+  .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 </style>
 </head>
 <body>
+<div class="deco" aria-hidden="true">
+  <svg style="left:6%;top:14%;width:34px;animation-delay:-1s" viewBox="0 0 24 24"><path d="M12 1l2.6 8.4L23 12l-8.4 2.6L12 23l-2.6-8.4L1 12l8.4-2.6z"/></svg>
+  <svg style="right:8%;top:22%;width:22px;animation-delay:-3s" viewBox="0 0 24 24"><path d="M12 1l2.6 8.4L23 12l-8.4 2.6L12 23l-2.6-8.4L1 12l8.4-2.6z"/></svg>
+  <svg style="left:3%;top:62%;width:20px;animation-delay:-5s" viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.6 4.6 0 0 1 8-3 4.6 4.6 0 0 1 8 3c0 5.7-8 11-8 11z"/></svg>
+  <svg style="right:5%;top:68%;width:38px;animation-delay:-2s" viewBox="0 0 24 24"><path d="M12 1l2.6 8.4L23 12l-8.4 2.6L12 23l-2.6-8.4L1 12l8.4-2.6z"/></svg>
+  <svg style="left:48%;top:4%;width:16px;animation-delay:-4s" viewBox="0 0 24 24"><path d="M12 1l2.6 8.4L23 12l-8.4 2.6L12 23l-2.6-8.4L1 12l8.4-2.6z"/></svg>
+</div>
+
 <div id="app">
   <header>
-    <h1><i class="ti ti-waveform" aria-hidden="true"></i> spectrogram viewer</h1>
-    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">[ light ]</button>
+    <div class="logo" role="img" aria-label="spectogram viewer"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1291 379.76">
+  <g id="aVtQgf.tif">
+    <g>
+      <g>
+        <g>
+          <path d="M765.36,121.73c.19,7.48,2.59,12.87,10.55,14.25,9.4,1.62,19.04,1.73,28.39.13,11.12-1.9,13.38-11.57,13.37-21.51l-.02-25.83c-.28-.27-1.21-.28-1.61,0-2.58,12.13-11.66,21.41-23.81,24.36-11.12,2.7-22.62,2.49-33.61-.67-14.65-4.21-25.37-15.36-29.2-30.08-2.57-9.87-2.69-20-.37-29.94,3.33-14.29,13.19-25.25,26.89-30.37,20.93-7.82,57.35-5.08,62.1,23.06.09.56.59.62.83.65.54.07,1.06-.33,1.03-1.15l.03-24.18h29.44s-.04,91.08-.04,91.08c0,18.73-6.86,35.56-23.83,44.39-15.86,8.25-38.3,9.16-55.47,5.62-20.56-4.23-36.61-17.61-36.04-39.79h31.39ZM806.71,84.92c5.95-2.22,9.85-6.9,10.69-13.22.33-2.5.19-4.99.21-7.64.05-7.78-4.84-14.09-12.59-16.22-10.67-2.94-22.37-2.96-33.11-.17-6.53,1.7-10.98,6.49-12.06,12.88-1.75,10.35.19,21.39,11.44,25.04,9.56,3.11,25.88,2.88,35.42-.67Z"/>
+          <path d="M687.1,122.05c-18.12,7.99-43.42,7.65-61.26-1.31-23.29-11.71-31.94-36.61-26.69-61.26,4.44-20.86,20.85-34.88,41.35-39.31,11.64-2.52,23.45-2.47,35.08.07,20.59,4.51,36.95,19.1,41.06,40.11,5.03,25.74-4.84,50.81-29.53,61.7ZM671.62,98.04c6.59-1.71,11.21-6.17,13.13-12.43,2.54-8.26,2.51-17.16-.08-25.4-1.98-6.29-6.71-10.67-13.09-12.34-9.01-2.35-18.52-2.35-27.53,0-6.69,1.74-11.47,6.45-13.38,13.06-2.29,7.92-2.28,16.4.04,24.32,1.93,6.62,6.81,11.21,13.55,12.88,8.85,2.19,18.25,2.28,27.36-.08Z"/>
+        </g>
+        <g>
+          <g>
+            <path d="M343.05,86.69l31.62-.11c1.17,18.73-11.92,31.12-28.52,36.99s-38.98,5.54-55.5-.66c-25.27-9.47-33.2-34.26-29.98-59.35,2.43-18.98,14.98-34.22,32.83-40.96,16.71-6.31,39.45-5.67,55.73,1.92,21.88,10.2,29.11,32.09,25.77,54.89h-85.32c-.19,9.78,4.19,19.06,14.77,21.5,9.58,2.21,19.87,2.21,29.3-.32,6.34-1.71,10.15-7.04,9.3-13.89ZM345.27,62.78c.26-9.15-5.32-16.45-14.17-18.47-8.45-1.93-17.27-2.05-25.8-.16-9.54,2.11-14.59,8.87-15.42,18.6l55.38.03Z"/>
+            <g>
+              <path d="M157.98,98.68v62.65s-31.66.01-31.66.01l-.03-141.01,29.46.12.04,28.17c.3.53.71.53,1.02.54.43.02.95-.25,1.08-.89,2.88-13.64,10.68-23.91,24.53-27.7,10.71-2.93,21.9-3.04,32.72-.41,13.94,3.38,24.74,12.93,30.17,26.08,6.55,15.87,6.45,38.21-.14,54.06-9.76,23.45-33.13,30.5-56.72,26.3-14.68-2.61-25.65-13.45-28.79-28.05-.14-.66-.36-1.14-.86-1.16-.63-.02-.9.45-.83,1.29ZM203.15,97.15c7.32-1.9,12.3-7.12,13.96-14.17,1.51-6.4,1.49-12.94.15-19.37-1.51-7.23-6.6-12.66-13.87-14.54-9.87-2.54-20.47-2.47-30.21.34-14.34,4.13-16.27,17.39-14.86,30.22.95,8.64,6.57,15.19,15.06,17.41,9.62,2.51,19.88,2.69,29.77.12Z"/>
+              <path d="M102.65,116.76c-16.11,12.08-41.57,12.57-60.67,9.27S5.67,110.46,6.66,88.73l31.32.02c.16,2.81.16,5.4,1.46,7.9,3.52,8.09,29.26,6.06,36.27,4.83,3.18-.56,5.7-2.67,6.47-5.25.89-2.98.46-6.68-2.38-8.4s-6.37-2.4-9.81-2.82l-34.69-4.3c-6.36-.79-12.23-2.57-17.71-5.6-7.27-4.03-11.54-10.64-12.66-18.78-1.61-11.67,3.16-22.76,13.24-29.08,6.11-3.83,12.7-6.26,19.99-7.45,12.55-2.05,25.15-2.03,37.68.19,20.34,3.61,35.24,15.43,34.65,37.59l-31.51.02c.13-7.47-2.55-11.95-10.33-13.26-8.49-1.42-17.19-1.48-25.61.01-3.19.57-5.84,2.62-6.65,5.05-1.09,3.27-.81,6.87,2.04,8.85s6.2,2.62,9.61,3.07l32.63,4.29c6.58.86,12.69,2.59,18.55,5.35,8.61,4.05,13.62,11.74,14.38,21.16.79,9.84-2.95,18.64-10.95,24.64Z"/>
+            </g>
+          </g>
+          <path d="M432.26,97.63c11.08,2.93,36.08,3.39,38.24-12.21.37-2.02.3-3.91.45-6.05h31.26c1.61,24.19-14.76,40.51-37.14,46.11-15.21,3.81-34.48,2.97-48.97-3.52-13.95-6.25-24.14-17.88-27.98-32.77-2.82-10.93-2.77-22.13.16-33.04,5.17-19.23,20.92-32.06,40.1-36.06,12.49-2.61,25.26-2.39,37.63.71,21.97,5.5,37.9,22.29,36.19,45.76l-31.27-.1c-.14-2.2-.08-4.09-.5-6.1-2.46-15.61-27.75-15.23-39.15-11.78-6.22,1.88-10.58,6.48-12.25,12.64-2.04,7.52-2.04,15.31-.18,22.87,1.67,6.8,6.51,11.71,13.39,13.53Z"/>
+          <path d="M589.96,97.18l.05,28.43-30.41-.16c-6.9-.04-13.35-1.96-19.23-5.18-12.51-6.85-15.85-19.33-15.87-32.8l-.07-40.9-16.41-.12v-25.93s16.33-.21,16.33-.21l.26-20.3,31.44.02.04,20.35,33.9.1v26.03s-33.94.05-33.94.05l.14,40.21c.01,2.95,1.2,5.66,3.09,7.66,2.52,1.73,5.43,2.61,8.52,2.63l22.17.15Z"/>
+        </g>
+        <g>
+          <path d="M1223.33,48.17c-10.62,2.89-12.46,13.83-12.49,23.49l-.13,53.89-31.59.03v-55.94c-.21-9.04-2.06-18.7-11.9-21.42-7.92-2.19-16.39-2.19-24.31,0-10.86,2.99-12.39,14.7-12.38,24.44l-.03,52.94-31.63-.04V20.43s29.41.01,29.41.01l.09,30.64c-.07.57.24.93.45,1.05s1.03.22,1.1-.14c1.25-6.39,3.09-12.46,6.66-18.02,9.53-14.85,27.61-17.75,43.8-14.55,10.15,2.01,18.51,8.35,23.32,17.46,2.53,4.8,3.89,9.78,4.76,15.15.1.61.56.57.86.6.58.07.91-.21,1.06-.97,1.25-6.39,3.24-12.46,6.92-17.91,5-7.41,12.67-12.41,21.46-14.24,8.02-1.66,15.94-1.63,23.91.09,18.51,4,27.82,20.31,28.32,38.56v67.41s-31.61.02-31.61.02l-.04-56.44c-.24-9-2.26-18.38-12.04-21-7.83-2.1-16.15-2.13-23.97,0Z"/>
+          <path d="M972.84,100.35c-.51-18.89,15.98-26.35,31.84-28l47.17-4.92c.45-8.69-.28-17.76-9.85-20-8.26-1.94-17.09-2.01-25.31.04-5.21,1.3-8.82,5.03-9.6,10.22l-.57,5.34-31.4.03c-.69-22,15.26-37.32,35.51-42.25,20.4-4.97,50.07-3.97,64.02,14.65,5.08,6.78,8.16,14.97,8.2,23.7l.29,66.44h-29.39s-.11-23.43-.11-23.43c-.07-.5-.56-.64-.8-.62-.23.01-.86.06-1,.54-2.9,9.77-9.94,17.24-19.31,21.37-7.72,3.41-15.88,4.3-24.33,4.23-17.19-.15-34.82-7.44-35.36-27.34ZM1051.63,85.49l-40.14,4.77c-4.17.49-6.89,3.4-6.93,7.15s2.54,6.74,6.73,7.28c13.49,1.75,41.05,1.01,40.34-19.2Z"/>
+          <path d="M908.43,46.05c-8.82,2.24-11,10.63-10.92,18.61l-.03,60.93-31.64-.03V20.45s29.52-.12,29.52-.12l-.04,26.76c0,.6.25.93.46,1.06s1.11.23,1.19-.14c1.21-5.7,3-10.98,6.3-15.85,8.5-12.51,23.28-15.48,37.53-13.11,9.68,1.61,17.5,7.88,21.31,16.91,2.49,5.92,3.53,12.02,3.53,18.44v18.13s-31.48.03-31.48.03l-.06-10.47c-.04-6.96-1.48-14.03-9.16-16.02-5.32-1.38-10.93-1.42-16.5,0Z"/>
+        </g>
+      </g>
+      <g>
+        <path d="M456.27,320.4l12.14-47.98,32.26.05-29.73,105.11-39.46.04-18-50.72-7.58-27.89c-.29-.59-.64-.92-1.11-.97-.5-.05-1.34.1-1.56.89l-7.84,28.16-18.11,50.5h-39.51s-28.74-105.13-28.74-105.13l32.72-.02,12.28,48.09,4.17,31.17c.11.83.4,1.42,1.12,1.49.65.07,1.22-.15,1.5-1.04l8.07-34.87,15.91-44.85h40.57s15.9,44.85,15.9,44.85l8.2,35.29c.13.84,2.18.87,2.3.06l4.51-32.21Z"/>
+        <path d="M271.18,338.67l31.7-.07c1.04,19.1-12.36,31.37-29.05,37.13-16.5,5.69-39.05,5.33-55.5-1.02-14.01-5.4-24.21-16.71-27.95-31.3-2.39-9.32-2.83-18.63-1.52-28.19,2.25-16.34,11.93-30.11,26.49-37.77,17.31-9.1,41.19-9.22,59.14-2.21,23.83,9.68,32.14,31.55,28.69,56.14l-85.46.02c.27,10.1,3.9,18.61,14.81,21.53,9.63,2.14,19.75,2.07,29.27-.24,6.29-2,10.31-6.9,9.37-14.03ZM273.61,314.72c-.25-5.03-1.52-8.72-3.99-12.13-6.8-9.09-26.11-8.6-35.87-6.5-9.73,2.09-14.66,8.59-15.78,18.67l55.64-.04Z"/>
+        <g>
+          <path d="M588.82,338.63l31.56-.04c1.36,18.76-12.14,31.38-29.02,37.18s-38.76,5.3-55.13-.92c-25.07-9.51-33.03-34.23-29.84-59.11,2.32-18.13,13.76-33,30.56-40.19s42.15-6.96,59.23,1.56c21.15,10.56,27.89,32.23,24.55,54.3l-85.32.02c.07,10.47,4.21,18.67,14.65,21.53,9.59,2.03,19.79,2.22,29.28-.3,6.53-1.74,10.36-7.2,9.48-14.02ZM591.18,314.71c-.2-5.64-1.92-9.97-5.18-13.54-7.39-7.44-24.95-7.11-34.36-5.16-10.13,2.1-15.21,9.03-15.97,18.78l55.51-.08Z"/>
+          <path d="M677.29,298.12c-7.47,2.03-10.67,9.32-10.67,16.24l-.05,63.25-31.6-.02.03-105.17,29.4.05.05,27.1c.16.56.55.68.88.69.58.02.83-.48.97-1.16,2.78-13.48,10.75-24.38,24.59-27.59,6.7-1.56,13.39-1.6,20.16-.23,16.43,3.33,23.67,18.8,23.68,34.3v18.97s-31.52,0-31.52,0c-.55-9.17,2.62-23.88-9.62-26.62-5.38-1.21-10.93-1.26-16.28.2Z"/>
+        </g>
+        <g>
+          <path d="M100.38,272.47l34.6-.11-48.17,105.22h-39S0,272.5,0,272.5l35.1-.12,30.93,73.02c.26.9.75,1.31,1.29,1.4.6.1,1.45.12,1.84-.79l31.22-73.53Z"/>
+          <g>
+            <rect x="106.32" y="309.2" width="105.19" height="31.62" transform="translate(-166.1 483.91) rotate(-90)"/>
+            <rect x="143.11" y="236.83" width="31.62" height="24.78"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg></div>
+    <div class="head-tools">
+      <div id="accent-dots" role="group" aria-label="accent color"></div>
+      <button class="btn icon-btn" id="theme-btn" aria-label="toggle light and dark mode"></button>
+    </div>
   </header>
 
-  <h2 class="sr-only">Drop an audio file to view its spectrogram and frequency content over time.</h2>
+  <h2 class="sr-only">Drop an audio file to view its spectrogram, and engrave text or images into it.</h2>
 
   <div id="drop-zone">
-    <input type="file" id="file-input" accept=".mp3,.wav,.flac,.aif,.aiff,.ogg" aria-label="Select audio file">
-    <div class="drop-icon"><i class="ti ti-music" aria-hidden="true"></i></div>
-    <div class="drop-title">drop an audio file here</div>
-    <div class="drop-sub">mp3 &middot; wav &middot; flac &middot; aif &middot; ogg</div>
+    <input type="file" id="file-input" accept=".mp3,.wav,.flac,.aif,.aiff,.ogg,.m4a" aria-label="Select audio file">
+    <div class="drop-art" data-ico="music" data-big="1"></div>
+    <div class="drop-title">drop a song here</div>
+    <div class="drop-sub">mp3 · wav · flac · aif · ogg — or click to pick one</div>
+    <div class="blank-row">
+      <span>no song? start from silence:</span>
+      <select id="blank-len" aria-label="blank canvas length">
+        <option value="5">5 sec</option><option value="10" selected>10 sec</option>
+        <option value="20">20 sec</option><option value="30">30 sec</option><option value="60">60 sec</option>
+      </select>
+      <button class="btn small" id="blank-btn">blank canvas</button>
+    </div>
   </div>
 
   <div id="viewer">
     <div id="filename-bar">
       <div id="fname"></div>
-      <button id="reset-btn"><i class="ti ti-x" aria-hidden="true" style="font-size:11px;margin-right:4px;"></i>new file</button>
+      <button class="btn small" id="reset-btn"><span class="ico" data-ico="x"></span>new file</button>
     </div>
 
-    <div id="colormap-row">
-      <label for="colormap-select">colormap</label>
-      <select id="colormap-select">
-        <option value="magma">magma</option>
-        <option value="viridis">viridis</option>
-        <option value="inferno">inferno</option>
-        <option value="thermal">thermal</option>
-        <option value="plasma">plasma</option>
-        <option value="neon">neon</option>
-        <option value="ocean">ocean</option>
-        <option value="ember">ember</option>
-        <option value="arctic">arctic</option>
-        <option value="acid">acid</option>
-        <option value="rose">rose</option>
-        <option value="gray">gray</option>
-        <option value="invert">invert</option>
-      </select>
-      <label for="window-select" style="margin-left:6px;">window</label>
-      <select id="window-select">
-        <option value="hann">hann</option>
-        <option value="hamming">hamming</option>
-        <option value="blackman">blackman</option>
-        <option value="rect">rectangular</option>
-      </select>
-    </div>
-
-    <div id="zoom-row">
-      <label for="zoom-slider">zoom</label>
-      <input type="range" id="zoom-slider" min="1" max="10" step="0.1" value="1">
-      <span id="zoom-label">1×</span>
-      <button id="zoom-reset">reset</button>
-    </div>
-
-    <div id="waveform-wrap">
-      <canvas id="waveform-canvas"></canvas>
-    </div>
+    <div id="waveform-wrap"><canvas id="waveform-canvas"></canvas></div>
 
     <div id="spec-wrap">
       <div id="spec-inner">
         <canvas id="spec-canvas"></canvas>
+        <canvas id="overlay"></canvas>
         <div id="playhead"></div>
         <div id="freq-labels">
-          <span class="freq-lbl" id="fl0"></span>
-          <span class="freq-lbl" id="fl1"></span>
-          <span class="freq-lbl" id="fl2"></span>
-          <span class="freq-lbl" id="fl3"></span>
-          <span class="freq-lbl" id="fl4"></span>
+          <span class="freq-lbl" id="fl0"></span><span class="freq-lbl" id="fl1"></span><span class="freq-lbl" id="fl2"></span><span class="freq-lbl" id="fl3"></span><span class="freq-lbl" id="fl4"></span>
         </div>
       </div>
     </div>
@@ -335,127 +269,194 @@
     <div id="legend-bar"></div>
     <div id="legend-labels"><span>quiet</span><span>loud</span></div>
 
-    <div id="dl-row">
-      <button class="dl-btn accent" id="dl-spec-btn">↓ spectrogram PNG</button>
-      <button class="dl-btn" id="dl-wave-btn">↓ waveform PNG</button>
-    </div>
-
     <div id="controls">
-      <button id="play-btn" aria-label="Play">
-        <i class="ti ti-player-play" id="play-icon" aria-hidden="true"></i>
-      </button>
+      <button class="btn primary" id="play-btn" aria-label="Play"></button>
       <span id="time-display">0:00 / 0:00</span>
       <input type="range" id="seek-slider" min="0" max="1000" value="0" step="1" aria-label="Seek">
     </div>
 
+    <div class="card">
+      <h3><span class="ico" data-ico="palette"></span>make it your colors</h3>
+      <p class="hint">pick a preset, or paint your own with the three dots (quiet → middle → loud).</p>
+      <div class="row">
+        <label for="colormap-select">colormap</label>
+        <select id="colormap-select">
+          <option value="bubblegum">bubblegum</option><option value="mint">mint</option><option value="lavender">lavender</option>
+          <option value="magma">magma</option><option value="viridis">viridis</option><option value="inferno">inferno</option>
+          <option value="thermal">thermal</option><option value="plasma">plasma</option><option value="neon">neon</option>
+          <option value="ocean">ocean</option><option value="ember">ember</option><option value="arctic">arctic</option>
+          <option value="acid">acid</option><option value="rose">rose</option><option value="gray">gray</option>
+          <option value="invert">invert</option><option value="custom">custom ✦</option>
+        </select>
+        <div class="picker"><input type="color" id="c0" aria-label="quiet color"><input type="color" id="c1" aria-label="middle color"><input type="color" id="c2" aria-label="loud color"></div>
+        <label for="window-select" style="margin-left:8px">window</label>
+        <select id="window-select"><option value="hann">hann</option><option value="hamming">hamming</option><option value="blackman">blackman</option><option value="rect">rectangular</option></select>
+      </div>
+      <div class="row">
+        <label for="range-slider">dynamic range</label>
+        <div class="range-row"><input type="range" id="range-slider" min="30" max="140" step="1" value="90"><output id="range-label">90 dB</output></div>
+        <label for="zoom-slider">zoom</label>
+        <div class="range-row" style="min-width:160px"><input type="range" id="zoom-slider" min="1" max="10" step="0.1" value="1"><output id="zoom-label">1×</output></div>
+        <button class="btn small" id="zoom-reset">reset</button>
+      </div>
+    </div>
+
+    <div class="card" id="engrave-card">
+      <h3><span class="ico" data-ico="sparkle"></span>engrave</h3>
+      <p class="hint">add text or a picture, drag it onto the spectogram above (pull a corner to resize), then hit engrave. you get a wav with it hidden in the sound — open it in any spectrogram viewer to see it. to <b>remove</b> something instead, drop an <b>erase box</b> over it (or tick erase mode on a text/picture to erase in that shape) and engrave.</p>
+      <div class="row">
+        <input type="text" id="txt-input" placeholder="type something cute…" maxlength="60" aria-label="text to engrave">
+        <select id="font-select" aria-label="font">
+          <option value="fredoka">bubbly</option><option value="sans">bold sans</option><option value="serif">serif</option><option value="mono">mono</option><option value="script">script</option>
+        </select>
+        <button class="btn small" id="add-text"><span class="ico" data-ico="type"></span>add text</button>
+        <label class="btn small" for="img-input" style="cursor:pointer"><span class="ico" data-ico="image"></span>add picture</label>
+        <input type="file" id="img-input" accept="image/*" class="sr-only">
+        <button class="btn small" id="add-box"><span class="ico" data-ico="eraser"></span>erase box</button>
+      </div>
+      <div id="layer-chips"></div>
+      <div id="engraved-wrap" hidden>
+        <div class="lbl" style="margin-bottom:6px">already engraved in this audio — hit ✕ to erase that one again:</div>
+        <div id="engraved-chips" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
+      </div>
+      <div id="layer-tools" hidden>
+        <label class="check" id="inv-wrap"><input type="checkbox" id="inv-chk">invert (dark = loud)</label>
+        <label class="check" id="erase-wrap"><input type="checkbox" id="erase-chk">erase mode (remove instead of add)</label>
+        <label class="check"><input type="checkbox" id="lock-chk" checked>lock shape</label>
+        <button class="btn small" id="del-layer"><span class="ico" data-ico="trash"></span>remove</button>
+      </div>
+      <div class="row">
+        <label for="loud-slider">engraving loudness</label>
+        <div class="range-row"><input type="range" id="loud-slider" min="5" max="100" value="70"><output id="loud-label">70%</output></div>
+      </div>
+      <div class="row">
+        <label for="carve-slider">carve song underneath</label>
+        <div class="range-row"><input type="range" id="carve-slider" min="0" max="100" value="85"><output id="carve-label">85%</output></div>
+      </div>
+      <div id="eng-actions">
+        <button class="btn primary big" id="engrave-btn"><span class="ico" data-ico="sparkle"></span>engrave!</button>
+        <button class="btn" id="dl-wav-btn" hidden><span class="ico" data-ico="download"></span>download wav</button>
+        <button class="btn small" id="revert-btn" hidden><span class="ico" data-ico="undo"></span>undo engravings</button>
+      </div>
+      <div id="eng-progress" hidden><i></i></div>
+      <div id="eng-status" aria-live="polite">tip: pictures look best between about 1 kHz and 18 kHz (the middle of the spectogram).</div>
+    </div>
+
+    <div id="dl-row">
+      <button class="btn small" id="dl-spec-btn"><span class="ico" data-ico="download"></span>spectogram png</button>
+      <button class="btn small" id="dl-wave-btn"><span class="ico" data-ico="download"></span>waveform png</button>
+    </div>
     <div id="meta-row"></div>
   </div>
 </div>
 
 <script>
-// ── THEME SYSTEM (matches AOS Cover Ripper) ─────────────────────────────────
-const ACCENTS = [
-  { hex: '#7c3aed', rgb: '124,58,237'  },
-  { hex: '#db2777', rgb: '219,39,119'  },
-  { hex: '#0891b2', rgb: '8,145,178'   },
-  { hex: '#16a34a', rgb: '22,163,74'   },
-  { hex: '#ea580c', rgb: '234,88,12'   },
-  { hex: '#dc2626', rgb: '220,38,38'   },
-  { hex: '#2563eb', rgb: '37,99,235'   },
-  { hex: '#9333ea', rgb: '147,51,234'  },
-  { hex: '#0d9488', rgb: '13,148,136'  },
-  { hex: '#ca8a04', rgb: '202,138,4'   },
-  { hex: '#be185d', rgb: '190,24,93'   },
-  { hex: '#4f46e5', rgb: '79,70,229'   },
-];
-
-function luminance(hex) {
-  const r=parseInt(hex.slice(1,3),16)/255, g=parseInt(hex.slice(3,5),16)/255, b=parseInt(hex.slice(5,7),16)/255;
-  const toL=c=>c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4);
-  return 0.2126*toL(r)+0.7152*toL(g)+0.0722*toL(b);
+// ─── icons (inline so nothing external is needed) ──────────────────────────
+const ICONS = {
+  play:    '<polygon points="7 4 20 12 7 20 7 4" fill="currentColor"/>',
+  pause:   '<rect x="6" y="4" width="4.5" height="16" rx="1.2" fill="currentColor"/><rect x="13.5" y="4" width="4.5" height="16" rx="1.2" fill="currentColor"/>',
+  x:       '<path d="M18 6 6 18M6 6l12 12"/>',
+  download:'<path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M4 21h16"/>',
+  sparkle: '<path d="M12 2.5l2.3 6.2 6.2 2.3-6.2 2.3L12 19.5l-2.3-6.2L3.5 11l6.2-2.3z" fill="currentColor"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z" fill="currentColor"/>',
+  type:    '<path d="M5 7V4.5h14V7M9.5 20h5M12 4.5V20"/>',
+  image:   '<rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="1.7"/><path d="m21 15-5-5L5 21"/>',
+  trash:   '<path d="M3.5 6h17M9 6V4h6v2M6 6l1 14h10l1-14"/>',
+  undo:    '<path d="M3 7v6h6"/><path d="M3.5 13A9 9 0 1 0 6 6.5"/>',
+  sun:     '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>',
+  moon:    '<path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5a6.8 6.8 0 0 0 10 10z"/>',
+  music:   '<path d="M9 18V5.5l11-2V16"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+  eraser:  '<path d="M20 20H9l-5.5-5.5a2 2 0 0 1 0-2.8l8-8a2 2 0 0 1 2.8 0l6 6a2 2 0 0 1 0 2.8L12 20"/><path d="M7 11l6 6"/>',
+  palette: '<path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-.9 2-1.8 0-1.2-.9-1.5-.9-2.6 0-1 .8-1.6 1.9-1.6H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.1" fill="currentColor"/><circle cx="10" cy="7.2" r="1.1" fill="currentColor"/><circle cx="14.5" cy="7.2" r="1.1" fill="currentColor"/>',
+};
+function ico(name) {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
 }
-function darken(hex,amt){
-  let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  r=Math.max(0,Math.round(r*(1-amt)));g=Math.max(0,Math.round(g*(1-amt)));b=Math.max(0,Math.round(b*(1-amt)));
-  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
-}
-function lighten(hex,amt){
-  let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  r=Math.min(255,Math.round(r+(255-r)*amt));g=Math.min(255,Math.round(g+(255-g)*amt));b=Math.min(255,Math.round(b+(255-b)*amt));
-  return{hex:`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`,rgb:`${r},${g},${b}`};
-}
+document.querySelectorAll('[data-ico]').forEach(el => {
+  el.innerHTML = ico(el.dataset.ico);
+});
 
-let currentAccent = null;
-let isDarkMode = true;
+// ─── theme: pick a cute hue + light/dark ───────────────────────────────────
+const HUES = [340, 268, 160, 22, 200, 48];
+let hue = HUES[Math.floor(Math.random() * HUES.length)];
+let dark = false;
 
-function applyAccent(a, dark) {
-  currentAccent = a;
-  const root = document.documentElement;
-  const lum = luminance(a.hex);
-  const isPastel = lum > 0.40;
-
-  if (dark) {
-    const darkBg    = darken(a.hex, isPastel ? 0.84 : 0.74);
-    const borderCol = darken(a.hex, isPastel ? 0.60 : 0.48);
-    const borderHi  = darken(a.hex, isPastel ? 0.42 : 0.28);
-    const accentHex = isPastel ? darken(a.hex, 0.18) : a.hex;
-    const ar=parseInt(accentHex.slice(1,3),16), ag=parseInt(accentHex.slice(3,5),16), ab=parseInt(accentHex.slice(5,7),16);
-    const accentRgb=`${ar},${ag},${ab}`;
-    const ddr=Math.min(255,parseInt(darkBg.slice(1,3),16)+22);
-    const ddg=Math.min(255,parseInt(darkBg.slice(3,5),16)+22);
-    const ddb=Math.min(255,parseInt(darkBg.slice(5,7),16)+22);
-
-    root.style.setProperty('--accent',        accentHex);
-    root.style.setProperty('--purple',        accentHex);
-    root.style.setProperty('--surface',       `rgba(${accentRgb},0.10)`);
-    root.style.setProperty('--surface-solid', `rgba(${accentRgb},0.18)`);
-    root.style.setProperty('--card-bg',       `rgba(${accentRgb},0.08)`);
-    root.style.setProperty('--drop-bg',       `rgb(${ddr},${ddg},${ddb})`);
-    root.style.setProperty('--modal-bg',      'rgba(0,0,0,0.80)');
-    root.style.setProperty('--separator',     `rgba(${accentRgb},0.14)`);
-    root.style.setProperty('--text',          `rgba(${accentRgb},0.80)`);
-    root.style.setProperty('--text-dim',      `rgba(${accentRgb},0.40)`);
-    root.style.setProperty('--text-hi',       accentHex);
-    root.style.setProperty('--border',        borderCol);
-    root.style.setProperty('--border-hi',     borderHi);
-    document.body.style.background = darkBg;
+function applyTheme() {
+  const s = document.documentElement.style, h = hue;
+  const set = (k, v) => s.setProperty(k, v);
+  if (!dark) {
+    set('--bg', `hsl(${h} 100% 96%)`);  set('--bg2', `hsl(${h + 25} 100% 93%)`);
+    set('--card', '#ffffff');           set('--ink', `hsl(${h} 38% 22%)`);
+    set('--ink-soft', `hsl(${h} 22% 46%)`); set('--line', `hsl(${h} 38% 22%)`);
+    set('--accent', `hsl(${h} 100% 78%)`);  set('--accent-deep', `hsl(${h} 72% 52%)`);
+    set('--accent-soft', `hsl(${h} 100% 91%)`);
   } else {
-    const pastel     = isPastel ? a : lighten(a.hex, 0.72);
-    const pastelDeep = isPastel ? lighten(a.hex, 0.10) : lighten(a.hex, 0.48);
-    const ink='45,30,60', inkHex='#2d1e3c';
-    root.style.setProperty('--accent',        pastel.hex);
-    root.style.setProperty('--purple',        pastelDeep.hex);
-    root.style.setProperty('--surface',       `rgba(${pastel.rgb},0.55)`);
-    root.style.setProperty('--surface-solid', `rgba(${pastel.rgb},0.82)`);
-    root.style.setProperty('--card-bg',       `rgba(${pastel.rgb},0.45)`);
-    root.style.setProperty('--drop-bg',       `rgb(${pastel.rgb})`);
-    root.style.setProperty('--modal-bg',      `rgba(${pastel.rgb},0.94)`);
-    root.style.setProperty('--separator',     `rgba(${ink},0.07)`);
-    root.style.setProperty('--text',          `rgba(${ink},0.68)`);
-    root.style.setProperty('--text-dim',      `rgba(${ink},0.35)`);
-    root.style.setProperty('--text-hi',       inkHex);
-    root.style.setProperty('--border',        pastelDeep.hex);
-    root.style.setProperty('--border-hi',     darken(pastelDeep.hex, 0.12));
-    document.body.style.background = `rgb(${pastel.rgb})`;
+    set('--bg', `hsl(${h} 28% 11%)`);   set('--bg2', `hsl(${h + 25} 30% 15%)`);
+    set('--card', `hsl(${h} 24% 18%)`); set('--ink', `hsl(${h} 100% 94%)`);
+    set('--ink-soft', `hsl(${h} 30% 72%)`); set('--line', `hsl(${h} 70% 80%)`);
+    set('--accent', `hsl(${h} 85% 66%)`);   set('--accent-deep', `hsl(${h} 95% 74%)`);
+    set('--accent-soft', `hsl(${h} 28% 26%)`);
   }
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  document.getElementById('theme-btn').innerHTML = `<span class="ico">${ico(dark ? 'sun' : 'moon')}</span>`;
+  document.querySelectorAll('.dot').forEach(d => d.classList.toggle('on', +d.dataset.h === h));
+  if (window._spectroRedrawAccent) window._spectroRedrawAccent();
 }
+const dotsEl = document.getElementById('accent-dots');
+HUES.forEach(h => {
+  const d = document.createElement('button');
+  d.className = 'dot'; d.dataset.h = h; d.setAttribute('aria-label', 'accent hue ' + h);
+  d.style.background = `hsl(${h} 100% 78%)`;
+  d.onclick = () => { hue = h; applyTheme(); };
+  dotsEl.appendChild(d);
+});
+document.getElementById('theme-btn').onclick = () => { dark = !dark; applyTheme(); };
+applyTheme();
 
-function toggleTheme() {
-  isDarkMode = !isDarkMode;
-  document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
-  document.getElementById('theme-btn').textContent = isDarkMode ? '[ light ]' : '[ dark ]';
-  applyAccent(currentAccent, isDarkMode);
-  // Redraw waveform so accent line color updates
-  setTimeout(() => {
-    if (window._spectroAudioBuffer) drawWaveform(window._spectroAudioBuffer);
-  }, 30);
-}
-
-// randomise accent on load, start dark
-applyAccent(ACCENTS[Math.floor(Math.random()*ACCENTS.length)], true);
-
+// ─── app ───────────────────────────────────────────────────────────────────
 (function () {
+  const N = 2048, HOP = 512, NB = N / 2;
+  const DYN = 45;                 // dB between darkest and brightest engraved pixel
+  const HALF_PI = Math.PI / 2;
+
+  // fast iterative FFT (in place) -------------------------------------------
+  const REV = new Uint16Array(N), COS = new Float32Array(N / 2), SIN = new Float32Array(N / 2);
+  for (let i = 0; i < N; i++) { let r = 0, x = i; for (let b = 0; b < 11; b++) { r = (r << 1) | (x & 1); x >>= 1; } REV[i] = r; }
+  for (let i = 0; i < N / 2; i++) { COS[i] = Math.cos(2 * Math.PI * i / N); SIN[i] = Math.sin(2 * Math.PI * i / N); }
+  function fftIP(re, im, inv) {
+    for (let i = 0; i < N; i++) { const j = REV[i]; if (j > i) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+    for (let size = 2; size <= N; size <<= 1) {
+      const half = size >> 1, step = N / size;
+      for (let i = 0; i < N; i += size) {
+        for (let j = 0, k = 0; j < half; j++, k += step) {
+          const wr = COS[k], wi = inv ? SIN[k] : -SIN[k];
+          const a = i + j, b = a + half;
+          const tr = wr * re[b] - wi * im[b], ti = wr * im[b] + wi * re[b];
+          re[b] = re[a] - tr; im[b] = im[a] - ti; re[a] += tr; im[a] += ti;
+        }
+      }
+    }
+    if (inv) for (let i = 0; i < N; i++) { re[i] /= N; im[i] /= N; }
+  }
+
+  const WIN = {};
+  function getWin(type) {
+    if (WIN[type]) return WIN[type];
+    const w = new Float32Array(N);
+    for (let i = 0; i < N; i++) {
+      const c = Math.cos(2 * Math.PI * i / (N - 1));
+      w[i] = type === 'hann' ? 0.5 * (1 - c) : type === 'hamming' ? 0.54 - 0.46 * c :
+             type === 'blackman' ? 0.42 - 0.5 * c + 0.08 * Math.cos(4 * Math.PI * i / (N - 1)) : 1;
+    }
+    return (WIN[type] = w);
+  }
+  const SYN = new Float32Array(N);            // periodic hann for overlap-add
+  for (let i = 0; i < N; i++) SYN[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / N));
+
+  // colormaps ---------------------------------------------------------------
   const COLORMAPS = {
+    bubblegum:[[38,8,56],[150,50,170],[255,110,190],[255,190,225],[255,245,250]],
+    mint:     [[4,28,34],[16,110,110],[70,200,170],[170,245,205],[245,255,248]],
+    lavender: [[18,10,48],[80,50,160],[160,120,235],[215,190,255],[250,245,255]],
     magma:   [[0,0,0],[80,18,123],[182,54,121],[251,136,97],[252,253,191]],
     viridis: [[68,1,84],[59,82,139],[33,145,140],[94,201,98],[253,231,37]],
     inferno: [[0,0,4],[87,16,110],[188,55,84],[249,142,9],[252,255,164]],
@@ -469,381 +470,635 @@ applyAccent(ACCENTS[Math.floor(Math.random()*ACCENTS.length)], true);
     rose:    [[10,0,10],[100,0,60],[220,30,100],[255,130,160],[255,230,230]],
     gray:    [[0,0,0],[64,64,64],[128,128,128],[192,192,192],[255,255,255]],
     invert:  [[255,255,255],[192,192,192],[128,128,128],[64,64,64],[0,0,0]],
+    custom:  [[20,10,40],[230,70,160],[255,240,200]],
   };
-
   function lerpColor(map, t) {
     const n = map.length - 1;
-    const i = Math.min(Math.floor(t * n), n - 1);
-    const f = t * n - i;
+    const i = Math.min(Math.floor(t * n), n - 1), f = t * n - i;
     const a = map[i], b = map[i + 1];
-    return [a[0]+(b[0]-a[0])*f, a[1]+(b[1]-a[1])*f, a[2]+(b[2]-a[2])*f];
+    return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f];
   }
-
-  function applyWindow(buf, type) {
-    const N = buf.length;
-    for (let i = 0; i < N; i++) {
-      let w = 1;
-      if (type === 'hann')    w = 0.5 * (1 - Math.cos(2*Math.PI*i/(N-1)));
-      else if (type === 'hamming') w = 0.54 - 0.46*Math.cos(2*Math.PI*i/(N-1));
-      else if (type === 'blackman') w = 0.42 - 0.5*Math.cos(2*Math.PI*i/(N-1)) + 0.08*Math.cos(4*Math.PI*i/(N-1));
-      buf[i] *= w;
-    }
-    return buf;
+  function makeLUT(map) {
+    const lut = new Uint8ClampedArray(256 * 3);
+    for (let i = 0; i < 256; i++) { const c = lerpColor(map, i / 255); lut[i*3] = c[0]; lut[i*3+1] = c[1]; lut[i*3+2] = c[2]; }
+    return lut;
   }
+  const hex2rgb = h => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+  const rgb2hex = c => '#' + c.map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
 
-  function fft(re, im) {
-    const N = re.length;
-    if (N <= 1) return;
-    const half = N >> 1;
-    const re_e = new Float32Array(half), im_e = new Float32Array(half);
-    const re_o = new Float32Array(half), im_o = new Float32Array(half);
-    for (let i = 0; i < half; i++) {
-      re_e[i] = re[2*i]; im_e[i] = im[2*i];
-      re_o[i] = re[2*i+1]; im_o[i] = im[2*i+1];
-    }
-    fft(re_e, im_e); fft(re_o, im_o);
-    for (let k = 0; k < half; k++) {
-      const angle = -2*Math.PI*k/N;
-      const c = Math.cos(angle), s = Math.sin(angle);
-      const tr = c*re_o[k] - s*im_o[k];
-      const ti = s*re_o[k] + c*im_o[k];
-      re[k] = re_e[k]+tr; im[k] = im_e[k]+ti;
-      re[k+half] = re_e[k]-tr; im[k+half] = im_e[k]-ti;
-    }
-  }
+  // elements ----------------------------------------------------------------
+  const $ = id => document.getElementById(id);
+  const dropZone = $('drop-zone'), fileInput = $('file-input'), viewer = $('viewer');
+  const waveCanvas = $('waveform-canvas'), specCanvas = $('spec-canvas'), overlay = $('overlay');
+  const waveCtx = waveCanvas.getContext('2d'), specCtx = specCanvas.getContext('2d'), ovCtx = overlay.getContext('2d');
+  const playBtn = $('play-btn'), seekSlider = $('seek-slider'), timeDisplay = $('time-display'), playhead = $('playhead');
+  const metaRow = $('meta-row'), colormapSel = $('colormap-select'), windowSel = $('window-select');
+  const zoomSlider = $('zoom-slider'), zoomLabel = $('zoom-label');
+  const rangeSlider = $('range-slider'), rangeLabel = $('range-label');
+  const specWrap = $('spec-wrap'), specInner = $('spec-inner');
+  const pick = [$('c0'), $('c1'), $('c2')];
 
-  const dropZone   = document.getElementById('drop-zone');
-  const fileInput  = document.getElementById('file-input');
-  const viewer     = document.getElementById('viewer');
-  const waveCanvas = document.getElementById('waveform-canvas');
-  const specCanvas = document.getElementById('spec-canvas');
-  const waveCtx    = waveCanvas.getContext('2d');
-  const specCtx    = specCanvas.getContext('2d');
-  const playBtn    = document.getElementById('play-btn');
-  const playIcon   = document.getElementById('play-icon');
-  const seekSlider = document.getElementById('seek-slider');
-  const timeDisplay= document.getElementById('time-display');
-  const playhead   = document.getElementById('playhead');
-  const metaRow    = document.getElementById('meta-row');
-  const colormapSel= document.getElementById('colormap-select');
-  const windowSel  = document.getElementById('window-select');
-  const resetBtn   = document.getElementById('reset-btn');
-  const zoomSlider = document.getElementById('zoom-slider');
-  const zoomLabel  = document.getElementById('zoom-label');
-  const zoomReset  = document.getElementById('zoom-reset');
-  const specWrap   = document.getElementById('spec-wrap');
-  const specInner  = document.getElementById('spec-inner');
-  const dlSpecBtn  = document.getElementById('dl-spec-btn');
-  const dlWaveBtn  = document.getElementById('dl-wave-btn');
+  let audioCtx = null, audioBuffer = null, originalBuffer = null, source = null;
+  let isPlaying = false, startTime = 0, pauseOffset = 0, animFrame = null;
+  let spectrogramData = null, currentZoom = 1, currentFileName = 'spectogram', currentMeta = null;
+  let lastWavBlob = null, busy = false;
 
-  let audioCtx = null, audioBuffer = null, source = null;
-  let isPlaying = false, startTime = 0, pauseOffset = 0;
-  let animFrame = null, spectrogramData = null;
-  let currentZoom = 1;
-  let currentFileName = 'spectrogram';
+  playBtn.innerHTML = `<span class="ico">${ico('play')}</span>`;
+  const setPlayIcon = p => { playBtn.innerHTML = `<span class="ico">${ico(p ? 'pause' : 'play')}</span>`; };
+  const getCtx = () => audioCtx || (audioCtx = new (window.AudioContext || window.webkitAudioContext)());
 
+  // ── loading ────────────────────────────────────────────────────────────────
   dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
   dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
   fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
-  resetBtn.addEventListener('click', resetViewer);
-  playBtn.addEventListener('click', togglePlay);
-  seekSlider.addEventListener('input', onSeek);
-  colormapSel.addEventListener('change', () => { if (spectrogramData) drawSpectrogram(spectrogramData, colormapSel.value); });
-  windowSel.addEventListener('change', () => { if (audioBuffer) computeAndDraw(); });
+  $('reset-btn').addEventListener('click', resetViewer);
+  $('blank-btn').addEventListener('click', () => {
+    const ctx = getCtx(), secs = +$('blank-len').value;
+    const buf = ctx.createBuffer(2, Math.round(ctx.sampleRate * secs), ctx.sampleRate);
+    loadBuffer(buf, 'blank canvas', 'blank', 0);
+  });
 
-  // ── zoom ───────────────────────────────────────────────────────────────────
-  function applyZoom(z) {
-    currentZoom = z;
-    zoomLabel.textContent = z.toFixed(1) + '×';
-    zoomSlider.value = z;
-    if (spectrogramData) {
-      const baseW = specWrap.clientWidth;
-      specInner.style.width = Math.round(baseW * z) + 'px';
-      specCanvas.style.width = Math.round(baseW * z) + 'px';
-    }
+  async function handleFile(file) {
+    const ctx = getCtx();
+    if (ctx.state === 'suspended') await ctx.resume();
+    try {
+      const buf = await ctx.decodeAudioData(await file.arrayBuffer());
+      loadBuffer(buf, file.name, file.name.split('.').pop().toUpperCase(), file.size);
+    } catch (e) { alert("hmm, couldn't read that file. try a wav or mp3?"); }
   }
 
-  zoomSlider.addEventListener('input', () => applyZoom(parseFloat(zoomSlider.value)));
-  zoomReset.addEventListener('click', () => applyZoom(1));
-
-  // Pinch-to-zoom on touch
-  let lastPinchDist = null;
-  specWrap.addEventListener('touchstart', e => {
-    if (e.touches.length === 2) {
-      lastPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-    }
-  }, { passive: true });
-  specWrap.addEventListener('touchmove', e => {
-    if (e.touches.length === 2 && lastPinchDist) {
-      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-      const newZ = Math.min(10, Math.max(1, currentZoom * (dist / lastPinchDist)));
-      applyZoom(newZ);
-      lastPinchDist = dist;
-    }
-  }, { passive: true });
-  specWrap.addEventListener('touchend', () => { lastPinchDist = null; });
-
-  // Ctrl+Scroll or trackpad pinch zoom
-  specWrap.addEventListener('wheel', e => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const delta = e.deltaY > 0 ? 0.9 : 1.1;
-      applyZoom(Math.min(10, Math.max(1, currentZoom * delta)));
-    }
-  }, { passive: false });
-
-  // Drag to scroll inside spec-wrap
-  let isDragging = false, dragStartX = 0, scrollStartX = 0;
-  specWrap.addEventListener('mousedown', e => { isDragging = true; dragStartX = e.clientX; scrollStartX = specWrap.scrollLeft; specWrap.style.cursor = 'grabbing'; });
-  window.addEventListener('mouseup', () => { isDragging = false; specWrap.style.cursor = ''; });
-  window.addEventListener('mousemove', e => { if (isDragging) specWrap.scrollLeft = scrollStartX - (e.clientX - dragStartX); });
-
-  // ── download ───────────────────────────────────────────────────────────────
-  function downloadCanvas(canvas, name) {
-    const a = document.createElement('a');
-    a.href = canvas.toDataURL('image/png');
-    a.download = name;
-    a.click();
+  function loadBuffer(buf, name, fmtName, size) {
+    dropZone.style.display = 'none';
+    viewer.classList.add('active');
+    currentFileName = name.replace(/\.[^.]+$/, '').replace(/\s+/g, '_');
+    $('fname').textContent = name;
+    originalBuffer = buf;
+    currentMeta = { fmtName, size };
+    layers = []; engraved = []; selectedId = null; renderChips(); renderEngraved();
+    $('dl-wav-btn').hidden = true; $('revert-btn').hidden = true; lastWavBlob = null;
+    setBuffer(buf);
+    setStatus('tip: pictures look best between about 1 kHz and 18 kHz (the middle of the spectogram).');
   }
-  dlSpecBtn.addEventListener('click', () => downloadCanvas(specCanvas, currentFileName + '_spectrogram.png'));
-  dlWaveBtn.addEventListener('click', () => downloadCanvas(waveCanvas, currentFileName + '_waveform.png'));
+
+  function setBuffer(buf) {
+    stopPlayback();
+    audioBuffer = buf; window._spectroAudioBuffer = buf;
+    renderMeta(buf);
+    drawWaveform(buf);
+    computeAndDraw();
+    seekSlider.max = Math.round(buf.duration * 1000); seekSlider.value = 0;
+    pauseOffset = 0; playhead.style.display = 'none';
+    timeDisplay.textContent = `0:00 / ${fmt(buf.duration)}`;
+  }
 
   function resetViewer() {
-    if (source) { try { source.stop(); } catch(e){} source = null; }
-    cancelAnimationFrame(animFrame);
-    isPlaying = false; pauseOffset = 0;
-    audioBuffer = null; spectrogramData = null; window._spectroAudioBuffer = null;
-    viewer.classList.remove('active');
-    dropZone.style.display = '';
-    fileInput.value = '';
+    stopPlayback();
+    audioBuffer = originalBuffer = spectrogramData = null; window._spectroAudioBuffer = null;
+    layers = []; engraved = []; selectedId = null; renderEngraved();
+    viewer.classList.remove('active'); dropZone.style.display = ''; fileInput.value = '';
     applyZoom(1);
   }
 
-  async function handleFile(file) {
-    dropZone.style.display = 'none';
-    viewer.classList.add('active');
-    currentFileName = file.name.replace(/\.[^.]+$/, '');
-    document.getElementById('fname').textContent = file.name;
-
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') await audioCtx.resume();
-
-    const arrBuf = await file.arrayBuffer();
-    audioBuffer = await audioCtx.decodeAudioData(arrBuf);
-    window._spectroAudioBuffer = audioBuffer;
-
-    renderMeta(file, audioBuffer);
-    drawWaveform(audioBuffer);
-    computeAndDraw();
-
-    seekSlider.max = Math.round(audioBuffer.duration * 1000);
-    seekSlider.value = 0;
-    pauseOffset = 0;
-    timeDisplay.textContent = `0:00 / ${fmt(audioBuffer.duration)}`;
+  function stopPlayback() {
+    if (source) { source.onended = null; try { source.stop(); } catch (e) {} source = null; }
+    cancelAnimationFrame(animFrame);
+    isPlaying = false; pauseOffset = 0; setPlayIcon(false);
   }
 
-  function renderMeta(file, buf) {
-    const ext = file.name.split('.').pop().toUpperCase();
-    const sizeKB = (file.size / 1024).toFixed(0);
+  // ── zoom / scroll ──────────────────────────────────────────────────────────
+  function applyZoom(z) {
+    currentZoom = z; zoomLabel.textContent = z.toFixed(1) + '×'; zoomSlider.value = z;
+    if (spectrogramData) {
+      const w = Math.round(specWrap.clientWidth * z);
+      specInner.style.width = w + 'px'; specCanvas.style.width = w + 'px';
+      syncOverlay();
+    }
+  }
+  zoomSlider.addEventListener('input', () => applyZoom(parseFloat(zoomSlider.value)));
+  $('zoom-reset').addEventListener('click', () => applyZoom(1));
+
+  let lastPinch = null;
+  specWrap.addEventListener('touchstart', e => { if (e.touches.length === 2) lastPinch = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); }, { passive: true });
+  specWrap.addEventListener('touchmove', e => {
+    if (e.touches.length === 2 && lastPinch) {
+      const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      applyZoom(Math.min(10, Math.max(1, currentZoom * (d / lastPinch)))); lastPinch = d;
+    }
+  }, { passive: true });
+  specWrap.addEventListener('touchend', () => { lastPinch = null; });
+  specWrap.addEventListener('wheel', e => {
+    if (e.ctrlKey || e.metaKey) { e.preventDefault(); applyZoom(Math.min(10, Math.max(1, currentZoom * (e.deltaY > 0 ? 0.9 : 1.1)))); }
+  }, { passive: false });
+
+  let dragging = false, dragX = 0, dragScroll = 0;
+  specWrap.addEventListener('mousedown', e => { dragging = true; dragX = e.clientX; dragScroll = specWrap.scrollLeft; });
+  window.addEventListener('mouseup', () => { dragging = false; });
+  window.addEventListener('mousemove', e => { if (dragging) specWrap.scrollLeft = dragScroll - (e.clientX - dragX); });
+
+  // ── downloads ──────────────────────────────────────────────────────────────
+  function downloadCanvas(canvas, name) { const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = name; a.click(); }
+  $('dl-spec-btn').addEventListener('click', () => downloadCanvas(specCanvas, currentFileName + '_spectogram.png'));
+  $('dl-wave-btn').addEventListener('click', () => downloadCanvas(waveCanvas, currentFileName + '_waveform.png'));
+
+  function renderMeta(buf) {
+    const m = currentMeta || {};
     metaRow.innerHTML = [
-      `<div class="meta-chip">format <span>${ext}</span></div>`,
+      `<div class="meta-chip">format <span>${m.fmtName || ''}</span></div>`,
       `<div class="meta-chip">duration <span>${fmt(buf.duration)}</span></div>`,
-      `<div class="meta-chip">sample rate <span>${(buf.sampleRate/1000).toFixed(1)} kHz</span></div>`,
+      `<div class="meta-chip">sample rate <span>${(buf.sampleRate / 1000).toFixed(1)} kHz</span></div>`,
       `<div class="meta-chip">channels <span>${buf.numberOfChannels === 1 ? 'mono' : buf.numberOfChannels === 2 ? 'stereo' : buf.numberOfChannels}</span></div>`,
-      `<div class="meta-chip">size <span>${sizeKB} KB</span></div>`,
+      m.size ? `<div class="meta-chip">size <span>${(m.size / 1024).toFixed(0)} KB</span></div>` : '',
     ].join('');
   }
 
+  // ── waveform ───────────────────────────────────────────────────────────────
+  function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
   function drawWaveform(buf) {
-    const W = waveCanvas.parentElement.clientWidth;
-    const H = 80;
-    const dpr = devicePixelRatio || 1;
-    waveCanvas.width = W * dpr;
-    waveCanvas.height = H * dpr;
-    waveCanvas.style.width = W + 'px';
-    waveCanvas.style.height = H + 'px';
-    waveCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    waveCtx.clearRect(0, 0, W, H);
-
-    const data = buf.getChannelData(0);
-    const step = Math.ceil(data.length / W);
-    const mid = H / 2;
-
-    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--border-hi').trim() || '#1e8a6b';
-    waveCtx.strokeStyle = accentColor;
-    waveCtx.lineWidth = 1;
+    const W = waveCanvas.parentElement.clientWidth - 5, H = 80, dpr = devicePixelRatio || 1;
+    waveCanvas.width = W * dpr; waveCanvas.height = H * dpr;
+    waveCanvas.style.width = W + 'px'; waveCanvas.style.height = H + 'px';
+    waveCtx.setTransform(dpr, 0, 0, dpr, 0, 0); waveCtx.clearRect(0, 0, W, H);
+    const data = buf.getChannelData(0), step = Math.max(1, Math.ceil(data.length / W)), mid = H / 2;
+    waveCtx.strokeStyle = cssVar('--accent-deep'); waveCtx.lineWidth = 1.5; waveCtx.lineCap = 'round';
     waveCtx.beginPath();
     for (let x = 0; x < W; x++) {
-      let min = 0, max = 0;
-      for (let j = 0; j < step; j++) {
-        const v = data[x * step + j] || 0;
-        if (v < min) min = v;
-        if (v > max) max = v;
-      }
-      waveCtx.moveTo(x, mid + min * mid);
-      waveCtx.lineTo(x, mid + max * mid);
+      let mn = 0, mx = 0;
+      for (let j = 0; j < step; j++) { const v = data[x * step + j] || 0; if (v < mn) mn = v; if (v > mx) mx = v; }
+      waveCtx.moveTo(x, mid + mn * (mid - 3)); waveCtx.lineTo(x, mid + mx * (mid - 3) + 0.5);
     }
     waveCtx.stroke();
-
-    waveCtx.strokeStyle = accentColor.replace(')', ',0.22)').replace('rgb(', 'rgba(');
-    waveCtx.lineWidth = 0.5;
-    waveCtx.beginPath();
-    waveCtx.moveTo(0, mid); waveCtx.lineTo(W, mid);
-    waveCtx.stroke();
   }
+  window._spectroRedrawAccent = () => { if (audioBuffer) drawWaveform(audioBuffer); };
+
+  // ── spectrogram ────────────────────────────────────────────────────────────
+  windowSel.addEventListener('change', () => { if (audioBuffer) computeAndDraw(); });
+  rangeSlider.addEventListener('input', () => { rangeLabel.textContent = rangeSlider.value + ' dB'; if (spectrogramData) drawSpectrogram(); });
 
   function computeAndDraw() {
     if (!audioBuffer) return;
-    const FFT_SIZE = 2048, HOP = 512;
-    const data = audioBuffer.getChannelData(0);
-    const sampleRate = audioBuffer.sampleRate;
-    const numFrames = Math.floor((data.length - FFT_SIZE) / HOP);
-    const numBins = FFT_SIZE / 2;
-    const windowType = windowSel.value;
-    const magMatrix = [];
-
+    const data = audioBuffer.getChannelData(0), len = data.length;
+    const numFrames = Math.max(1, Math.floor((len - N) / HOP));
+    const w = getWin(windowSel.value);
+    const re = new Float32Array(N), im = new Float32Array(N);
+    const magMatrix = new Array(numFrames);
+    let gmax = -Infinity;
     for (let f = 0; f < numFrames; f++) {
-      const offset = f * HOP;
-      const re = new Float32Array(FFT_SIZE);
-      const im = new Float32Array(FFT_SIZE);
-      for (let i = 0; i < FFT_SIZE; i++) re[i] = data[offset + i] || 0;
-      applyWindow(re, windowType);
-      fft(re, im);
-      const mags = new Float32Array(numBins);
-      for (let k = 0; k < numBins; k++) {
-        mags[k] = 20 * Math.log10(Math.sqrt(re[k]*re[k]+im[k]*im[k]) + 1e-8);
-      }
-      magMatrix.push(mags);
+      const off = f * HOP;
+      for (let i = 0; i < N; i++) re[i] = (data[off + i] || 0) * w[i];
+      im.fill(0); fftIP(re, im, false);
+      const mags = new Float32Array(NB);
+      for (let k = 0; k < NB; k++) { const v = 10 * Math.log10(re[k] * re[k] + im[k] * im[k] + 1e-16); mags[k] = v; if (v > gmax) gmax = v; }
+      magMatrix[f] = mags;
     }
-
-    spectrogramData = { magMatrix, numFrames, numBins, sampleRate, FFT_SIZE };
-    drawSpectrogram(spectrogramData, colormapSel.value);
-    updateFreqLabels(sampleRate, FFT_SIZE);
+    spectrogramData = { magMatrix, numFrames, numBins: NB, sampleRate: audioBuffer.sampleRate, gmax };
+    drawSpectrogram();
+    updateFreqLabels(audioBuffer.sampleRate);
   }
 
-  function drawSpectrogram({ magMatrix, numFrames, numBins, sampleRate, FFT_SIZE }, colormap) {
-    const W = specWrap.clientWidth;
-    const H = Math.min(320, Math.round(W * 0.45));
-    specCanvas.width = numFrames;
-    specCanvas.height = numBins;
-    const zoomedW = Math.round(W * currentZoom);
-    specCanvas.style.width = zoomedW + 'px';
-    specCanvas.style.height = H + 'px';
-    specInner.style.width = zoomedW + 'px';
-    specInner.style.height = H + 'px';
-    specWrap.style.height = H + 'px';
-    playhead.style.height = H + 'px';
+  function drawSpectrogram() {
+    const { magMatrix, numFrames, numBins, gmax } = spectrogramData;
+    const W = specWrap.clientWidth - 5, H = Math.min(340, Math.round(W * 0.45));
+    specCanvas.width = numFrames; specCanvas.height = numBins;
+    const zw = Math.round(specWrap.clientWidth * currentZoom);
+    specCanvas.style.width = zw + 'px'; specCanvas.style.height = H + 'px';
+    specInner.style.width = zw + 'px'; specInner.style.height = H + 'px';
+    specWrap.style.height = (H + 5) + 'px'; playhead.style.height = H + 'px';
 
-    const img = specCtx.createImageData(numFrames, numBins);
-    const map = COLORMAPS[colormap];
-    let globalMin = Infinity, globalMax = -Infinity;
+    const map = COLORMAPS[colormapSel.value], lut = makeLUT(map);
+    const range = +rangeSlider.value, floor = Math.max(gmax, -20) - range;   // silent audio stays dark
+    const img = specCtx.createImageData(numFrames, numBins), d = img.data;
     for (let f = 0; f < numFrames; f++) {
+      const col = magMatrix[f];
       for (let k = 0; k < numBins; k++) {
-        const v = magMatrix[f][k];
-        if (v < globalMin) globalMin = v;
-        if (v > globalMax) globalMax = v;
-      }
-    }
-    const range = globalMax - globalMin || 1;
-
-    for (let f = 0; f < numFrames; f++) {
-      for (let k = 0; k < numBins; k++) {
-        const t = (magMatrix[f][k] - globalMin) / range;
-        const [r,g,b] = lerpColor(map, Math.max(0, Math.min(1, t)));
-        const y = numBins - 1 - k;
-        const idx = (y * numFrames + f) * 4;
-        img.data[idx] = r; img.data[idx+1] = g; img.data[idx+2] = b; img.data[idx+3] = 255;
+        let t = (col[k] - floor) / range; t = t < 0 ? 0 : t > 1 ? 1 : t;
+        const li = Math.round(t * 255) * 3, idx = ((numBins - 1 - k) * numFrames + f) * 4;
+        d[idx] = lut[li]; d[idx + 1] = lut[li + 1]; d[idx + 2] = lut[li + 2]; d[idx + 3] = 255;
       }
     }
     specCtx.putImageData(img, 0, 0);
-
-    // Update legend gradient from the colormap
-    const stops = map.map((c,i) => `rgb(${c[0]},${c[1]},${c[2]}) ${(i/(map.length-1)*100).toFixed(0)}%`).join(', ');
-    document.getElementById('legend-bar').style.background = `linear-gradient(to right, ${stops})`;
+    $('legend-bar').style.background = `linear-gradient(to right, ${map.map((c, i) => `rgb(${c[0]},${c[1]},${c[2]}) ${(i / (map.length - 1) * 100).toFixed(0)}%`).join(', ')})`;
+    syncOverlay();
   }
 
-  function updateFreqLabels(sampleRate, FFT_SIZE) {
-    const nyq = sampleRate / 2;
-    [0, 0.25, 0.5, 0.75, 1.0].forEach((frac, i) => {
-      const f = frac * nyq;
-      document.getElementById('fl' + i).textContent =
-        f >= 1000 ? (f / 1000).toFixed(1) + 'k' : Math.round(f) + 'Hz';
-    });
+  function updateFreqLabels(sr) {
+    [0, .25, .5, .75, 1].forEach((fr, i) => { const f = fr * sr / 2; $('fl' + i).textContent = f >= 1000 ? (f / 1000).toFixed(1) + 'k' : Math.round(f) + 'Hz'; });
   }
 
-  function fmt(secs) {
-    const m = Math.floor(secs / 60);
-    const s = Math.floor(secs % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  }
+  // colormap + custom pickers
+  function syncPickersFrom(map) { [0, .5, 1].forEach((t, i) => { pick[i].value = rgb2hex(lerpColor(map, t)); }); }
+  colormapSel.addEventListener('change', () => {
+    if (colormapSel.value !== 'custom') syncPickersFrom(COLORMAPS[colormapSel.value]);
+    else COLORMAPS.custom = pick.map(p => hex2rgb(p.value));
+    if (spectrogramData) drawSpectrogram();
+  });
+  pick.forEach(p => p.addEventListener('input', () => {
+    COLORMAPS.custom = pick.map(q => hex2rgb(q.value));
+    colormapSel.value = 'custom';
+    if (spectrogramData) drawSpectrogram();
+  }));
+  colormapSel.value = 'bubblegum'; syncPickersFrom(COLORMAPS.bubblegum);
 
-  function togglePlay() {
+  // ── playback ───────────────────────────────────────────────────────────────
+  const fmt = s => `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
+  function startSource(at) {
+    source = audioCtx.createBufferSource(); source.buffer = audioBuffer; source.connect(audioCtx.destination);
+    source.start(0, at); startTime = audioCtx.currentTime;
+    source.onended = () => {
+      if (isPlaying) { isPlaying = false; pauseOffset = 0; setPlayIcon(false); seekSlider.value = 0; playhead.style.display = 'none'; cancelAnimationFrame(animFrame); timeDisplay.textContent = `0:00 / ${fmt(audioBuffer.duration)}`; }
+    };
+  }
+  playBtn.addEventListener('click', () => {
     if (!audioBuffer) return;
     if (audioCtx.state === 'suspended') audioCtx.resume();
     if (isPlaying) {
       pauseOffset += audioCtx.currentTime - startTime;
-      source.stop(); source = null;
-      isPlaying = false;
-      playIcon.className = 'ti ti-player-play';
-      cancelAnimationFrame(animFrame);
-    } else {
-      source = audioCtx.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(audioCtx.destination);
-      source.start(0, pauseOffset);
-      startTime = audioCtx.currentTime;
-      isPlaying = true;
-      playIcon.className = 'ti ti-player-pause';
-      source.onended = () => {
-        if (isPlaying) {
-          isPlaying = false; pauseOffset = 0;
-          playIcon.className = 'ti ti-player-play';
-          seekSlider.value = 0; playhead.style.display = 'none';
-          cancelAnimationFrame(animFrame);
-          timeDisplay.textContent = `0:00 / ${fmt(audioBuffer.duration)}`;
-        }
-      };
-      tick();
-    }
-  }
-
+      source.onended = null; source.stop(); source = null; isPlaying = false; setPlayIcon(false); cancelAnimationFrame(animFrame);
+    } else { startSource(pauseOffset); isPlaying = true; setPlayIcon(true); tick(); }
+  });
   function tick() {
     if (!isPlaying) return;
-    const elapsed = pauseOffset + (audioCtx.currentTime - startTime);
-    const duration = audioBuffer.duration;
-    const progress = Math.min(elapsed / duration, 1);
-    seekSlider.value = Math.round(progress * 1000);
-    timeDisplay.textContent = `${fmt(elapsed)} / ${fmt(duration)}`;
-    playhead.style.display = 'block';
-    playhead.style.left = (progress * specInner.clientWidth) + 'px';
+    const el = pauseOffset + (audioCtx.currentTime - startTime), dur = audioBuffer.duration, p = Math.min(el / dur, 1);
+    seekSlider.value = Math.round(p * 1000); timeDisplay.textContent = `${fmt(el)} / ${fmt(dur)}`;
+    playhead.style.display = 'block'; playhead.style.left = (p * specInner.clientWidth) + 'px';
     animFrame = requestAnimationFrame(tick);
   }
-
-  function onSeek() {
+  seekSlider.addEventListener('input', () => {
     if (!audioBuffer) return;
-    const t = (seekSlider.value / 1000) * audioBuffer.duration;
-    pauseOffset = t;
-    if (isPlaying) {
-      source.stop();
-      source = audioCtx.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(audioCtx.destination);
-      source.start(0, t);
-      startTime = audioCtx.currentTime;
-      source.onended = () => {
-        if (isPlaying) {
-          isPlaying = false; pauseOffset = 0;
-          playIcon.className = 'ti ti-player-play';
-          seekSlider.value = 0; playhead.style.display = 'none';
-          cancelAnimationFrame(animFrame);
-        }
-      };
-    }
+    const t = (seekSlider.value / 1000) * audioBuffer.duration; pauseOffset = t;
+    if (isPlaying) { source.onended = null; source.stop(); startSource(t); }
     timeDisplay.textContent = `${fmt(t)} / ${fmt(audioBuffer.duration)}`;
     playhead.style.left = (t / audioBuffer.duration * specInner.clientWidth) + 'px';
+  });
+
+  // ═══════════════════════ ENGRAVE: layers on the spectogram ═══════════════════════
+  let layers = [], engraved = [], selectedId = null, nextId = 1, drag = null;
+  const FONTS = {
+    fredoka: "'Fredoka', 'Nunito', sans-serif", sans: "'Arial Black', Impact, 'Helvetica Neue', sans-serif",
+    serif: "Georgia, 'Times New Roman', serif", mono: "ui-monospace, Consolas, monospace", script: "'Brush Script MT', 'Segoe Script', cursive",
+  };
+  const getSel = () => layers.find(l => l.id === selectedId) || null;
+  const geom = () => ({ bw: specWrap.clientWidth, bh: specInner.clientHeight || 1 });
+  function setStatus(t) { $('eng-status').textContent = t; }
+
+  // a layer keeps a "brightness" array (0-255, = how loud that pixel is) + a preview mask
+  function buildMask(L) {
+    const c = L.mask || (L.mask = document.createElement('canvas'));
+    c.width = L.bw; c.height = L.bh;
+    const x = c.getContext('2d'), id = x.createImageData(L.bw, L.bh);
+    for (let i = 0; i < L.bright.length; i++) {
+      const b = L.invert ? 255 - L.bright[i] : L.bright[i];
+      if (L.erase) { id.data[i * 4] = 255; id.data[i * 4 + 1] = 70; id.data[i * 4 + 2] = 110; id.data[i * 4 + 3] = b * 0.55; }
+      else { id.data[i * 4] = id.data[i * 4 + 1] = id.data[i * 4 + 2] = 255; id.data[i * 4 + 3] = b; }
+    }
+    x.putImageData(id, 0, 0);
   }
 
+  function addLayer(L) {
+    L.id = nextId++; L.invert = false;
+    buildMask(L);
+    const { bw, bh } = geom();
+    L.ar = L.bw / L.bh;
+    let w = L.kind === 'text' ? 0.5 : 0.4, h = w * bw / (L.ar * bh);
+    if (L.kind === 'box') { w = 0.25; h = 0.35; }
+    if (h > 0.85) { h = 0.85; w = h * L.ar * bh / bw; }
+    if (w > 0.95) { w = 0.95; h = w * bw / (L.ar * bh); }
+    L.w = w; L.h = h; L.x = (1 - w) / 2 + (layers.length % 4) * 0.02; L.y = (1 - h) / 2 + (layers.length % 4) * 0.03;
+    layers.push(L); selectedId = L.id;
+    renderChips(); drawOverlay();
+  }
+
+  async function addText() {
+    const text = $('txt-input').value.trim();
+    if (!text) { setStatus('type some text first ✧'); $('txt-input').focus(); return; }
+    if (!spectrogramData) return;
+    const fam = FONTS[$('font-select').value];
+    try { await document.fonts.load(`700 120px ${fam}`); } catch (e) {}
+    let fs = 160;
+    const c = document.createElement('canvas'), x = c.getContext('2d');
+    x.font = `700 ${fs}px ${fam}`;
+    let tw = x.measureText(text).width;
+    if (tw > 3600) { fs = Math.floor(fs * 3600 / tw); x.font = `700 ${fs}px ${fam}`; tw = x.measureText(text).width; }
+    const pad = Math.round(fs * 0.14);
+    c.width = Math.ceil(tw + pad * 2); c.height = Math.ceil(fs * 1.25 + pad * 2);
+    x.font = `700 ${fs}px ${fam}`; x.textBaseline = 'middle'; x.fillStyle = '#fff';
+    x.fillText(text, pad, c.height / 2 + fs * 0.03);
+    const d = x.getImageData(0, 0, c.width, c.height).data, bright = new Uint8Array(c.width * c.height);
+    for (let i = 0; i < bright.length; i++) bright[i] = d[i * 4 + 3];
+    addLayer({ kind: 'text', label: text, bright, bw: c.width, bh: c.height });
+    $('txt-input').value = '';
+  }
+  $('add-text').addEventListener('click', addText);
+  $('txt-input').addEventListener('keydown', e => { if (e.key === 'Enter') addText(); });
+
+  $('img-input').addEventListener('change', e => {
+    const f = e.target.files[0]; e.target.value = '';
+    if (!f || !spectrogramData) return;
+    const url = URL.createObjectURL(f), img = new Image();
+    img.onload = () => {
+      const sc = Math.min(1, 2048 / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.max(1, Math.round(img.naturalWidth * sc)), h = Math.max(1, Math.round(img.naturalHeight * sc));
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0, w, h);
+      const d = x.getImageData(0, 0, w, h).data, bright = new Uint8Array(w * h);
+      let hasAlpha = false;
+      for (let i = 3; i < d.length; i += 4 * 7) if (d[i] < 250) { hasAlpha = true; break; }
+      for (let i = 0; i < bright.length; i++) {
+        const r = d[i * 4], g = d[i * 4 + 1], b = d[i * 4 + 2], a = d[i * 4 + 3];
+        bright[i] = hasAlpha ? a : Math.round((0.2126 * r + 0.7152 * g + 0.0722 * b) * a / 255);
+      }
+      URL.revokeObjectURL(url);
+      addLayer({ kind: 'image', label: f.name, bright, bw: w, bh: h });
+    };
+    img.onerror = () => setStatus("couldn't open that picture :(");
+    img.src = url;
+  });
+
+  function renderChips() {
+    const el = $('layer-chips'); el.innerHTML = '';
+    layers.forEach(L => {
+      const b = document.createElement('div');
+      b.className = 'chip' + (L.id === selectedId ? ' sel' : ''); b.tabIndex = 0;
+      b.innerHTML = `<span class="ico">${ico(L.kind === 'text' ? 'type' : L.kind === 'box' ? 'eraser' : 'image')}</span><span class="t"></span><span class="x" role="button" aria-label="remove"><span class="ico">${ico('x')}</span></span>`;
+      b.querySelector('.t').textContent = (L.erase && L.kind !== 'box' ? 'erase: ' : '') + L.label;
+      b.addEventListener('click', e => { if (e.target.closest('.x')) removeLayer(L.id); else { selectedId = L.id; renderChips(); drawOverlay(); } });
+      el.appendChild(b);
+    });
+    const sel = getSel();
+    $('layer-tools').hidden = !sel;
+    if (sel) {
+      $('inv-wrap').hidden = sel.kind !== 'image'; $('inv-chk').checked = sel.invert;
+      $('erase-wrap').hidden = sel.kind === 'box'; $('erase-chk').checked = !!sel.erase;
+    }
+    overlay.classList.toggle('has-layers', layers.length > 0);
+  }
+  function renderEngraved() {
+    const el = $('engraved-chips'); el.innerHTML = '';
+    engraved.forEach(L => {
+      const b = document.createElement('div'); b.className = 'chip';
+      b.innerHTML = `<span class="ico">${ico(L.kind === 'text' ? 'type' : 'image')}</span><span class="t"></span><span class="x" role="button" tabindex="0" aria-label="erase this engraving"><span class="ico">${ico('x')}</span></span>`;
+      b.querySelector('.t').textContent = L.label;
+      b.querySelector('.x').addEventListener('click', () => removeEngraved(L.id));
+      el.appendChild(b);
+    });
+    $('engraved-wrap').hidden = engraved.length === 0;
+  }
+  function removeEngraved(id) {
+    if (busy) return;
+    const L = engraved.find(l => l.id === id); if (!L) return;
+    engrave([L], id);
+  }
+  function removeLayer(id) { layers = layers.filter(l => l.id !== id); if (selectedId === id) selectedId = layers.length ? layers[layers.length - 1].id : null; renderChips(); drawOverlay(); }
+  $('erase-chk').addEventListener('change', e => { const s = getSel(); if (s) { s.erase = e.target.checked; buildMask(s); renderChips(); drawOverlay(); } });
+  $('add-box').addEventListener('click', () => {
+    if (!spectrogramData) return;
+    addLayer({ kind: 'box', label: 'erase box', bright: new Uint8Array(256).fill(255), bw: 16, bh: 16, erase: true });
+  });
+  $('del-layer').addEventListener('click', () => { if (selectedId) removeLayer(selectedId); });
+  $('inv-chk').addEventListener('change', e => { const s = getSel(); if (s) { s.invert = e.target.checked; buildMask(s); drawOverlay(); } });
+  window.addEventListener('keydown', e => { if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); removeLayer(selectedId); } });
+  $('loud-slider').addEventListener('input', e => { $('loud-label').textContent = e.target.value + '%'; });
+  $('carve-slider').addEventListener('input', e => { $('carve-label').textContent = e.target.value + '%'; });
+
+  // overlay drawing + interaction
+  function syncOverlay() {
+    const w = specInner.clientWidth, h = specInner.clientHeight, dpr = devicePixelRatio || 1;
+    if (!w || !h) return;
+    overlay.style.width = w + 'px'; overlay.style.height = h + 'px';
+    overlay.width = Math.round(w * dpr); overlay.height = Math.round(h * dpr);
+    drawOverlay();
+  }
+  function drawOverlay() {
+    const w = specInner.clientWidth, h = specInner.clientHeight, dpr = devicePixelRatio || 1;
+    ovCtx.setTransform(dpr, 0, 0, dpr, 0, 0); ovCtx.clearRect(0, 0, w, h);
+    ovCtx.imageSmoothingQuality = 'high';
+    layers.forEach(L => {
+      ovCtx.save();
+      ovCtx.shadowColor = 'rgba(0,0,0,.85)'; ovCtx.shadowBlur = 5; ovCtx.globalAlpha = 0.92;
+      ovCtx.drawImage(L.mask, L.x * w, L.y * h, L.w * w, L.h * h);
+      ovCtx.restore();
+    });
+    const s = getSel();
+    if (s) {
+      const x = s.x * w, y = s.y * h, bw = s.w * w, bh = s.h * h;
+      ovCtx.save();
+      ovCtx.lineWidth = 3; ovCtx.strokeStyle = '#000'; ovCtx.strokeRect(x, y, bw, bh);
+      ovCtx.lineWidth = 1.5; ovCtx.strokeStyle = '#fff'; ovCtx.setLineDash([6, 5]); ovCtx.strokeRect(x, y, bw, bh);
+      ovCtx.setLineDash([]);
+      [[x, y], [x + bw, y], [x, y + bh], [x + bw, y + bh]].forEach(([cx, cy]) => {
+        ovCtx.beginPath(); ovCtx.arc(cx, cy, 7, 0, Math.PI * 2);
+        ovCtx.fillStyle = '#fff'; ovCtx.fill(); ovCtx.lineWidth = 2.5; ovCtx.strokeStyle = '#000'; ovCtx.stroke();
+      });
+      ovCtx.restore();
+    }
+  }
+  function hit(nx, ny, r) {
+    const dxn = 13 / r.width, dyn = 13 / r.height, s = getSel();
+    if (s) {
+      const cs = [[s.x, s.y], [s.x + s.w, s.y], [s.x, s.y + s.h], [s.x + s.w, s.y + s.h]];
+      for (let i = 0; i < 4; i++) if (Math.abs(nx - cs[i][0]) <= dxn && Math.abs(ny - cs[i][1]) <= dyn) return { mode: 'resize', layer: s, corner: i };
+    }
+    for (let i = layers.length - 1; i >= 0; i--) { const L = layers[i]; if (nx >= L.x && nx <= L.x + L.w && ny >= L.y && ny <= L.y + L.h) return { mode: 'move', layer: L }; }
+    return null;
+  }
+  const norm = e => { const r = overlay.getBoundingClientRect(); return { nx: (e.clientX - r.left) / r.width, ny: (e.clientY - r.top) / r.height, r }; };
+
+  overlay.addEventListener('pointerdown', e => {
+    const { nx, ny, r } = norm(e), h = hit(nx, ny, r);
+    if (!h) { if (selectedId) { selectedId = null; renderChips(); drawOverlay(); } return; }
+    e.preventDefault(); e.stopPropagation();
+    selectedId = h.layer.id; renderChips();
+    drag = { mode: h.mode, L: h.layer, corner: h.corner, sx: nx, sy: ny, o: { x: h.layer.x, y: h.layer.y, w: h.layer.w, h: h.layer.h } };
+    overlay.setPointerCapture(e.pointerId); drawOverlay();
+  });
+  overlay.addEventListener('pointermove', e => {
+    const { nx, ny, r } = norm(e);
+    if (!drag) {
+      const h = hit(nx, ny, r);
+      overlay.style.cursor = !h ? '' : h.mode === 'move' ? 'move' : (h.corner === 0 || h.corner === 3) ? 'nwse-resize' : 'nesw-resize';
+      return;
+    }
+    const L = drag.L, o = drag.o;
+    if (drag.mode === 'move') { L.x = o.x + (nx - drag.sx); L.y = o.y + (ny - drag.sy); }
+    else {
+      const i = drag.corner, dirX = (i & 1) ? 1 : -1, dirY = (i & 2) ? 1 : -1;
+      const ax = (i & 1) ? o.x : o.x + o.w, ay = (i & 2) ? o.y : o.y + o.h;
+      const nw = Math.max(0.01, (nx - ax) * dirX);
+      let nh;
+      if ($('lock-chk').checked && L.kind !== 'box') { const { bw, bh } = geom(); nh = nw * bw / (L.ar * bh); } else nh = Math.max(0.01, (ny - ay) * dirY);
+      L.w = nw; L.h = nh; L.x = dirX > 0 ? ax : ax - nw; L.y = dirY > 0 ? ay : ay - nh;
+    }
+    drawOverlay();
+  });
+  const endDrag = () => { drag = null; };
+  overlay.addEventListener('pointerup', endDrag); overlay.addEventListener('pointercancel', endDrag);
+
+  let rzT = null;
+  window.addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(() => { if (audioBuffer && spectrogramData) { drawWaveform(audioBuffer); drawSpectrogram(); } }, 150); });
+
+  // ═══════════════════════ ENGRAVE: the actual sound-making ═══════════════════════
+  const tick0 = () => new Promise(r => setTimeout(r, 0));
+
+  // halve-and-halve downscale so thin strokes don't alias away
+  function prescale(src, tw, th) {
+    let cur = src;
+    while (cur.width / 2 >= tw || cur.height / 2 >= th) {
+      const nw = cur.width / 2 >= tw ? Math.max(tw, Math.ceil(cur.width / 2)) : cur.width;
+      const nh = cur.height / 2 >= th ? Math.max(th, Math.ceil(cur.height / 2)) : cur.height;
+      const c = document.createElement('canvas'); c.width = nw; c.height = nh;
+      const x = c.getContext('2d'); x.imageSmoothingQuality = 'high'; x.drawImage(cur, 0, 0, nw, nh); cur = c;
+    }
+    return cur;
+  }
+
+  function encodeWav(chs, sr) {
+    const nc = chs.length, n = chs[0].length, buf = new ArrayBuffer(44 + n * nc * 2), v = new DataView(buf);
+    const ws = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    ws(0, 'RIFF'); v.setUint32(4, 36 + n * nc * 2, true); ws(8, 'WAVE'); ws(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, nc, true); v.setUint32(24, sr, true);
+    v.setUint32(28, sr * nc * 2, true); v.setUint16(32, nc * 2, true); v.setUint16(34, 16, true); ws(36, 'data'); v.setUint32(40, n * nc * 2, true);
+    let o = 44;
+    for (let i = 0; i < n; i++) for (let c = 0; c < nc; c++) { const s = Math.max(-1, Math.min(1, chs[c][i])); v.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7fff, true); o += 2; }
+    return new Blob([buf], { type: 'audio/wav' });
+  }
+
+  function saveBlob(blob, name) {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+  }
+
+  // amplitude per pixel brightness (0-255): DYN dB range, 0 below threshold
+  const AMP = new Float32Array(256);
+  for (let a = 0; a < 256; a++) AMP[a] = a < 10 ? 0 : Math.pow(10, -DYN * (1 - a / 255) / 20) * (N / 2);
+
+  async function engrave(useLayers, removedId) {
+    if (busy || !audioBuffer || !spectrogramData) return;
+    const LS = Array.isArray(useLayers) ? useLayers : layers;
+    if (!LS.length) { setStatus('add some text, a picture or an erase box first ✧'); return; }
+    const nF = spectrogramData.numFrames;
+    const prep = LS.map(L => {
+      const dw = L.w * nF, dh = L.h * NB;
+      return { erase: !!L.erase, c: prescale(L.mask, Math.max(1, Math.min(Math.round(dw), 16384)), Math.max(1, Math.min(Math.round(dh), 4096))), dx: L.x * nF, dy: L.y * NB, dw, dh };
+    });
+    const fmin = Math.max(0, Math.floor(Math.min(...prep.map(p => p.dx))));
+    const fmax = Math.min(nF, Math.ceil(Math.max(...prep.map(p => p.dx + p.dw))));
+    if (fmax <= fmin || prep.every(p => p.dy + p.dh <= 0 || p.dy >= NB)) { setStatus('your engraving is off the edge of the spectogram — drag it back on ✧'); return; }
+
+    busy = true; $('engrave-btn').disabled = true; stopPlayback();
+    const prog = $('eng-progress'); prog.hidden = false; const bar = prog.firstElementChild; bar.style.width = '0%';
+    setStatus('engraving… (the first bit is the slowest)');
+    await tick0();
+
+    const buf = audioBuffer, sr = buf.sampleRate, len = buf.length, nch = buf.numberOfChannels;
+    const subtract = !!removedId, loud = +$('loud-slider').value / 100, carve = subtract ? 0 : +$('carve-slider').value / 100;
+    const src = [], out = [];
+    for (let c = 0; c < nch; c++) { src.push(buf.getChannelData(c)); out.push(Float32Array.from(src[c])); }
+    const engr = new Float32Array(len);
+    const ph0c = subtract ? LS[0].phases.c : new Float32Array(NB), ph0s = subtract ? LS[0].phases.s : new Float32Array(NB);
+    if (!subtract) for (let k = 0; k < NB; k++) { const p = Math.random() * 2 * Math.PI; ph0c[k] = Math.cos(p); ph0s[k] = Math.sin(p); }
+
+    const re = new Float32Array(N), im = new Float32Array(N), bm = new Float32Array(NB), bmc = new Float32Array(NB);
+    const CH = 1536, mc = document.createElement('canvas'), mce = document.createElement('canvas');
+    const em = new Float32Array(NB), emc = new Float32Array(NB);
+    const doErase = prep.some(p => p.erase);
+    let done = 0;
+    for (let c0 = fmin; c0 < fmax; c0 += CH) {
+      const c1 = Math.min(fmax, c0 + CH), cw = c1 - c0;
+      mc.width = cw; mc.height = NB;
+      const mx = mc.getContext('2d', { willReadFrequently: true });
+      mx.imageSmoothingQuality = 'high'; mx.setTransform(1, 0, 0, 1, -c0, 0);
+      prep.forEach(p => { if (!p.erase) mx.drawImage(p.c, p.dx, p.dy, p.dw, p.dh); });
+      const px = mx.getImageData(0, 0, cw, NB).data;
+      let pxe = null;
+      if (doErase) {
+        mce.width = cw; mce.height = NB;
+        const ex = mce.getContext('2d', { willReadFrequently: true });
+        ex.imageSmoothingQuality = 'high'; ex.setTransform(1, 0, 0, 1, -c0, 0);
+        prep.forEach(p => { if (p.erase) ex.drawImage(p.c, p.dx, p.dy, p.dw, p.dh); });
+        pxe = ex.getImageData(0, 0, cw, NB).data;
+      }
+
+      for (let f = c0; f < c1; f++) {
+        const col = f - c0; let any = false;
+        for (let k = 0; k < NB; k++) { const a = px[((NB - 1 - k) * cw + col) * 4 + 3]; bm[k] = a; if (a > 9) any = true; }
+        let anyE = false;
+        if (pxe) for (let k = 0; k < NB; k++) { const a = pxe[((NB - 1 - k) * cw + col) * 4 + 3]; em[k] = a; if (a > 9) anyE = true; }
+        if (!any && !anyE) continue;
+        const off = f * HOP;
+
+        // 1) the engraving: one steady sine per bin, phases advance coherently frame to frame
+        if (any) {
+        re.fill(0); im.fill(0);
+        for (let k = 1; k < NB; k++) {
+          const a = bm[k]; if (a < 10) continue;
+          const A = AMP[a | 0], c = ph0c[k], s = ph0s[k], q = (k * f) & 3;
+          const cr = q === 0 ? c : q === 1 ? -s : q === 2 ? -c : s;
+          const ci = q === 0 ? s : q === 1 ? c : q === 2 ? -s : -c;
+          re[k] = A * cr; im[k] = A * ci; re[N - k] = A * cr; im[N - k] = -A * ci;
+        }
+        fftIP(re, im, true);
+        for (let i = 0; i < N; i++) { const idx = off + i; if (idx >= len) break; engr[idx] += re[i] * SYN[i] / 1.5; }
+        }
+
+        // 2) carve a hole in the song where the engraving goes
+        if ((carve > 0 && any) || anyE) {
+          for (let k = 0; k < NB; k++) {
+            const a = bm[k], l = k ? bm[k - 1] : 0, r = k < NB - 1 ? bm[k + 1] : 0;
+            let g = any ? carve * Math.max(a, l, r) / 255 : 0;
+            if (anyE) { const ea = em[k], el = k ? em[k - 1] : 0, er = k < NB - 1 ? em[k + 1] : 0; g = Math.max(g, Math.min(1, Math.max(ea, el, er) / 120)); }
+            bmc[k] = g;
+          }
+          for (let ch = 0; ch < nch; ch++) {
+            const d = src[ch];
+            for (let i = 0; i < N; i++) { const idx = off + i; re[i] = idx < len ? d[idx] * SYN[i] : 0; }
+            im.fill(0); fftIP(re, im, false);
+            for (let k = 0; k <= NB; k++) {
+              const sc = -bmc[Math.min(k, NB - 1)];
+              re[k] *= sc; im[k] *= sc;
+              if (k > 0 && k < NB) { re[N - k] *= sc; im[N - k] *= sc; }
+            }
+            fftIP(re, im, true);
+            const o = out[ch];
+            for (let i = 0; i < N; i++) { const idx = off + i; if (idx >= len) break; o[idx] += re[i] * SYN[i] / 1.5; }
+          }
+        }
+        if ((++done & 31) === 0) { bar.style.width = (((f - fmin) / (fmax - fmin)) * 90).toFixed(0) + '%'; await tick0(); }
+      }
+      bar.style.width = (((c1 - fmin) / (fmax - fmin)) * 90).toFixed(0) + '%'; await tick0();
+    }
+
+    // mix: scale the engraving so its peak = loudness, then keep everything under clipping
+    let ep = 0; for (let i = 0; i < len; i++) { const v = Math.abs(engr[i]); if (v > ep) ep = v; }
+    const es = subtract ? -LS[0].coef : ep > 0 ? (0.85 * loud) / ep : 0;
+    let peak = 0, gFactor = 1;
+    for (let c = 0; c < nch; c++) { const o = out[c]; for (let i = 0; i < len; i++) { o[i] += engr[i] * es; const v = Math.abs(o[i]); if (v > peak) peak = v; } }
+    if (subtract) for (let c = 0; c < nch; c++) { const o = out[c]; for (let i = 0; i < len; i++) if (Math.abs(o[i]) < 2e-5) o[i] = 0; }   // clean float dust
+    if (peak > 0.98) { const g = gFactor = 0.98 / peak; out.forEach(o => { for (let i = 0; i < len; i++) o[i] *= g; }); }
+    bar.style.width = '96%'; await tick0();
+
+    const nb = getCtx().createBuffer(nch, len, sr);
+    for (let c = 0; c < nch; c++) nb.copyToChannel(out[c], c);
+    lastWavBlob = encodeWav(out, sr);
+    engraved.forEach(L => { L.coef *= gFactor; });
+    if (removedId) engraved = engraved.filter(l => l.id !== removedId);
+    else { LS.forEach(L => { if (!L.erase) { L.phases = { c: ph0c, s: ph0s }; L.coef = es * gFactor; engraved.push(L); } }); layers = []; selectedId = null; renderChips(); }
+    renderEngraved();
+    setBuffer(nb);
+    bar.style.width = '100%';
+    $('dl-wav-btn').hidden = false; $('revert-btn').hidden = false;
+    setTimeout(() => { prog.hidden = true; }, 600);
+    saveBlob(lastWavBlob, currentFileName + '_engraved.wav');
+    setStatus(removedId ? 'removed! that engraving is gone from the audio ✦ (your wav is downloading)' : prep.every(p => p.erase) ? 'erased! your wav is downloading — the spectogram above is the cleaned-up version ✦' : 'done! your wav is downloading — the spectogram above is the engraved version. press play, or open the wav in any spectrogram viewer ✦');
+    busy = false; $('engrave-btn').disabled = false;
+  }
+  $('engrave-btn').addEventListener('click', () => engrave());
+  $('dl-wav-btn').addEventListener('click', () => { if (lastWavBlob) saveBlob(lastWavBlob, currentFileName + '_engraved.wav'); });
+  $('revert-btn').addEventListener('click', () => {
+    if (!originalBuffer) return;
+    lastWavBlob = null; $('dl-wav-btn').hidden = true; $('revert-btn').hidden = true;
+    engraved = []; renderEngraved();
+    setBuffer(originalBuffer); setStatus('back to the original ✧');
+  });
 })();
 </script>
 </body>
