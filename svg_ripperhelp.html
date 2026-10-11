@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SVG &amp; Photo Ripper</title>
+<style>
+  /* Minimal, 2010s-style: white page, thin Helvetica, one narrow column, hairlines, no radius, no shadows */
+  :root{
+    --bg:#fff; --panel:#fff; --text:#333; --muted:#999; --line:#e5e5e5;
+    --accent:#222; --accent-t:#fff; --link:#2a7ae2; --ok:#4a9a4a; --warn:#c08a20; --err:#cc3b3b;
+    --check1:#fff; --check2:#efefef;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:300 16px/1.7 "Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:72px 24px 120px}
+  h1{font-size:40px;font-weight:200;margin:0 0 6px;letter-spacing:-.5px;color:#222}
+  .sub{color:var(--muted);margin:0 0 48px;font-size:17px;max-width:560px}
+  .panel{background:none;border:0;padding:0}
+
+  /* tabs as plain text links */
+  .tabs{display:flex;gap:26px;margin-bottom:26px;border-bottom:1px solid var(--line)}
+  .tab{border:0;border-bottom:1px solid transparent;margin-bottom:-1px;background:none;color:var(--muted);
+    padding:0 0 10px;cursor:pointer;font:inherit;font-size:15px;border-radius:0}
+  .tab:hover{color:var(--text)}
+  .tab.on{background:none;color:#222;border-bottom-color:#222}
+
+  .row{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
+  input[type=text],textarea{flex:1;min-width:220px;padding:8px 0;border:0;border-bottom:1px solid #ccc;border-radius:0;
+    background:transparent;color:var(--text);font:inherit;outline:0;transition:border-color .15s}
+  input[type=text]:focus,textarea:focus{border-bottom-color:#222}
+  input::placeholder,textarea::placeholder{color:#bbb}
+  textarea{width:100%;min-height:150px;padding:12px;border:1px solid var(--line);font-family:Menlo,Consolas,monospace;font-size:13px;resize:vertical}
+  textarea:focus{border-color:#222}
+
+  button.btn{padding:8px 20px;border-radius:0;border:1px solid #222;background:#fff;color:#222;cursor:pointer;font:inherit;font-size:14px;transition:background .15s,color .15s}
+  button.btn:hover{background:#222;color:#fff;border-color:#222}
+  button.primary{background:#222;border-color:#222;color:#fff;font-weight:400}
+  button.primary:hover{background:#fff;color:#222}
+  button:disabled{opacity:.4;cursor:default}
+  button:focus-visible,select:focus-visible,.tab:focus-visible{outline:1px dotted #222;outline-offset:3px}
+
+  .opts{display:flex;gap:24px;flex-wrap:wrap;margin-top:22px;color:var(--muted);font-size:14px}
+  .opts label{display:flex;gap:7px;align-items:center;cursor:pointer}
+  .opts input{accent-color:#222}
+  .hint{font-size:13px;color:var(--muted);margin-top:14px;line-height:1.6}
+  .hide{display:none!important}
+
+  #drop{border:1px dashed #ccc;border-radius:0;padding:44px 20px;text-align:center;color:var(--muted);cursor:pointer;transition:border-color .15s,color .15s}
+  #drop:hover,#drop.over{border-color:#222;color:#222}
+
+  #log{margin-top:22px;font:12px/1.7 Menlo,Consolas,monospace;color:var(--muted);max-height:150px;overflow:auto;white-space:pre-wrap}
+  #log .ok{color:var(--ok)} #log .warn{color:var(--warn)} #log .err{color:var(--err)}
+
+  /* results */
+  #results{margin-top:56px;padding-top:28px;border-top:1px solid var(--line)}
+  .bar{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:0 0 28px}
+  .bar .count{font-weight:300;font-size:22px;color:#222;margin-right:auto}
+  select{padding:6px 22px 6px 0;border:0;border-bottom:1px solid #ccc;border-radius:0;background:transparent;color:var(--muted);font:inherit;font-size:14px;cursor:pointer}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:28px 24px}
+  .card{background:none;border:0;border-radius:0;display:flex;flex-direction:column}
+  .prev{height:150px;display:flex;align-items:center;justify-content:center;padding:16px;border:1px solid var(--line)}
+  .prev img{max-width:100%;max-height:100%;width:auto;height:auto;min-width:24px;min-height:24px}
+  .bg-checker{background-color:var(--check1);background-image:linear-gradient(45deg,var(--check2) 25%,transparent 25%,transparent 75%,var(--check2) 75%),linear-gradient(45deg,var(--check2) 25%,transparent 25%,transparent 75%,var(--check2) 75%);background-size:16px 16px;background-position:0 0,8px 8px}
+  .bg-light{background:#fff} .bg-dark{background:#222}
+  .meta{padding:10px 0 2px;border:0}
+  .name{font-size:14px;font-weight:400;color:#222;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .info{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;gap:6px}
+  .tag{padding:0;border:0;background:none;font-size:12.5px;font-style:italic}
+  .acts{display:flex;gap:16px;padding:2px 0 0}
+  .acts button{flex:none;padding:0;border:0;border-radius:0;background:none;color:var(--link);cursor:pointer;font:inherit;font-size:13px}
+  .acts a{color:var(--link);cursor:pointer;font-size:13px;text-decoration:none}
+  .acts button:hover,.acts a:hover{text-decoration:underline;color:var(--link)}
+  .acts button:disabled{opacity:.6}
+  .empty{color:var(--muted);text-align:center;padding:50px 0}
+
+  @media (max-width:520px){
+    .wrap{padding:44px 18px 80px}
+    h1{font-size:32px}
+    .tabs{gap:18px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>SVG &amp; Photo Ripper</h1>
+  <p class="sub">Pull every SVG and photo out of a website or HTML: inline SVGs, sprites, image tags, srcset, CSS backgrounds, social images and data URIs.</p>
+
+  <div class="panel">
+    <div class="tabs">
+      <button class="tab on" data-tab="url">Website URL</button>
+      <button class="tab" data-tab="paste">Paste HTML</button>
+      <button class="tab" data-tab="file">Upload HTML file</button>
+    </div>
+
+    <div id="tab-url">
+      <div class="row">
+        <input type="text" id="url" placeholder="https://example.com" autocomplete="off" spellcheck="false">
+        <button class="btn primary" id="goUrl">Rip SVGs</button>
+      </div>
+    </div>
+
+    <div id="tab-paste" class="hide">
+      <textarea id="html" placeholder="Paste page source or any HTML snippet here…"></textarea>
+      <div class="row" style="margin-top:10px">
+        <input type="text" id="base" placeholder="Optional base URL, for resolving relative links (https://example.com/)" spellcheck="false">
+        <button class="btn primary" id="goPaste">Rip SVGs</button>
+      </div>
+    </div>
+
+    <div id="tab-file" class="hide">
+      <div id="drop">Drop one or more .html files here, or click to choose
+        <input type="file" id="file" accept=".html,.htm,.xhtml,text/html" multiple hidden>
+      </div>
+    </div>
+
+    <div class="opts">
+      <label><input type="checkbox" id="optCss" checked> Scan linked stylesheets</label>
+      <label><input type="checkbox" id="optSplit" checked> Split &lt;symbol&gt; sprites</label>
+      <label><input type="checkbox" id="optPhotos" checked> Include photos (png, jpg, webp, gif…)</label>
+      <label><input type="checkbox" id="optTiny" checked> Hide tiny images (under 32px)</label>
+      <label><input type="checkbox" id="optProxy" checked> Use CORS proxy fallback</label>
+    </div>
+    <div class="hint">Browsers block most cross-site requests. If a direct fetch fails, the page is retried through public CORS proxies (the URL is then sent to those third parties). For sites that still refuse, open the page, "View source", and use the Paste tab. Photo previews load straight from the site, so they usually show even when fetching is blocked. If Download is blocked, use Open and save from the new tab.</div>
+    <div id="log"></div>
+  </div>
+
+  <div id="results" class="hide">
+    <div class="bar">
+      <span class="count" id="count"></span>
+      <select id="typesel">
+        <option value="">SVGs and photos</option>
+        <option value="svg">SVGs only</option>
+        <option value="photo">Photos only</option>
+      </select>
+      <select id="kind"><option value="">All sources</option></select>
+      <select id="bgsel">
+        <option value="bg-checker">Checker bg</option>
+        <option value="bg-light">Light bg</option>
+        <option value="bg-dark">Dark bg</option>
+      </select>
+      <button class="btn" id="zipBtn">Download all (.zip)</button>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  let results = [];            // svg: {type:'svg', name, svg, kind, blobUrl}  photo: {type:'photo', name, url|blob, kind, ext, w, h}
+  const seen = new Set();
+  const usedNames = new Set();
+  const seenUrls = new Set();
+
+  // ---------- UI plumbing ----------
+  document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t));
+    ['url', 'paste', 'file'].forEach(n => $('#tab-' + n).classList.toggle('hide', n !== t.dataset.tab));
+  });
+  const log = (msg, cls = '') => {
+    const d = document.createElement('div'); if (cls) d.className = cls; d.textContent = msg;
+    $('#log').appendChild(d); $('#log').scrollTop = 1e9;
+  };
+  const opts = () => ({ css: $('#optCss').checked, split: $('#optSplit').checked, proxy: $('#optProxy').checked, photos: $('#optPhotos').checked });
+
+  // ---------- fetching ----------
+  const PROXIES = [
+    u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+    u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+    u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+  ];
+  const STATUS_TEXT = {
+    400: 'bad request', 401: 'login required', 403: 'forbidden (site or proxy refuses automated requests)',
+    404: 'not found', 407: 'proxy auth required', 408: 'request timeout', 429: 'rate limited',
+    451: 'blocked for legal reasons', 500: 'server error', 502: 'bad gateway', 503: 'unavailable or bot protection',
+    504: 'gateway timeout', 520: 'origin error (Cloudflare)', 522: 'origin timed out (Cloudflare)', 530: 'proxy cannot reach site'
+  };
+  async function timedFetch(url, ms = 15000, as = 'text') {
+    const c = new AbortController(); const t = setTimeout(() => c.abort(), ms);
+    try {
+      const r = await fetch(url, { signal: c.signal });
+      if (!r.ok) throw new Error('HTTP ' + r.status + (STATUS_TEXT[r.status] ? ' ' + STATUS_TEXT[r.status] : ''));
+      return as === 'blob' ? await r.blob() : await r.text();
+    } catch (e) {
+      if (e.name === 'AbortError') throw new Error('timed out after ' + ms / 1000 + 's');
+      if (e instanceof TypeError) throw new Error('no response (blocked by CORS, offline, or DNS/SSL error)');
+      throw e;
+    } finally { clearTimeout(t); }
+  }
+  const hostOf = u => { try { return new URL(u).hostname; } catch (_) { return u; } };
+  async function getRes(url, useProxy, as = 'text') {
+    const ms = as === 'blob' ? 30000 : 15000;
+    const attempts = [];
+    try { return await timedFetch(url, ms, as); }
+    catch (e) { attempts.push(['direct', e.message]); }
+    if (useProxy) {
+      for (const p of PROXIES) {
+        const proxyUrl = p(url);
+        try { return await timedFetch(proxyUrl, ms, as); }
+        catch (e) { attempts.push([hostOf(proxyUrl), e.message]); }
+      }
+    }
+    const err = new Error(
+      'could not load ' + url + '\n' +
+      attempts.map(([who, why]) => '    ' + who + ': ' + why).join('\n') +
+      (useProxy ? '' : '\n    (CORS proxy fallback is turned off)')
+    );
+    err.attempts = attempts;
+    throw err;
+  }
+  const getText = (u, proxy) => getRes(u, proxy, 'text');
+  function explainFailure(attempts) {
+    const all = attempts.map(a => a[1]).join(' | ');
+    if (/429/.test(all)) log('  Tip: the proxies are rate limited. Wait a minute and retry, or use the Paste HTML tab.', 'warn');
+    else if (/403|503|forbidden|bot protection/.test(all)) log('  Tip: this site refuses automated requests. Use "View source" and the Paste HTML tab.', 'warn');
+    else if (/timed out/.test(all)) log('  Tip: the site or proxies were too slow. Try again, or use the Paste HTML tab.', 'warn');
+    else log('  Tip: browsers block cross-site requests and the public proxies failed. Use the Paste HTML tab.', 'warn');
+  }
+
+  // ---------- extraction ----------
+  // Nesting-aware scan on raw text: preserves attribute case (viewBox) unlike innerHTML round-trips.
+  function findInlineSvgs(html) {
+    const re = /<(\/?)svg\b[^>]*>/gi; const out = []; let depth = 0, start = 0, m;
+    while ((m = re.exec(html))) {
+      const closing = m[1] === '/'; const selfClosing = /\/\s*>$/.test(m[0]);
+      if (!closing) {
+        if (depth === 0) start = m.index;
+        if (selfClosing) { if (depth === 0) out.push(html.slice(start, re.lastIndex)); }
+        else depth++;
+      } else if (depth > 0) {
+        depth--; if (depth === 0) out.push(html.slice(start, re.lastIndex));
+      }
+    }
+    return out;
+  }
+  function normalize(svg) {
+    const head = svg.match(/^<svg\b[^>]*>/i); if (!head) return svg;
+    let tag = head[0], n = tag;
+    if (!/xmlns\s*=/.test(tag)) n = n.replace(/<svg/i, '<svg xmlns="http://www.w3.org/2000/svg"');
+    if (/xlink:/.test(svg) && !/xmlns:xlink/.test(tag)) n = n.replace(/<svg/i, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+    return '<?xml version="1.0" encoding="UTF-8"?>\n' + svg.replace(tag, n) + '\n';
+  }
+  function splitSprites(svg) {
+    const re = /<symbol\b([^>]*)>([\s\S]*?)<\/symbol>/gi; const out = []; let m;
+    while ((m = re.exec(svg))) {
+      const id = (m[1].match(/\bid\s*=\s*["']([^"']+)["']/i) || [])[1];
+      const vb = (m[1].match(/\bviewBox\s*=\s*["']([^"']+)["']/i) || [])[1];
+      out.push([id, `<svg xmlns="http://www.w3.org/2000/svg"${vb ? ` viewBox="${vb}"` : ''}>${m[2]}</svg>`]);
+    }
+    return out;
+  }
+  function decodeDataUri(uri) {
+    const m = uri.match(/^data:image\/svg\+xml(;[^,]*)?,([\s\S]*)$/i); if (!m) return null;
+    try {
+      if (/base64/i.test(m[1] || '')) {
+        const bin = atob(m[2].replace(/\s/g, ''));
+        return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0)));
+      }
+      return decodeURIComponent(m[2]);
+    } catch (_) { return null; }
+  }
+  function candidateRefs(text) {
+    const refs = [];
+    const attr = /\b(?:src|href|xlink:href|data|srcset|data-[\w-]+|content|poster|style)\s*=\s*(["'])([\s\S]*?)\1/gi;
+    const cssUrl = /url\(\s*(["']?)([\s\S]*?)\1\s*\)/gi; let m;
+    while ((m = attr.exec(text))) {
+      const v = m[2].trim();
+      if (/^data:/i.test(v)) refs.push(v);
+      else if (v.includes(',') && /\s/.test(v)) v.split(',').forEach(p => { const u = p.trim().split(/\s+/)[0]; if (u) refs.push(u); });
+      else refs.push(v);
+      let u; const inner = new RegExp(cssUrl.source, 'gi');
+      while ((u = inner.exec(v))) refs.push(u[2].trim());
+    }
+    while ((m = cssUrl.exec(text))) refs.push(m[2].trim());
+    return refs;
+  }
+  const isSvgRef = r => { try { return /\.svgz?$/i.test(new URL(r, 'http://x/').pathname); } catch (_) { return false; } };
+
+
+  // ---------- photos ----------
+  const IMG_EXT = /\.(png|jpe?g|gif|webp|avif|bmp|ico|tiff?|jfif)(?:[?#].*)?$/i;
+  const EXT_BY_TYPE = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp', 'image/avif': 'avif',
+    'image/bmp': 'bmp', 'image/x-icon': 'ico', 'image/vnd.microsoft.icon': 'ico', 'image/tiff': 'tif', 'image/svg+xml': 'svg' };
+  const attrOf = (tag, name) => {
+    const m = tag.match(new RegExp('[\\s"\']' + name + '\\s*=\\s*(?:"([^"]*)"|\'([^\']*)\'|([^\\s>]+))', 'i'));
+    return m ? (m[1] ?? m[2] ?? m[3]) : null;
+  };
+  function bestFromSrcset(v) {
+    let best = null, score = -1, m; const re = /(\S+)\s+(\d+(?:\.\d+)?)([wx])/g;
+    while ((m = re.exec(v))) {
+      const u = m[1].replace(/^,+/, ''), sc = m[3].toLowerCase() === 'w' ? +m[2] : +m[2] * 1000;
+      if (u && sc >= score) { best = u; score = sc; }
+    }
+    return best || (v.trim().split(/,\s+/)[0] || '').split(/\s+/)[0] || null;
+  }
+  function imageRefs(text) {
+    const out = [];
+    const push = (ref, kind) => { if (ref && ref.trim()) out.push({ ref: ref.replace(/&amp;/g, '&').trim(), kind }); };
+    for (const m of text.matchAll(/<(img|source|video|meta|link)\b[^>]*>/gi)) {
+      const tag = m[0], name = m[1].toLowerCase();
+      if (name === 'img' || name === 'source') {
+        const ss = attrOf(tag, 'srcset') || attrOf(tag, 'data-srcset');
+        if (ss) { push(bestFromSrcset(ss), 'photo'); continue; }
+        if (name === 'source' && !/^image\//i.test(attrOf(tag, 'type') || '')) continue;
+        for (const a of ['data-src', 'data-lazy-src', 'data-original', 'data-lazy', 'src']) {
+          const v = attrOf(tag, a); if (v) { push(v, 'photo'); break; }
+        }
+      } else if (name === 'video') push(attrOf(tag, 'poster'), 'photo');
+      else if (name === 'meta') {
+        const k = attrOf(tag, 'property') || attrOf(tag, 'name') || '';
+        if (/^(og:image(:secure_url|:url)?|twitter:image(:src)?)$/i.test(k)) push(attrOf(tag, 'content'), 'social');
+      } else if (name === 'link') {
+        if (/icon/i.test(attrOf(tag, 'rel') || '')) push(attrOf(tag, 'href'), 'icon');
+      }
+    }
+    for (const m of text.matchAll(/url\(\s*(["']?)([\s\S]*?)\1\s*\)/gi)) {
+      const u = m[2].trim(); if (/^data:image\/(?!svg)/i.test(u) || IMG_EXT.test(u)) push(u, 'background');
+    }
+    return out;
+  }
+  function dataUriToBlob(uri) {
+    const m = uri.match(/^data:(image\/(?!svg)[\w.+-]+)(;[^,]*)?,([\s\S]*)$/i); if (!m) return null;
+    try {
+      const bytes = /base64/i.test(m[2] || '') ? Uint8Array.from(atob(m[3].replace(/\s/g, '')), c => c.charCodeAt(0))
+        : new TextEncoder().encode(decodeURIComponent(m[3]));
+      return new Blob([bytes], { type: m[1] });
+    } catch (_) { return null; }
+  }
+  function addPhoto(url, kind, { allowSvg = false, blob = null, hint = 'photo' } = {}) {
+    if (seenUrls.has(url)) return false;
+    if (!blob && !allowSvg && isSvgRef(url)) return false;
+    seenUrls.add(url);
+    let base = hint, ext = blob ? (EXT_BY_TYPE[blob.type] || '') : '';
+    if (!blob) {
+      try {
+        const last = decodeURIComponent(new URL(url).pathname.split('/').filter(Boolean).pop() || '');
+        const m = last.match(/^(.*?)(?:\.(png|jpe?g|gif|webp|avif|bmp|ico|tiff?|jfif|svgz?))?$/i);
+        if (m && m[1]) base = m[1];
+        ext = ((m && m[2]) || '').toLowerCase().replace('jfif', 'jpg').replace('jpeg', 'jpg');
+      } catch (_) {}
+    }
+    base = base.replace(/[^\w.\-]+/g, '_').replace(/^[._]+|[._]+$/g, '').slice(0, 80) || hint;
+    let final = base, i = 1; while (usedNames.has(final)) final = base + '-' + (++i);
+    usedNames.add(final);
+    results.push({ type: 'photo', name: final + (ext ? '.' + ext : ''), kind, url: blob ? null : url, blob,
+      blobUrl: blob ? URL.createObjectURL(blob) : null, ext });
+    return true;
+  }
+  async function getPhotoBlob(r) {
+    if (r.blob) return r.blob;
+    const b = await getRes(r.url, opts().proxy, 'blob');
+    if (b.type && !/^image\//i.test(b.type) && b.type !== 'application/octet-stream') throw new Error('response was not an image (' + b.type + ')');
+    return (r.blob = b);
+  }
+  const photoFileName = (r, b) => r.ext ? r.name : r.name + '.' + (EXT_BY_TYPE[b.type] || 'img');
+
+  // ---------- storing ----------
+  function add(name, svg, kind) {
+    if (!/<svg/i.test(svg)) return false;
+    const key = svg.replace(/\s+/g, ''); if (seen.has(key)) return false; seen.add(key);
+    let base = name.replace(/[^\w.\-]+/g, '_').replace(/^[._]+|[._]+$/g, '').replace(/\.svgz?$/i, '').slice(0, 80) || 'svg';
+    let final = base, i = 1; while (usedNames.has(final)) final = base + '-' + (++i);
+    usedNames.add(final);
+    const blobUrl = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+    results.push({ type: 'svg', name: final + '.svg', svg, kind, blobUrl });
+    return true;
+  }
+
+  async function ripOne(html, base, o) {
+    let host = 'page'; try { if (base) host = new URL(base).hostname.replace(/\W+/g, '_'); } catch (_) {}
+    let n = 0, before = results.length;
+
+    findInlineSvgs(html).forEach((raw, idx) => {
+      raw = normalize(raw);
+      if (o.split && /<symbol/i.test(raw)) {
+        splitSprites(raw).forEach(([id, sym]) => add(`${host}-sprite-${id || idx + 1}`, normalize(sym), 'sprite'));
+      } else add(`${host}-inline-${idx + 1}`, raw, 'inline');
+    });
+    log(`  inline/sprite SVGs: ${results.length - before}`);
+
+    const texts = [[html, base]];
+    if (o.css && base) {
+      const links = [...html.matchAll(/<link\b[^>]*?rel\s*=\s*["']?stylesheet["']?[^>]*>/gi)];
+      for (const l of links) {
+        const h = l[0].match(/href\s*=\s*["']([^"']+)["']/i); if (!h) continue;
+        try {
+          const u = new URL(h[1].replace(/&amp;/g, '&'), base).href;
+          texts.push([await getText(u, o.proxy), u]);
+        } catch (e) { log('  stylesheet skipped: ' + e.message, 'warn'); }
+      }
+    }
+
+    const done = new Set(), jobs = [];
+    for (const [text, tbase] of texts) {
+      for (let ref of candidateRefs(text)) {
+        ref = ref.replace(/&amp;/g, '&'); if (!ref || done.has(ref)) continue; done.add(ref);
+        if (/^data:/i.test(ref)) {
+          const s = decodeDataUri(ref); if (s) add(`${host}-datauri-${++n}`, normalize(s), 'data-uri');
+          continue;
+        }
+        if (!isSvgRef(ref)) continue;
+        if (!tbase) { log('  relative SVG link skipped (no base URL): ' + ref, 'warn'); continue; }
+        try { jobs.push(new URL(ref, tbase).href); } catch (_) {}
+      }
+    }
+    const uniq = [...new Set(jobs)]; if (uniq.length) log(`  fetching ${uniq.length} external SVG file(s)…`);
+    let idx = 0;
+    await Promise.all(Array.from({ length: Math.min(6, uniq.length) }, async () => {
+      while (idx < uniq.length) {
+        const u = uniq[idx++];
+        try {
+          const t = await getText(u, o.proxy);
+          const fname = new URL(u).pathname.split('/').pop() || 'file';
+          add(fname, t, 'external');
+        } catch (e) {
+          log('  failed: ' + e.message, 'err');
+          if (o.photos && addPhoto(u, 'svg link', { allowSvg: true })) log('  listed as a linked file so you can still preview it and use Open', 'warn');
+        }
+      }
+    }));
+
+    if (o.photos) {
+      let relSkipped = 0, added = 0;
+      for (const [text, tbase] of texts) {
+        for (const { ref, kind } of imageRefs(text)) {
+          if (/^data:/i.test(ref)) {
+            const b = dataUriToBlob(ref); if (b && addPhoto(ref, 'embedded', { blob: b, hint: host + '-embedded' })) added++;
+            continue;
+          }
+          if (/^(javascript|blob|about|mailto|tel):/i.test(ref) || ref.startsWith('#')) continue;
+          let abs;
+          try { abs = new URL(ref.startsWith('//') && !tbase ? 'https:' + ref : ref, tbase || undefined).href; }
+          catch (_) { relSkipped++; continue; }
+          if (/^https?:/i.test(abs) && addPhoto(abs, kind, { hint: host + '-photo' })) added++;
+        }
+      }
+      log(`  photos: ${added}`);
+      if (relSkipped) log(`  ${relSkipped} relative image link(s) skipped (add a base URL to resolve them)`, 'warn');
+    }
+  }
+
+  async function run(fn) {
+    ['goUrl', 'goPaste'].forEach(i => $('#' + i).disabled = true);
+    try { await fn(); } catch (e) { log('Error: ' + e.message, 'err'); if (e.attempts) explainFailure(e.attempts); }
+    ['goUrl', 'goPaste'].forEach(i => $('#' + i).disabled = false);
+    render();
+    log(`Done. ${results.length} unique SVG(s) total.`, 'ok');
+  }
+
+  $('#goUrl').onclick = () => run(async () => {
+    let u = $('#url').value.trim(); if (!u) return log('Enter a URL first.', 'warn');
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    log('>> ' + u);
+    const html = await getText(u, opts().proxy);
+    await ripOne(html, u, opts());
+  });
+  $('#url').addEventListener('keydown', e => { if (e.key === 'Enter') $('#goUrl').click(); });
+
+  $('#goPaste').onclick = () => run(async () => {
+    const html = $('#html').value; if (!html.trim()) return log('Paste some HTML first.', 'warn');
+    let base = $('#base').value.trim(); if (base && !/^https?:\/\//i.test(base)) base = 'https://' + base;
+    log('>> pasted HTML' + (base ? ' (base ' + base + ')' : ''));
+    await ripOne(html, base || null, opts());
+  });
+
+  const drop = $('#drop'), fileIn = $('#file');
+  drop.onclick = () => fileIn.click();
+  ['dragenter', 'dragover'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(e => drop.addEventListener(e, ev => { ev.preventDefault(); drop.classList.remove('over'); }));
+  const handleFiles = files => run(async () => {
+    for (const f of files) { log('>> ' + f.name); await ripOne(await f.text(), null, opts()); }
+  });
+  drop.addEventListener('drop', e => handleFiles([...e.dataTransfer.files]));
+  fileIn.onchange = () => { handleFiles([...fileIn.files]); fileIn.value = ''; };
+
+  // ---------- results ----------
+  function render() {
+    $('#results').classList.toggle('hide', !results.length);
+    const kinds = [...new Set(results.map(r => r.kind))];
+    const sel = $('#kind'), cur = sel.value;
+    sel.innerHTML = '<option value="">All sources</option>' + kinds.map(k => `<option>${k}</option>`).join('');
+    sel.value = kinds.includes(cur) ? cur : '';
+    draw();
+  }
+  let drawTimer;
+  const scheduleDraw = () => { clearTimeout(drawTimer); drawTimer = setTimeout(draw, 250); };
+  const isTiny = r => r.type === 'photo' && r.w && Math.max(r.w, r.h) < 32;
+  const visible = () => {
+    const k = $('#kind').value, t = $('#typesel').value, hideTiny = $('#optTiny').checked;
+    return results.filter(r => (!t || r.type === t) && (!k || r.kind === k) && !(hideTiny && isTiny(r)));
+  };
+  function draw() {
+    const bg = $('#bgsel').value, list = visible();
+    const ns = list.filter(r => r.type === 'svg').length, np = list.length - ns, parts = [];
+    if (ns) parts.push(`${ns} SVG${ns === 1 ? '' : 's'}`);
+    if (np) parts.push(`${np} photo${np === 1 ? '' : 's'}`);
+    $('#count').textContent = parts.join(', ') || '0 files';
+    const grid = $('#grid'); grid.innerHTML = '';
+    if (!list.length) { grid.innerHTML = '<div class="empty">Nothing here.</div>'; return; }
+    list.forEach(r => {
+      const c = document.createElement('div'); c.className = 'card';
+      const photo = r.type === 'photo';
+      c.innerHTML = `<div class="prev ${bg}"><img alt=""></div>
+        <div class="meta"><div class="name"></div><div class="info"><span class="tag"></span><span class="size"></span></div></div>
+        <div class="acts">` + (photo
+          ? `<button data-a="dl">Download</button><a data-a="open" target="_blank" rel="noopener noreferrer">Open</a>` + (r.url ? `<button data-a="cp">Copy URL</button>` : '')
+          : `<button data-a="dl">Download</button><button data-a="cp">Copy code</button>`) + `</div>`;
+      const img = c.querySelector('img'), size = c.querySelector('.size');
+      c.querySelector('.name').textContent = r.name; c.querySelector('.name').title = r.name;
+      c.querySelector('.tag').textContent = r.kind;
+      const copyBtn = c.querySelector('[data-a=cp]'), copyLabel = copyBtn ? copyBtn.textContent : '';
+      const flash = (btn, txt, label) => { btn.textContent = txt; setTimeout(() => btn.textContent = label, 1200); };
+      if (!photo) {
+        img.src = r.blobUrl;      // <img> keeps embedded scripts inert
+        size.textContent = r.svg.length > 1024 ? (r.svg.length / 1024).toFixed(1) + ' KB' : r.svg.length + ' B';
+        c.querySelector('[data-a=dl]').onclick = () => saveBlob(new Blob([r.svg], { type: 'image/svg+xml' }), r.name);
+        copyBtn.onclick = async e => {
+          try { await navigator.clipboard.writeText(r.svg); flash(e.target, 'Copied ✓', copyLabel); }
+          catch (_) { flash(e.target, 'Copy failed', copyLabel); }
+        };
+      } else {
+        img.referrerPolicy = 'no-referrer'; img.loading = 'lazy';
+        img.src = r.blobUrl || r.url;
+        if (r.w) size.textContent = r.w + '×' + r.h;
+        img.onload = () => {
+          if (r.w) return;
+          r.w = img.naturalWidth; r.h = img.naturalHeight;
+          size.textContent = r.w ? r.w + '×' + r.h : '';
+          if (isTiny(r) && $('#optTiny').checked) scheduleDraw();
+        };
+        img.onerror = () => { size.textContent = 'no preview'; };
+        c.querySelector('[data-a=open]').href = r.blobUrl || r.url;
+        c.querySelector('[data-a=dl]').onclick = async e => {
+          const btn = e.target, label = btn.textContent; btn.disabled = true; btn.textContent = 'Fetching…';
+          try { const b = await getPhotoBlob(r); saveBlob(b, photoFileName(r, b)); btn.textContent = 'Saved ✓'; }
+          catch (_) { btn.textContent = 'Blocked, use Open'; }
+          setTimeout(() => { btn.textContent = label; btn.disabled = false; }, 1800);
+        };
+        if (copyBtn) copyBtn.onclick = async e => {
+          try { await navigator.clipboard.writeText(r.url); flash(e.target, 'Copied ✓', copyLabel); }
+          catch (_) { flash(e.target, 'Copy failed', copyLabel); }
+        };
+      }
+      grid.appendChild(c);
+    });
+  }
+  $('#kind').onchange = draw; $('#bgsel').onchange = draw; $('#typesel').onchange = draw; $('#optTiny').onchange = draw;
+
+  function saveBlob(blob, name) {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+
+  // ---------- tiny store-only ZIP writer (no dependencies) ----------
+  const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  const crc32 = b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  function makeZip(files) {
+    const enc = new TextEncoder(), parts = [], central = []; let off = 0;
+    const d = new Date(), time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1),
+      date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    for (const f of files) {
+      const nb = enc.encode(f.name), data = typeof f.data === 'string' ? enc.encode(f.data) : f.data, crc = crc32(data);
+      const lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+      lh.setUint16(10, time, true); lh.setUint16(12, date, true); lh.setUint32(14, crc, true);
+      lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true); lh.setUint16(26, nb.length, true); lh.setUint16(28, 0, true);
+      parts.push(new Uint8Array(lh.buffer), nb, data);
+      const ch = new DataView(new ArrayBuffer(46));
+      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true);
+      ch.setUint16(10, 0, true); ch.setUint16(12, time, true); ch.setUint16(14, date, true); ch.setUint32(16, crc, true);
+      ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true); ch.setUint16(28, nb.length, true);
+      ch.setUint32(42, off, true);
+      central.push(new Uint8Array(ch.buffer), nb);
+      off += 30 + nb.length + data.length;
+    }
+    const cdSize = central.reduce((s, p) => s + p.length, 0);
+    const end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+    end.setUint32(12, cdSize, true); end.setUint32(16, off, true);
+    return new Blob([...parts, ...central, new Uint8Array(end.buffer)], { type: 'application/zip' });
+  }
+  $('#zipBtn').onclick = async () => {
+    const list = visible(); if (!list.length) return;
+    const btn = $('#zipBtn'), label = btn.textContent; btn.disabled = true;
+    const files = list.filter(r => r.type === 'svg').map(r => ({ name: r.name, data: r.svg }));
+    const photos = list.filter(r => r.type === 'photo'); let i = 0, done = 0, failed = 0;
+    await Promise.all(Array.from({ length: Math.min(4, photos.length) }, async () => {
+      while (i < photos.length) {
+        const r = photos[i++];
+        try { const b = await getPhotoBlob(r); files.push({ name: photoFileName(r, b), data: new Uint8Array(await b.arrayBuffer()) }); }
+        catch (_) { failed++; }
+        btn.textContent = `Fetching ${++done}/${photos.length}…`;
+      }
+    }));
+    btn.textContent = label; btn.disabled = false;
+    if (failed) log(`${failed} photo(s) could not be fetched (usually blocked by CORS) and were left out of the zip. Use Open on those.`, 'warn');
+    if (files.length) saveBlob(makeZip(files), 'rips.zip');
+  };
+})();
+</script>
+</body>
+</html>
