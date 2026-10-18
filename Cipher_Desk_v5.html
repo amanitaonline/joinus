@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cipher Desk</title>
+<style>
+:root{--bg:#e8ecef;--panel:#f6f8f9;--ink:#18222d;--mute:#586470;--line:#c3ccd3;--acc:#3a3fb8;--accfg:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171c22;--panel:#1f262e;--ink:#e6ebef;--mute:#9aa6b1;--line:#35414c;--acc:#a3a7ff;--accfg:#12151f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#171c22;--panel:#1f262e;--ink:#e6ebef;--mute:#9aa6b1;--line:#35414c;--acc:#a3a7ff;--accfg:#12151f;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,"SF Pro Text",system-ui,"Helvetica Neue",sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 20px 64px}
+h1{font-size:28px;line-height:1.15;margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:0 0 24px;max-width:60ch}
+.mono,textarea,input[type=text],input[type=number],.out{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+textarea{width:100%;min-height:120px;padding:14px;border:1.5px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font-size:15px;resize:vertical}
+textarea:focus,input:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.bar{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin:14px 0 26px}
+.seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:8px;overflow:hidden}
+.seg label{padding:6px 16px;cursor:pointer;font-weight:600;font-size:14px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg input:checked+span{background:var(--ink);color:var(--bg)}
+.seg label span{display:block;margin:-6px -16px;padding:6px 16px}
+.seg input:focus-visible+span{outline:2px solid var(--acc);outline-offset:-4px}
+.f{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mute)}
+.f input{width:110px;padding:6px 8px;border:1.5px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);font-size:14px}
+.f input[type=number]{width:64px}
+.f select{padding:6px 8px;border:1.5px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink);font:inherit;font-size:14px}
+.count{color:var(--mute);font-size:14px;margin:0 0 6px}
+.row h3 .tag.nfo,.row.good h3 .tag.nfo{color:var(--mute);font-weight:400;margin-top:3px}
+.fq{margin-top:10px;display:grid;gap:3px;font-size:14px}
+.fq div{display:grid;grid-template-columns:20px 1fr 90px;gap:10px;align-items:center}
+.fq i{display:block;height:8px;background:var(--acc);border-radius:2px}
+.fq span{color:var(--mute);font-size:13px}
+.row{display:grid;grid-template-columns:200px 1fr auto;gap:6px 16px;padding:14px 0;border-top:1px solid var(--line);align-items:start}
+.row h3{margin:0;font-size:15px}
+.tag{display:block;font-weight:400;font-size:12px;color:var(--mute)}
+.row.good h3 .tag{color:var(--acc);font-weight:600}
+.out{white-space:pre-wrap;word-break:break-word;font-size:14px;max-height:9em;overflow:auto}
+.btns{display:flex;gap:6px}
+button{font:inherit;font-size:13px;padding:5px 10px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:6px;cursor:pointer}
+button:hover{background:var(--ink);color:var(--bg)}
+details{border-top:1px solid var(--line);padding:14px 0}
+summary{cursor:pointer;font-weight:600;font-size:15px}
+.cae{margin-top:10px;display:grid;gap:2px;font-size:14px}
+.cae div{display:grid;grid-template-columns:64px 1fr;gap:10px}
+.peeled{border:1.5px solid var(--ink);border-radius:8px;padding:12px 14px;margin:0 0 18px}
+.peeled .out{margin:8px 0}
+#advp{margin-top:28px;border-top:2px solid var(--ink);padding-top:8px}
+#advp h2{font-size:20px;margin:12px 0 0}
+.stp{margin:6px 0;flex-wrap:wrap}
+.f input[type=checkbox]{width:auto;accent-color:var(--acc)}
+.f input.wide{width:min(320px,100%)}
+#bi table{border-collapse:collapse;font-size:13px}
+#bi th,#bi td{text-align:left;padding:2px 14px 2px 0;border-bottom:1px solid var(--line)}
+.bar button{padding:6px 12px}
+.cae b{color:var(--mute);font-weight:400}
+.cae .hit{color:var(--acc);font-weight:600}
+.empty{color:var(--mute);border-top:1px solid var(--line);padding:18px 0}
+@media (max-width:620px){.row{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* hardware skin */
+:root{--desk:#a9a393;--case:#d8d2c3;--case-hi:#efeadd;--case-lo:#a39c8a;--edge:#6f6959;--ink:#2b2924;--mute:#5a5448;--line:#9d9684;--acc:#a8381a;--accfg:#fff;--screen:#13161b;--screen-ink:#d4e4ff;--screen-mute:#8ba0bc;--amber:#ffbf5e;--emboss:rgba(255,255,255,.7);--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--bg:var(--case);--panel:var(--screen);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--desk:#0e0f12;--case:#33353a;--case-hi:#46494f;--case-lo:#1e1f23;--edge:#08090a;--ink:#e9e5d9;--mute:#aaa497;--line:#53565d;--acc:#ff9a6b;--accfg:#1a1208;--screen:#0b0d11;--emboss:rgba(0,0,0,.75);color-scheme:dark}}
+:root[data-theme="dark"]{--desk:#0e0f12;--case:#33353a;--case-hi:#46494f;--case-lo:#1e1f23;--edge:#08090a;--ink:#e9e5d9;--mute:#aaa497;--line:#53565d;--acc:#ff9a6b;--accfg:#1a1208;--screen:#0b0d11;--emboss:rgba(0,0,0,.75);color-scheme:dark}
+body{font-family:var(--mono);font-size:14px;color:var(--ink);background:radial-gradient(ellipse 80% 40% at 50% 0,rgba(255,255,255,.25),transparent 70%),var(--desk)}
+main{position:relative;max-width:880px;margin:26px auto 44px;padding:42px 30px 46px;border-radius:22px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px,rgba(0,0,0,.025) 1px 3px),linear-gradient(180deg,var(--case-hi),var(--case) 12%,var(--case) 88%,var(--case-lo));box-shadow:inset 0 2px 0 rgba(255,255,255,.5),inset 0 -4px 0 rgba(0,0,0,.2),0 0 0 1px var(--edge),0 4px 0 var(--edge),0 34px 50px -18px rgba(0,0,0,.6)}
+main::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-repeat:no-repeat;
+ background-image:radial-gradient(circle at 35% 30%,#f4f1e8 0,#a9a392 45%,#6d6759 62%,#0000 64%),radial-gradient(circle at 35% 30%,#f4f1e8 0,#a9a392 45%,#6d6759 62%,#0000 64%),radial-gradient(circle at 35% 30%,#f4f1e8 0,#a9a392 45%,#6d6759 62%,#0000 64%),radial-gradient(circle at 35% 30%,#f4f1e8 0,#a9a392 45%,#6d6759 62%,#0000 64%),linear-gradient(#0000 42%,#000a 42% 58%,#0000 58%),linear-gradient(#0000 42%,#000a 42% 58%,#0000 58%),linear-gradient(#0000 42%,#000a 42% 58%,#0000 58%),linear-gradient(#0000 42%,#000a 42% 58%,#0000 58%);
+ background-size:13px 13px,13px 13px,13px 13px,13px 13px,7px 13px,7px 13px,7px 13px,7px 13px;
+ background-position:left 14px top 14px,right 14px top 14px,left 14px bottom 14px,right 14px bottom 14px,left 17px top 14px,right 17px top 14px,left 17px bottom 14px,right 17px bottom 14px}
+h1{display:flex;align-items:center;gap:12px;font-size:26px;letter-spacing:.02em;text-shadow:0 1px 0 var(--emboss)}
+h1::after{content:"";width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#9a9484,#3b382f 70%);box-shadow:inset 0 1px 2px rgba(0,0,0,.6),0 1px 0 var(--emboss)}
+body[data-sig="1"] h1::after{background:radial-gradient(circle at 35% 30%,#fff3c9,var(--amber) 55%,#c47a14);box-shadow:0 0 8px 2px rgba(255,191,94,.8),0 0 20px 6px rgba(255,191,94,.4)}
+.sub,.f{color:var(--ink);text-shadow:0 1px 0 var(--emboss)}
+.sub{color:var(--mute)}
+.count{color:var(--mute)}
+textarea,.f input:not([type=checkbox]),.f select{font-family:var(--mono);color:var(--screen-ink);caret-color:var(--amber);border:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,#0000 1px 3px),radial-gradient(ellipse at 50% 0,#1d222b,var(--screen) 75%)}
+textarea::placeholder,.f input::placeholder{color:var(--screen-mute)}
+textarea{margin:8px 0 14px;padding:16px 18px;border-radius:12px;box-shadow:inset 0 4px 14px rgba(0,0,0,.8),inset 0 0 0 1px #000,0 0 0 6px var(--case-lo),0 0 0 7px var(--edge),0 1px 0 7px rgba(255,255,255,.35)}
+.f input:not([type=checkbox]),.f select{padding:6px 9px;border-radius:7px;box-shadow:inset 0 2px 6px rgba(0,0,0,.8),0 1px 0 var(--emboss),0 0 0 1px var(--edge)}
+.f input[type=checkbox]{appearance:none;-webkit-appearance:none;position:relative;flex:none;width:44px;height:22px;border-radius:6px;cursor:pointer;background:linear-gradient(#6f6a5c,#8e8878);box-shadow:inset 0 2px 5px rgba(0,0,0,.6),0 1px 0 var(--emboss)}
+.f input[type=checkbox]::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:18px;border-radius:4px;background:linear-gradient(#f2ede0,#bdb5a2);box-shadow:0 2px 0 #6b6556,0 3px 4px rgba(0,0,0,.4);transition:left .15s}
+.f input[type=checkbox]:checked::after{left:22px;background:linear-gradient(#ffe2b0,var(--amber))}
+button{font:600 13px var(--mono);color:var(--ink);padding:7px 13px;border-radius:8px;border:1px solid var(--edge);border-bottom:3px solid var(--edge);background:linear-gradient(var(--case-hi),var(--case-lo) 130%);text-shadow:0 1px 0 var(--emboss);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 3px 5px rgba(0,0,0,.25)}
+button:hover{background:linear-gradient(var(--case-hi),var(--case-lo) 130%);color:var(--ink);filter:brightness(1.08)}
+button:active{transform:translateY(2px);border-bottom-width:1px;box-shadow:inset 0 2px 5px rgba(0,0,0,.35)}
+#res button,#pl button,#pipeout button{background:linear-gradient(#444a55,#262a31);color:var(--screen-ink);border-color:#050607;text-shadow:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 4px rgba(0,0,0,.6)}
+#res button:hover,#pl button:hover{background:linear-gradient(#444a55,#262a31);color:var(--screen-ink)}
+.seg{border:0;padding:4px;gap:2px;overflow:visible;border-radius:11px;background:var(--case-lo);box-shadow:inset 0 3px 7px rgba(0,0,0,.55),0 1px 0 var(--emboss)}
+.seg label span{border-radius:8px;color:var(--ink);font-weight:600}
+.seg input:checked+span{background:linear-gradient(var(--case-hi),var(--case));color:var(--ink);box-shadow:0 2px 0 var(--edge),0 4px 6px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.6)}
+.seg input:checked+span::before{content:"\25cf  "}
+#res{margin:12px 6px 26px;padding:6px 0 0;border-radius:12px;color:var(--screen-ink);background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,#0000 1px 3px),radial-gradient(ellipse at 50% 0,#1b2029,var(--screen) 70%);box-shadow:inset 0 4px 16px rgba(0,0,0,.85),inset 0 0 0 1px #000,0 0 0 6px var(--case-lo),0 0 0 7px var(--edge),0 1px 0 7px rgba(255,255,255,.35)}
+#res::after{content:"\2588";display:block;padding:2px 18px 12px;color:var(--amber);animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+#res .row,#pipeout .row{padding:14px 18px;border-top:1px dashed rgba(212,228,255,.2);color:var(--screen-ink)}
+#res .row:first-child,#pipeout .row:first-child{border-top:0}
+#res .row h3::before,#pipeout .row h3::before{content:"\203a  ";color:var(--amber)}
+#res .row h3 .tag,#pipeout .row h3 .tag{color:var(--screen-mute);font-weight:400}
+#res .row.good h3 .tag:not(.nfo){color:var(--amber);font-weight:700}
+.empty{padding:16px 18px;border-top:0;color:var(--screen-mute)}
+details{margin:16px 0;padding:12px 16px;border:0;border-radius:12px;background:linear-gradient(var(--case-hi),var(--case) 40%,var(--case-lo) 160%);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 0 0 1px var(--edge),0 4px 0 var(--edge),0 10px 14px -6px rgba(0,0,0,.5)}
+summary{list-style:none;user-select:none;text-shadow:0 1px 0 var(--emboss)}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"\25b8";display:inline-block;width:1.4em}
+details[open]>summary::before{content:"\25be"}
+details[open]>summary{margin-bottom:6px}
+.cae,.fq,#bi,#subout,#pipeout{padding:12px 14px;border-radius:9px;color:var(--screen-ink);background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,#0000 1px 3px),var(--screen);box-shadow:inset 0 3px 10px rgba(0,0,0,.8),inset 0 0 0 1px #000,0 1px 0 var(--emboss);text-shadow:none}
+.cae:empty,.fq:empty,#bi:empty,#subout:empty,#pipeout:empty{display:none}
+.cae b,.fq span,#bi th,#bi .count{color:var(--screen-mute)}
+.cae .hit{color:var(--amber)}
+.fq i{background:var(--amber)}
+#bi th,#bi td{border-bottom:1px solid rgba(212,228,255,.15)}
+.peeled{margin:10px 6px 22px;padding:14px 18px;border:0;border-radius:12px;color:var(--screen-ink);background:var(--screen);box-shadow:inset 0 4px 12px rgba(0,0,0,.8),inset 0 0 0 1px #000,0 0 0 6px var(--case-lo),0 0 0 7px var(--edge)}
+#advp{border-top:0;margin-top:34px;padding-top:6px}
+#advp::before{content:"";display:block;height:4px;margin-bottom:12px;border-radius:2px;background:var(--case-lo);box-shadow:inset 0 1px 2px rgba(0,0,0,.6),0 1px 0 var(--emboss)}
+#advp h2{text-shadow:0 1px 0 var(--emboss)}
+@media (max-width:620px){main{padding:36px 18px 38px}}
+@media (prefers-reduced-motion:reduce){#res::after{animation:none}.f input[type=checkbox]::after{transition:none}}
+/* glow pass */
+textarea,#res,.cae,.fq,#bi,#subout,#pipeout,.peeled,.f input:not([type=checkbox]),.f select{text-shadow:0 0 6px rgba(140,185,255,.65),0 0 18px rgba(110,160,255,.28)}
+textarea{box-shadow:inset 0 4px 14px rgba(0,0,0,.8),inset 0 0 0 1px #000,inset 0 0 40px rgba(110,160,255,.16),0 0 0 6px var(--case-lo),0 0 0 7px var(--edge),0 1px 0 7px rgba(255,255,255,.35),0 0 36px 6px rgba(110,160,255,.3)}
+textarea:focus{box-shadow:inset 0 4px 14px rgba(0,0,0,.8),inset 0 0 0 1px #000,inset 0 0 44px rgba(255,191,94,.14),0 0 0 6px var(--case-lo),0 0 0 7px var(--edge),0 0 44px 10px rgba(255,191,94,.38)}
+#res,.peeled{box-shadow:inset 0 4px 16px rgba(0,0,0,.85),inset 0 0 0 1px #000,inset 0 0 50px rgba(110,160,255,.14),0 0 0 6px var(--case-lo),0 0 0 7px var(--edge),0 1px 0 7px rgba(255,255,255,.35),0 0 40px 8px rgba(110,160,255,.28)}
+.cae,.fq,#bi,#subout,#pipeout{box-shadow:inset 0 3px 10px rgba(0,0,0,.8),inset 0 0 0 1px #000,inset 0 0 30px rgba(110,160,255,.14),0 0 16px rgba(110,160,255,.28),0 1px 0 var(--emboss)}
+.f input:not([type=checkbox]),.f select{box-shadow:inset 0 2px 6px rgba(0,0,0,.8),inset 0 0 14px rgba(110,160,255,.14),0 0 10px rgba(110,160,255,.28),0 0 0 1px var(--edge)}
+.f input:not([type=checkbox]):focus,.f select:focus{box-shadow:inset 0 2px 6px rgba(0,0,0,.8),0 0 16px 2px rgba(255,191,94,.55),0 0 0 1px var(--edge)}
+.cae .hit,#res .row.good h3 .tag:not(.nfo),#res .row h3::before,#pipeout .row h3::before,#res::after{text-shadow:0 0 8px rgba(255,191,94,.85),0 0 20px rgba(255,191,94,.45)}
+.fq i{box-shadow:0 0 10px 1px rgba(255,191,94,.8)}
+button:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 3px 5px rgba(0,0,0,.25),0 0 16px rgba(255,191,94,.6)}
+#res button:hover,#pl button:hover,#pipeout button:hover{color:var(--amber);text-shadow:0 0 8px rgba(255,191,94,.8);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 0 14px rgba(255,191,94,.6)}
+.seg input:checked+span{box-shadow:0 2px 0 var(--edge),0 4px 6px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.6),inset 0 -3px 0 var(--amber),0 0 20px 2px rgba(255,191,94,.55)}
+.f input[type=checkbox]:checked{box-shadow:inset 0 2px 5px rgba(0,0,0,.6),0 0 16px rgba(255,191,94,.45)}
+.f input[type=checkbox]:checked::after{box-shadow:0 2px 0 #6b6556,0 3px 4px rgba(0,0,0,.4),0 0 14px 4px rgba(255,191,94,.85)}
+body[data-sig="1"] h1::after{box-shadow:0 0 6px 2px rgba(255,191,94,.9),0 0 18px 6px rgba(255,191,94,.55),0 0 42px 12px rgba(255,191,94,.25);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{filter:brightness(1.3)}}
+@media (prefers-reduced-motion:reduce){body[data-sig="1"] h1::after{animation:none}}
+</style>
+</head>
+<body>
+<main>
+<h1>Cipher Desk</h1>
+<p class="sub">Paste something strange. Every decoder runs at once, and the ones that make sense float to the top.</p>
+<label class="f" style="margin:-12px 0 18px"><input type="checkbox" id="adv"> Advanced mode</label>
+
+<textarea id="in" spellcheck="false" placeholder="SGVsbG8gdGhlcmU=   or   8-5-12-12-15   or   .... . .-.. .-.. ---"></textarea>
+
+<p class="count" id="stats" aria-live="polite"></p>
+<div class="bar">
+  <div class="seg" role="radiogroup" aria-label="Direction">
+    <label><input type="radio" name="m" value="dec" checked><span>Decode</span></label>
+    <label><input type="radio" name="m" value="enc"><span>Encode</span></label>
+  </div>
+  <label class="f">Cipher <select id="c" aria-label="Cipher"></select></label>
+  <label class="f">Caesar shift <input id="k" type="number" value="3" min="1" max="25"></label>
+  <label class="f">Key <input id="vk" type="text" placeholder="e.g. LEMON" autocomplete="off" autocapitalize="off"></label>
+  <label class="f">Rails <input id="rl" type="number" value="3" min="2" max="12"></label>
+  <label class="f">Affine a, b <input id="aa" type="number" value="5" min="1" max="25"><input id="ab" type="number" value="8" min="0" max="25"></label>
+  <button id="peel" type="button">Peel layers</button>
+  <button id="copyall" type="button">Copy all results</button>
+  <button id="load" type="button">Load text file</button><input id="file" type="file" hidden>
+</div>
+
+<div id="pl"></div>
+<p class="count" id="count" aria-live="polite"></p>
+<div id="res"></div>
+<details id="allc"><summary>Caesar: try all 25 shifts</summary><div class="cae" id="cae"></div></details>
+<details id="freq"><summary>Letter frequency</summary><p class="count">English leans on E, T, A, O. A flat spread usually points to a polyalphabetic cipher or random data.</p><div class="fq" id="fq"></div></details>
+<details id="affb"><summary>Affine: try every key</summary><p class="count">Only keys that produce common English words are listed, as a,b.</p><div class="cae" id="afb"></div></details>
+<details id="xorb"><summary>XOR: try every single byte</summary><p class="count">Paste hex or raw text. Only keys that give common English words are listed.</p><div class="cae" id="xb"></div></details>
+<section id="advp" hidden>
+<h2>Advanced</h2>
+<details open><summary>Pipeline</summary>
+<p class="count">Chain steps from top to bottom. Each step runs on the previous step’s output, starting with your input.</p>
+<div id="steps"></div>
+<div class="bar"><button id="addstep" type="button">Add step</button><button id="runpipe" type="button">Run pipeline</button></div>
+<div id="pipeout"></div></details>
+<details><summary>Byte inspector</summary><div id="bi"></div></details>
+<details><summary>Custom substitution</summary>
+<p class="count">Each character in the first box turns into the matching character in the second. Both need the same length.</p>
+<div class="bar"><label class="f">From <input id="sf" class="wide" type="text" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ" spellcheck="false"></label><label class="f">To <input id="st" class="wide" type="text" placeholder="e.g. QWERTYUIOPASDFGHJKLZXCVBNM" spellcheck="false"></label></div>
+<div id="subout" class="out"></div></details>
+</section>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const A='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const u8=b=>new TextDecoder('utf-8',{fatal:true}).decode(Uint8Array.from(b));
+const bytes=s=>Array.from(new TextEncoder().encode(s));
+const shift=(s,k)=>s.replace(/[a-z]/gi,c=>{const b=c<'a'?65:97;return String.fromCharCode((c.charCodeAt(0)-b+k+260)%26+b)});
+
+// Base64
+const b64d=s=>{s=s.trim().replace(/\s+/g,'').replace(/-/g,'+').replace(/_/g,'/');
+  if(!/^[A-Za-z0-9+/]+=*$/.test(s)||s.length%4===1)return null;
+  while(s.length%4)s+='=';return u8(Array.from(atob(s),c=>c.charCodeAt(0)))};
+const b64e=s=>btoa(bytes(s).map(b=>String.fromCharCode(b)).join(''));
+// Base32
+const B32='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+const b32d=s=>{s=s.toUpperCase().replace(/[\s=]/g,'');if(!s||/[^A-Z2-7]/.test(s))return null;
+  let bits='';for(const c of s)bits+=B32.indexOf(c).toString(2).padStart(5,'0');
+  const o=[];for(let i=0;i+8<=bits.length;i+=8)o.push(parseInt(bits.slice(i,i+8),2));return u8(o)};
+const b32e=s=>{let bits='';for(const b of bytes(s))bits+=b.toString(2).padStart(8,'0');
+  let o='';for(let i=0;i<bits.length;i+=5)o+=B32[parseInt(bits.slice(i,i+5).padEnd(5,'0'),2)];
+  while(o.length%8)o+='=';return o};
+// Hex, binary, decimal
+const hexd=s=>{s=s.replace(/0x|\\x|[\s,:]/gi,'');if(!s||s.length%2||/[^0-9a-f]/i.test(s))return null;
+  return u8(s.match(/../g).map(h=>parseInt(h,16)))};
+const hexe=s=>bytes(s).map(b=>b.toString(16).padStart(2,'0')).join(' ');
+const bind=s=>{s=s.replace(/\s+/g,'');if(!s||s.length%8||/[^01]/.test(s))return null;return u8(s.match(/.{8}/g).map(b=>parseInt(b,2)))};
+const bine=s=>bytes(s).map(b=>b.toString(2).padStart(8,'0')).join(' ');
+const decd=s=>{if(!/^\d+([\s,]+\d+)*$/.test(s.trim()))return null;
+  const n=s.trim().split(/[\s,]+/).map(Number);if(n.some(x=>x<9||x>0x10FFFF))return null;return String.fromCodePoint(...n)};
+const dece=s=>[...s].map(c=>c.codePointAt(0)).join(' ');
+// A1Z26 and the reversed Z26A1
+const az=f=>s=>{if(!/\d/.test(s))return null;
+  return s.split('/').map(w=>w.trim().split(/[\s,.\-]+/).filter(Boolean)
+    .map(t=>/^\d+$/.test(t)&&+t>=1&&+t<=26?f(+t):t).join('')).join(' ')};
+const aze=s=>s.toUpperCase().split(/\s+/).map(w=>[...w].filter(c=>A.includes(c)).map(c=>A.indexOf(c)+1).join('-')).filter(Boolean).join(' / ');
+const aze2=s=>s.toUpperCase().split(/\s+/).map(w=>[...w].filter(c=>A.includes(c)).map(c=>26-A.indexOf(c)).join('-')).filter(Boolean).join(' / ');
+// Morse
+const M={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',0:'-----',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.'};
+const R=Object.fromEntries(Object.entries(M).map(([k,v])=>[v,k]));
+const morsed=s=>{s=s.replace(/[·•]/g,'.').replace(/[–—−_]/g,'-');if(/[^.\-\s\/|]/.test(s)||!/[.\-]/.test(s))return null;
+  return s.trim().split(/\s*[\/|]\s*|\s{3,}/).map(w=>w.split(/\s+/).map(c=>R[c]||'?').join('')).join(' ')};
+const morsee=s=>s.toUpperCase().split(/\s+/).map(w=>[...w].map(c=>M[c]).filter(Boolean).join(' ')).filter(Boolean).join(' / ');
+// Letter ciphers
+const atb=s=>s.replace(/[a-z]/gi,c=>{const b=c<'a'?65:97;return String.fromCharCode(b+25-(c.charCodeAt(0)-b))});
+const rot47=s=>s.replace(/[!-~]/g,c=>String.fromCharCode((c.charCodeAt(0)-33+47)%94+33));
+const vig=(s,k,d)=>{k=k.toUpperCase().replace(/[^A-Z]/g,'');if(!k)return null;let i=0;
+  return s.replace(/[a-z]/gi,c=>{const n=A.indexOf(k[i++%k.length]);return shift(c,d?-n:n)})};
+const rev=s=>[...s].reverse().join('');
+const rfE=(s,n)=>{const r=Array.from({length:n},()=>'');let i=0,d=1;for(const c of s){r[i]+=c;if(i===0)d=1;else if(i===n-1)d=-1;i+=d}return r.join('')};
+const rfD=(s,n)=>{const L=s.length,idx=[];let i=0,d=1;for(let p=0;p<L;p++){idx.push(i);if(i===0)d=1;else if(i===n-1)d=-1;i+=d}
+  const o=Array(L);idx.map((r,p)=>[r,p]).sort((a,b)=>a[0]-b[0]||a[1]-b[1]).forEach(([r,p],k)=>o[p]=s[k]);return o.join('')};
+const bacd=s=>{s=s.toUpperCase().replace(/[\s,\/-]/g,'').replace(/0/g,'A').replace(/1/g,'B');if(!s||s.length%5||/[^AB]/.test(s))return null;
+  return s.match(/.{5}/g).map(g=>{const n=parseInt(g.replace(/A/g,'0').replace(/B/g,'1'),2);return n<26?A[n]:'?'}).join('')};
+const bace=s=>[...s.toUpperCase()].filter(c=>A.includes(c)).map(c=>A.indexOf(c).toString(2).padStart(5,'0').replace(/0/g,'A').replace(/1/g,'B')).join(' ');
+const TG='ABCDEFGHIJLMNOPQRSTUVWXYZ';
+const tapd=s=>{let t;if(/^[.\s]+$/.test(s)&&s.includes('.'))t=s.trim().split(/\s+/).map(x=>x.length);else if(/^[1-5\s,]+$/.test(s))t=s.replace(/[\s,]/g,'').split('').map(Number);else return null;
+  if(t.length%2||t.some(x=>x<1||x>5))return null;let o='';for(let i=0;i<t.length;i+=2)o+=TG[(t[i]-1)*5+t[i+1]-1];return o};
+const tape=s=>[...s.toUpperCase().replace(/K/g,'C')].filter(c=>TG.includes(c)).map(c=>{const n=TG.indexOf(c);return '.'.repeat(Math.floor(n/5)+1)+' '+'.'.repeat(n%5+1)}).join('  ');
+const octd=s=>{const t=s.trim().split(/[\s,]+/);if(!t.every(x=>/^[0-7]{2,}$/.test(x)))return null;const n=t.map(x=>parseInt(x,8));if(n.some(x=>x<9||x>0x10FFFF))return null;return String.fromCodePoint(...n)};
+const octe=s=>[...s].map(c=>c.codePointAt(0).toString(8)).join(' ');
+const INFO={'Base64':'Text safe encoding of bytes. Letters, digits, + and /, often ending in =.','Base32':'Like Base64 but only A–Z and 2–7. Often padded with =.','Hex':'Each byte as two hex digits (0–9, A–F).','Binary':'Bytes written as 8 digit groups of 0s and 1s.','Decimal codes':'Each number is a character code, like 72 = H.','A1Z26':'A=1, B=2 … Z=26. Separate letters with dashes or spaces, words with /.','Z26A1':'The flipped version: A=26 … Z=1.','Morse':'Dots and dashes. Spaces between letters, / between words.','ROT13':'Shifts every letter 13 places. Run it twice and you’re back.','ROT47':'ROT13’s bigger cousin. Rotates all printable symbols, not just letters.','Caesar':'Shifts every letter by a fixed amount. Set the shift above.','Atbash':'Mirrors the alphabet: A↔Z, B↔Y.','Vigenère':'A Caesar shift that keeps changing along with a repeating key word.','URL encoding':'Percent codes like %20 for characters that can’t live in a link.','Reversed':'The text, backwards.','NATO phonetic':'Spelling alphabet: Alfa, Bravo, Charlie… Each word is one letter.','Rail Fence':'Text zigzags down and up a set number of rails, then gets read row by row. Set the rails above.','Bacon':'Each letter is five A/B symbols (A = AAAAA, B = AAAAB). 0 and 1 work too.','Tap code':'A 5×5 letter grid (C and K share a cell). Each letter is a row tap, then a column tap.','Octal':'Character codes written in base 8.'};
+const aff=(s,a,b,d)=>{const inv=[...Array(26).keys()].find(i=>(a*i)%26===1);if(inv===undefined)return null;
+  return s.replace(/[a-z]/gi,c=>{const o=c<'a'?65:97,x=c.charCodeAt(0)-o;return String.fromCharCode(o+(d?(inv*(x-b+676))%26:(a*x+b)%26))})};
+const PG='ABCDEFGHIKLMNOPQRSTUVWXYZ';
+const polyd=s=>{s=s.replace(/[\s,\-]/g,'');if(!/^[1-5]+$/.test(s)||s.length%2)return null;return s.match(/../g).map(p=>PG[(p[0]-1)*5+(p[1]-1)]).join('')};
+const polye=s=>[...s.toUpperCase().replace(/J/g,'I')].filter(c=>PG.includes(c)).map(c=>{const n=PG.indexOf(c);return (Math.floor(n/5)+1)+''+(n%5+1)}).join(' ');
+const LM={4:'A',3:'E',1:'I',0:'O',5:'S',7:'T',8:'B','@':'A','$':'S','!':'I','+':'T'};
+const leetd=s=>/[A-Za-z][0-9@$]|[0-9@$][A-Za-z]/.test(s)?s.replace(/[4310578@$!+]/g,c=>LM[c]):null;
+const leete=s=>s.replace(/[aeiostb]/gi,c=>({A:4,E:3,I:1,O:0,S:5,T:7,B:8})[c.toUpperCase()]);
+const entd=s=>/&(#\d+|#x[0-9a-f]+|[a-z]+);/i.test(s)?new DOMParser().parseFromString(s,'text/html').documentElement.textContent:null;
+const ente=s=>[...s].map(c=>{const n=c.codePointAt(0);return n>126||/[<>&"']/.test(c)?'&#'+n+';':c}).join('');
+const BS=String.fromCharCode(92);
+const uned=s=>/\\u[0-9a-f]{4}|\\x[0-9a-f]{2}|\\u\{[0-9a-f]+\}/i.test(s)?s.replace(/\\u\{([0-9a-f]+)\}|\\u([0-9a-f]{4})|\\x([0-9a-f]{2})/gi,(m,a,b,c)=>String.fromCodePoint(parseInt(a||b||c,16))):null;
+const unee=s=>[...s].map(c=>{const n=c.codePointAt(0);return n>0xFFFF?BS+'u{'+n.toString(16)+'}':BS+'u'+n.toString(16).padStart(4,'0')}).join('');
+Object.assign(INFO,{'Affine':'Each letter becomes (a×letter + b) mod 26. a must share no factor with 26. Set a and b above.','Polybius square':'Each letter is a row and column number in a 5×5 grid (I and J share a cell).','Leetspeak':'Numbers and symbols standing in for letters: 4 = A, 3 = E, 1 = I, 0 = O, 5 = S, 7 = T.','HTML entities':'Characters written as codes like &amp; or &#65; so they survive in web pages.','Unicode escapes':'Characters written as \\u0041 style codes, the way code and JSON store them.'});
+const NA='Alfa Bravo Charlie Delta Echo Foxtrot Golf Hotel India Juliett Kilo Lima Mike November Oscar Papa Quebec Romeo Sierra Tango Uniform Victor Whiskey Xray Yankee Zulu'.split(' ');
+const natod=s=>{const t=s.toLowerCase().replace(/x-ray/g,'xray').split(/[\s,\-]+/).filter(Boolean);if(!t.length)return null;let o='';
+  for(const w of t){if(w==='/'){o+=' ';continue}let i=NA.findIndex(n=>n.toLowerCase()===w);if(w==='alpha')i=0;if(w==='juliet')i=9;if(i<0)return null;o+=A[i]}return o};
+const natoe=s=>s.toUpperCase().split(/\s+/).map(w=>[...w].filter(c=>A.includes(c)).map(c=>NA[A.indexOf(c)]).join(' ')).filter(Boolean).join(' / ');
+
+const D=()=>{const k=+$('#k').value||3,vk=$('#vk').value,rl=Math.max(2,Math.min(12,+$('#rl').value||3)),af=+$('#aa').value||5,bf=((parseInt($('#ab').value)||0)%26+26)%26;return[
+ {n:'Base64',d:b64d,e:b64e},
+ {n:'Base32',d:b32d,e:b32e},
+ {n:'Hex',d:hexd,e:hexe},
+ {n:'Binary',d:bind,e:bine},
+ {n:'Decimal codes',d:decd,e:dece},
+ {n:'A1Z26',d:az(n=>A[n-1]),e:aze,t:'1 = A, 26 = Z. Use / between words'},
+ {n:'Z26A1',d:az(n=>A[26-n]),e:aze2,t:'1 = Z, 26 = A'},
+ {n:'Morse',d:morsed,e:morsee},
+ {n:'ROT13',d:s=>shift(s,13),e:s=>shift(s,13)},
+ {n:'ROT47',d:rot47,e:rot47},
+ {n:'Caesar +'+k,d:s=>shift(s,-k),e:s=>shift(s,k)},
+ {n:'Atbash',d:atb,e:atb},
+ {n:'Vigenère',d:s=>vig(s,vk,1),e:s=>vig(s,vk,0),t:vk?'Key: '+vk:'Add a key above'},
+ {n:'URL encoding',d:s=>/%[0-9a-f]{2}/i.test(s)?decodeURIComponent(s):null,e:encodeURIComponent},
+ {n:'Reversed',d:rev,e:rev},
+ {n:'NATO phonetic',d:natod,e:natoe},
+ {n:'Rail Fence',d:s=>rfD(s,rl),e:s=>rfE(s,rl)},
+ {n:'Bacon',d:bacd,e:bace},
+ {n:'Tap code',d:tapd,e:tape},
+ {n:'Octal',d:octd,e:octe},
+ {n:'Affine',d:s=>aff(s,af,bf,1),e:s=>aff(s,af,bf,0)},
+ {n:'Polybius square',d:polyd,e:polye},
+ {n:'Leetspeak',d:leetd,e:leete},
+ {n:'HTML entities',d:entd,e:ente},
+ {n:'Unicode escapes',d:uned,e:unee},
+ {n:'Playfair',d:s=>playfair(s,vk,1),e:s=>playfair(s,vk,0)},
+ {n:'XOR',d:s=>xorD(s,vk),e:s=>xorE(s,vk)},
+ {n:'Base58',d:b58d,e:b58e},
+ {n:'Braille',d:brd,e:bre},
+ {n:'Zero-width',d:zwd,e:zwe},
+]};
+
+const plausible=o=>{if(!o||o.length<2)return false;
+  const ok=[...o].filter(c=>/[A-Za-z0-9\s.,'!?;:\-"()]/.test(c)).length/o.length;
+  const L=(o.match(/[a-z]/gi)||[]).length,V=(o.match(/[aeiou]/gi)||[]).length;
+  return ok>.92&&(L<4||(V/L>.25&&V/L<.6))};
+const words=/\b(the|and|you|that|this|with|for|are|not|have|from|was)\b/i;
+
+function copy(t,btn){const done=()=>{const o=btn.textContent;btn.textContent='Copied';setTimeout(()=>btn.textContent=o,1200)};
+  try{navigator.clipboard.writeText(t).then(done,()=>{})}catch(e){}}
+
+function run(){
+  const s=$('#in').value,enc=document.querySelector('input[name=m]:checked').value==='enc';
+  const hid=(s.match(/[\u200b-\u200d\u2060\ufeff]/g)||[]).length;
+  $('#stats').textContent=s?[...s].length+' characters \u00b7 '+(s.trim()?s.trim().split(/\s+/).length:0)+' words'+(hid?' \u00b7 '+hid+' invisible characters found':''):'';
+  const res=$('#res');res.textContent='';$('#cae').textContent='';
+  const cs=$('#c').value;
+  $('#allc').style.display=enc||!s.trim()||(cs!==''&&cs!=='10')?'none':'';
+  $('#freq').style.display='none';document.body.dataset.sig='';
+  $('#affb').style.display=(!enc&&s.trim()&&(cs===''||cs==='20'))?'':'none';
+  $('#xorb').style.display=(!enc&&s.trim()&&(cs===''||cs==='26'))?'':'none';
+  if(!s.trim()){$('#count').textContent='';const p=document.createElement('p');p.className='empty';
+    p.textContent='Nothing yet. Paste text above and the results appear here.';res.append(p);return}
+  const all=D(),sel=cs,rows=[];
+  all.forEach((x,i)=>{if(sel!==''&&+sel!==i)return;let out=null;try{out=(enc?x.e:x.d)(s)}catch(e){out=null}
+    if(out&&(sel!==''||out!==s))rows.push({...x,out,good:plausible(out)})});
+  rows.sort((a,b)=>b.good-a.good);LR=rows;document.body.dataset.sig=rows.some(r=>r.good)&&!enc?'1':'';
+  $('#count').textContent=sel!==''?(rows.length?'':'No output. Check the input (or the key, for Vigenère).'):rows.length+' of '+all.length+' produced output';
+  for(const r of rows){
+    const row=document.createElement('div');row.className='row'+(r.good?' good':'');
+    const h=document.createElement('h3');h.textContent=r.n;
+    const tag=document.createElement('span');tag.className='tag';
+    tag.textContent=r.good&&!enc?'Reads as text':(r.t||'');if(tag.textContent)h.append(tag);
+    const inf=INFO[r.n.replace(/ \+\d+$/,'')];if(inf){const p=document.createElement('span');p.className='tag nfo';p.textContent=inf;h.append(p)}
+    const o=document.createElement('div');o.className='out';o.textContent=r.out;
+    const b=document.createElement('div');b.className='btns';
+    const c=document.createElement('button');c.textContent='Copy';c.onclick=()=>copy(r.out,c);
+    const u=document.createElement('button');u.textContent='Use as input';
+    u.onclick=()=>{$('#in').value=r.out;run();window.scrollTo({top:0})};
+    b.append(c,u);row.append(h,o,b);res.append(row);
+  }
+  const fq=$('#fq');fq.textContent='';const cn={};let tot=0;for(const c of s.toUpperCase())if(A.includes(c)){cn[c]=(cn[c]||0)+1;tot++}
+  $('#freq').style.display=tot?'':'none';const mx=Math.max(1,...Object.values(cn));
+  for(const c of Object.keys(cn).sort((a,b)=>cn[b]-cn[a])){const d=document.createElement('div');
+    const l=document.createElement('b');l.textContent=c;const bar=document.createElement('i');bar.style.width=Math.round(cn[c]/mx*100)+'%';
+    const n=document.createElement('span');n.textContent=cn[c]+' · '+Math.round(cn[c]/tot*100)+'%';d.append(l,bar,n);fq.append(d)}
+  if(!enc){const cae=$('#cae');
+    for(let k=1;k<=25;k++){const t=shift(s,-k),d=document.createElement('div');
+      const l=document.createElement('b');l.textContent='+'+k;const v=document.createElement('span');
+      v.className='out'+(words.test(t)?' hit':'');v.textContent=t;d.append(l,v);cae.append(d)}
+    const afb=$('#afb');afb.textContent='';
+    for(const a of [1,3,5,7,9,11,15,17,19,21,23,25])for(let b=0;b<26;b++){if(a===1&&b===0)continue;const t=aff(s,a,b,1);if(t&&words.test(t)){const d=document.createElement('div'),l=document.createElement('b'),v=document.createElement('span');l.textContent=a+','+b;v.className='out hit';v.textContent=t;d.append(l,v);afb.append(d)}}
+    const xb=$('#xb');xb.textContent='';const hb=inb(s);
+    for(let k=1;k<256;k++){const o=hb.map(x=>x^k);if(okb(o)){const t=String.fromCharCode(...o);if(words.test(t)){const d=document.createElement('div'),l=document.createElement('b'),v=document.createElement('span');l.textContent='0x'+k.toString(16).padStart(2,'0');v.className='out hit';v.textContent=t;d.append(l,v);xb.append(d)}}}}
+}
+$('#c').addEventListener('change',run);
+$('#in').addEventListener('input',run);
+$('#k').addEventListener('input',run);
+const B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+const b58d=s=>{s=s.trim();if(!s||/[^1-9A-HJ-NP-Za-km-z]/.test(s))return null;let n=0n;for(const c of s)n=n*58n+BigInt(B58.indexOf(c));const o=[];while(n>0n){o.unshift(Number(n&255n));n>>=8n}for(const c of s){if(c==='1')o.unshift(0);else break}return u8(o)};
+const b58e=s=>{const b=bytes(s);let n=0n;for(const x of b)n=n*256n+BigInt(x);let o='';while(n>0n){o=B58[Number(n%58n)]+o;n/=58n}for(const x of b){if(x===0)o='1'+o;else break}return o};
+const BR='⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞⠥⠧⠺⠭⠽⠵';
+const brd=s=>/[\u2800-\u28ff]/.test(s)?[...s].map(c=>c==='\u2800'?' ':BR.includes(c)?A[BR.indexOf(c)]:/\s/.test(c)?' ':'?').join(''):null;
+const bre=s=>[...s.toUpperCase()].map(c=>A.includes(c)?BR[A.indexOf(c)]:c===' '?'\u2800':'').join('');
+const zwd=s=>{const z=s.match(/[\u200b\u200c]/g);if(!z||z.length<8||z.length%8)return null;return u8(z.join('').replace(/\u200b/g,'0').replace(/\u200c/g,'1').match(/.{8}/g).map(b=>parseInt(b,2)))};
+const zwe=s=>bytes(s).map(b=>b.toString(2).padStart(8,'0')).join('').replace(/0/g,'\u200b').replace(/1/g,'\u200c');
+const pfSq=k=>{const q=[];for(const c of k+'ABCDEFGHIKLMNOPQRSTUVWXYZ')if(PG.includes(c)&&!q.includes(c))q.push(c);return q};
+const playfair=(s,k,d)=>{k=k.toUpperCase().replace(/J/g,'I').replace(/[^A-Z]/g,'');if(!k)return null;const q=pfSq(k),pos=c=>[Math.floor(q.indexOf(c)/5),q.indexOf(c)%5];
+  const t=s.toUpperCase().replace(/J/g,'I').replace(/[^A-Z]/g,''),P=[];
+  if(d){if(t.length%2)return null;for(let i=0;i<t.length;i+=2)P.push([t[i],t[i+1]])}
+  else for(let i=0;i<t.length;){const a=t[i],b=t[i+1];if(b===undefined||a===b){P.push([a,'X']);i++}else{P.push([a,b]);i+=2}}
+  const st=d?4:1;return P.map(([a,b])=>{const [r1,c1]=pos(a),[r2,c2]=pos(b);
+    if(r1===r2)return q[r1*5+(c1+st)%5]+q[r2*5+(c2+st)%5];
+    if(c1===c2)return q[((r1+st)%5)*5+c1]+q[((r2+st)%5)*5+c2];
+    return q[r1*5+c2]+q[r2*5+c1]}).join('')};
+const okb=o=>o.every(x=>x===9||x===10||x===13||(x>=32&&x<127));
+const inb=s=>/^([0-9a-f]{2}[\s,]*)+$/i.test(s.trim())?s.trim().replace(/[\s,]/g,'').match(/../g).map(h=>parseInt(h,16)):bytes(s);
+const xorD=(s,k)=>{if(!k)return null;const key=bytes(k),o=inb(s).map((x,i)=>x^key[i%key.length]);return okb(o)?String.fromCharCode(...o):o.map(x=>x.toString(16).padStart(2,'0')).join(' ')};
+const xorE=(s,k)=>{if(!k)return null;const key=bytes(k);return bytes(s).map((x,i)=>(x^key[i%key.length]).toString(16).padStart(2,'0')).join(' ')};
+const PEEL=new Set(['Base64','Base32','Hex','Binary','Decimal codes','Octal','Morse','URL encoding','Bacon','Tap code','NATO phonetic','A1Z26','HTML entities','Unicode escapes']);
+const printable=o=>o.length>0&&/^[\x20-\x7e\n\t\u00a0-\uffff]+$/.test(o);
+PEEL.add('Zero-width');PEEL.add('Braille');
+Object.assign(INFO,{'Playfair':'Encrypts letter pairs using a 5×5 grid built from the key. Spaces and J are dropped. Uses the Key box.','XOR':'Flips bits against a repeating key. Output is text when it reads as text, otherwise hex. Uses the Key box.','Base58':'Base64’s cleaner cousin from Bitcoin: no 0, O, I, or l.','Braille':'Dot patterns for letters, written as Unicode braille characters.','Zero-width':'A message hidden in invisible characters. Encoding looks blank, so use Copy and paste it into any text.'});
+$('#load').addEventListener('click',()=>$('#file').click());
+$('#file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('#in').value=r.result;run()};r.readAsText(f)});
+let LR=[];
+function peel(){let s=$('#in').value,steps=[];
+  for(let n=0;n<10;n++){let hit=null;
+    for(const x of D()){if(!PEEL.has(x.n))continue;let o=null;try{o=x.d(s)}catch(e){}
+      if(o&&o!==s&&printable(o)){hit=[x.n,o];break}}
+    if(!hit)break;steps.push(hit[0]);s=hit[1]}
+  const p=$('#pl');p.textContent='';const box=document.createElement('div');box.className='peeled';
+  const h=document.createElement('strong');
+  h.textContent=steps.length?'Peeled '+steps.length+(steps.length>1?' layers: ':' layer: ')+steps.join(' → '):'No layers found that decode cleanly.';
+  box.append(h);
+  if(steps.length){const o=document.createElement('div');o.className='out';o.textContent=s;
+    const u=document.createElement('button');u.textContent='Use as input';u.onclick=()=>{$('#in').value=s;p.textContent='';run()};box.append(o,u)}
+  p.append(box)}
+$('#peel').addEventListener('click',peel);
+
+let advOn=false;
+function stepRow(){const row=document.createElement('div');row.className='f stp';
+  const c=document.createElement('select');c.setAttribute('aria-label','Cipher');
+  D().forEach((x,i)=>{const o=document.createElement('option');o.value=i;o.textContent=x.n.replace(/ \+\d+$/,'');c.append(o)});
+  const m=document.createElement('select');m.setAttribute('aria-label','Direction');m.innerHTML='<option value="d">Decode</option><option value="e">Encode</option>';
+  const x=document.createElement('button');x.type='button';x.textContent='Remove';x.onclick=()=>row.remove();
+  row.append(c,m,x);$('#steps').append(row)}
+function pipe(){let s=$('#in').value;const out=$('#pipeout');out.textContent='';
+  if(!$('#steps').children.length){out.textContent='Add a step first.';return}
+  for(const row of $('#steps').children){const [c,m]=row.querySelectorAll('select'),x=D()[+c.value];let o=null;
+    try{o=(m.value==='d'?x.d:x.e)(s)}catch(e){}
+    const d=document.createElement('div');d.className='row';const h=document.createElement('h3');h.textContent=x.n+' ('+(m.value==='d'?'decode':'encode')+')';
+    const v=document.createElement('div');v.className='out';const bad=o==null||o==='';v.textContent=bad?'No output. The pipeline stops here.':o;
+    d.append(h,v);out.append(d);if(bad)return;s=o}}
+function inspect(){const src=$('#in').value,b=bytes(src),bi=$('#bi');bi.textContent='';
+  if(!b.length){bi.textContent='Nothing to inspect yet.';return}
+  const cn={};b.forEach(x=>cn[x]=(cn[x]||0)+1);const H=-Object.values(cn).reduce((a,n)=>a+n/b.length*Math.log2(n/b.length),0);
+  const L=[...src.toUpperCase()].filter(c=>A.includes(c)),lc={};L.forEach(c=>lc[c]=(lc[c]||0)+1);
+  const ioc=L.length>1?Object.values(lc).reduce((a,n)=>a+n*(n-1),0)/(L.length*(L.length-1)):0;
+  const p=document.createElement('p');p.className='count';
+  p.textContent=b.length+' bytes · '+Object.keys(cn).length+' unique · entropy '+H.toFixed(2)+' bits per byte'+(L.length>1?' · index of coincidence '+ioc.toFixed(3)+' (English is about 0.066, random letters about 0.038)':'');
+  const w=document.createElement('div');w.style.overflowX='auto';const t=document.createElement('table');t.className='mono';
+  t.innerHTML='<tr><th>#</th><th>Hex</th><th>Dec</th><th>Binary</th><th>Char</th></tr>';
+  b.slice(0,128).forEach((x,i)=>{const r=t.insertRow();[i,x.toString(16).padStart(2,'0'),x,x.toString(2).padStart(8,'0'),x>32&&x<127?String.fromCharCode(x):x===32?'space':'·'].forEach(v=>r.insertCell().textContent=v)});
+  w.append(t);bi.append(p,w);
+  if(b.length>128){const n=document.createElement('p');n.className='count';n.textContent='Showing the first 128 bytes.';bi.append(n)}}
+function sub(){const f=[...$('#sf').value],t=[...$('#st').value],o=$('#subout');
+  if(!t.length){o.textContent='Add a "To" alphabet to see the result.';return}
+  if(f.length!==t.length){o.textContent='From has '+f.length+' characters and To has '+t.length+'. They need to match.';return}
+  const m=new Map(f.map((c,i)=>[c,t[i]]));
+  o.textContent=[...$('#in').value].map(c=>m.has(c)?m.get(c):m.has(c.toUpperCase())?m.get(c.toUpperCase()).toLowerCase():c).join('')}
+function refAdv(){if(advOn){inspect();sub()}}
+function setAdv(on){advOn=on;$('#adv').checked=on;$('#advp').hidden=!on;try{localStorage.setItem('cd-adv',on?'1':'')}catch(e){}refAdv()}
+$('#adv').addEventListener('change',e=>setAdv(e.target.checked));
+$('#in').addEventListener('input',refAdv);
+$('#sf').addEventListener('input',sub);$('#st').addEventListener('input',sub);
+$('#addstep').addEventListener('click',stepRow);
+$('#runpipe').addEventListener('click',pipe);
+$('#copyall').addEventListener('click',e=>copy(LR.map(r=>r.n+': '+r.out).join('\n'),e.target));
+$('#vk').addEventListener('input',run);
+$('#rl').addEventListener('input',run);
+$('#aa').addEventListener('input',run);
+$('#ab').addEventListener('input',run);
+document.querySelectorAll('input[name=m]').forEach(e=>e.addEventListener('change',run));
+$('#c').innerHTML='<option value="">All ciphers</option>'+D().map((x,i)=>'<option value="'+i+'">'+x.n.replace(/ \+\d+$/,'')+'</option>').join('');
+stepRow();
+try{if(localStorage.getItem('cd-adv'))setAdv(true)}catch(e){}
+run();
+</script>
+</body>
+</html>
